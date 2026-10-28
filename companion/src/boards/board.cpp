@@ -1601,17 +1601,17 @@ void Board::loadHardware(QJsonObject::const_iterator & it)
     m_hardware.bluetooth_optional = Json::valueString(o, "bluetooth") == "optional";
   }
 
-  m_hardware.bluetooth_aux_port = Json::valueInt(o, "bluetooth_aux_port", m_hardware.bluetooth_aux_port);
+  m_hardware.bluetooth_aux_port = Json::valueInt(o, "bluetooth_aux_port", m_hardware.bluetooth_aux_port, false);
   m_hardware.cpu = Json::valueStdString(o, "cpu", m_hardware.cpu);
   m_hardware.cpu_type = Json::valueStdString(o, "cpu_type", m_hardware.cpu_type);
   m_hardware.has_audio_mute = Json::valueBool(o, "has_audio_mute", m_hardware.has_audio_mute, false);
-  m_hardware.has_aux_serial = Json::valueBool(o, "has_aux_serial", m_hardware.has_aux_serial);
-  m_hardware.has_aux_serial_pwr = Json::valueBool(o, "has_aux_serial_pwr", m_hardware.has_aux_serial_pwr);
-  m_hardware.has_aux2_serial = Json::valueBool(o, "has_aux2_serial", m_hardware.has_aux2_serial);
-  m_hardware.has_aux2_serial_pwr = Json::valueBool(o, "has_aux2_serial_pwr", m_hardware.has_aux2_serial_pwr);
-  m_hardware.has_ext_module_support = Json::valueBool(o, "has_ext_module_support", m_hardware.has_ext_module_support);
-  m_hardware.has_int_module_support = Json::valueBool(o, "has_int_module_support", m_hardware.has_int_module_support);
-  m_hardware.has_internal_gps = Json::valueBool(o, "has_internal_gps", m_hardware.has_internal_gps);
+  m_hardware.has_aux_serial = Json::valueBool(o, "has_aux_serial", m_hardware.has_aux_serial, false);
+  m_hardware.has_aux_serial_pwr = Json::valueBool(o, "has_aux_serial_pwr", m_hardware.has_aux_serial_pwr, false);
+  m_hardware.has_aux2_serial = Json::valueBool(o, "has_aux2_serial", m_hardware.has_aux2_serial, false);
+  m_hardware.has_aux2_serial_pwr = Json::valueBool(o, "has_aux2_serial_pwr", m_hardware.has_aux2_serial_pwr, false);
+  m_hardware.has_ext_module_support = Json::valueBool(o, "has_ext_module_support", m_hardware.has_ext_module_support, false);
+  m_hardware.has_int_module_support = Json::valueBool(o, "has_int_module_support", m_hardware.has_int_module_support, false);
+  m_hardware.has_internal_gps = Json::valueBool(o, "has_internal_gps", m_hardware.has_internal_gps, false);
   m_hardware.sport_max_baudrate = Json::valueInt(o, "sport_max_baudrate", m_hardware.sport_max_baudrate, false);
   m_hardware.surface = Json::valueBool(o, "surface", m_hardware.surface, false);
 }
@@ -1697,9 +1697,9 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
   int cfs_led_strip_length = 0;
   int cfs_leds_per_switch = 0;
 
-  m_hardware.has_bling_leds = Json::valueInt(o, "bling_led_strip_length", m_hardware.has_bling_leds);
-  cfs_leds_per_switch = Json::valueInt(o, "cfs_leds_per_switch", cfs_leds_per_switch);
-  cfs_led_strip_length = Json::valueInt(o, "cfs_led_strip_length", cfs_led_strip_length);
+  m_hardware.has_bling_leds = Json::valueInt(o, "bling_led_strip_length", m_hardware.has_bling_leds, false);
+  cfs_leds_per_switch = Json::valueInt(o, "cfs_leds_per_switch", cfs_leds_per_switch, false);
+  cfs_led_strip_length = Json::valueInt(o, "cfs_led_strip_length", cfs_led_strip_length, false);
 
   if (Json::valueBool(o, "status_leds", false, false)) {
     if (Json::valueBool(o, "status_led_rgb_strip", false, false))
