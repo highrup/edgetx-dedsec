@@ -1291,15 +1291,16 @@ const bool Board::isSwitchFunc(int index) const
 
 bool Board::loadDefinition()
 {
-  if (m_loaded)
-    return true;
+  if (m_loaded) return true;
 
-  // safety net for BoardFactory::instance
-  if (m_id == Board::BOARD_UNKNOWN)
-    return true;
+  /*
+    always load default.json first (saves having to include default in basedOn tree)
+    next load hwdef then
+    load board definitions tree
+    each file can override previously set values or set new values
+    though some overrides are rejected as not practical to apply
+  */
 
-  // load default.json first and allow subsequent file values to override
-  // this avoids having to include default in basedOn tree
   if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg("default"))) {
     if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
       if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_id))) {
@@ -1313,9 +1314,6 @@ bool Board::loadDefinition()
       return false;
   } else
     return false;
-
-  setInputCounts();
-  setSwitchCounts();
 
   qDebug() << "Board:" << getName() <<
               "inputs:" << getCapability(Capability::Inputs) <<
@@ -1339,6 +1337,7 @@ bool Board::loadDefinition()
   return true;
 }
 
+// Warning: this function is recursive
 bool Board::loadDefinition(const QString & path)
 {
   bool success = true;
@@ -1387,21 +1386,23 @@ bool Board::loadDefinition(const QString & path)
   // we need to override with true if it is omitted in a later file
   m_supported = Json::valueBool(o, "supported", true, false);
 
-  // iterators are faster for overlay files as only a small subset of keys per file to process
-  // but slower for defaults
-  // ideally parse the defaults once into a cache and copy to each board
-  // however the copy would need to be a selective deep copy
-  // cache provides no performance benefit if only one board loaded
-  // TODO revisit after refactor has been stable
+  /*
+    TODO revisit after refactor is stable with some timings
+    iterators are faster for overlay files as only a small subset of keys per file to process
+    but slower for defaults though const iterators are faster than per key lookups
+    ideally parse the defaults once into a cache and copy to each firmware
+    however the copy would need to be a selective deep copy
+    cache provides no performance benefit if only one firmware loaded
+  */
+
+  // keys not processed in iteration
+  const QStringList skipKeys {"backlight", "basedOn", "comments", "hidden", "hwdefn",
+                              "modules", "name", "supported", "touch", "trainer", "usb"};
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     //JSON_KEY_VAL(it);
-
     // skip early to save processing time and avoid unknown key warning messages
-    if (it.key() == "hidden"    || it.key() == "basedOn" || it.key() == "supported" ||
-        it.key() == "hwdefn" || it.key() == "name" || it.key() == "comments" ||
-        it.key() == "modules" || it.key() == "backlight" ||
-        it.key() == "touch" || it.key() == "trainer" || it.key() == "usb" )
+    if (skipKeys.contains(it.key()))
       continue;
 
     else if (it.key() == "adc_inputs")
@@ -1886,6 +1887,7 @@ void Board::loadTrims(QJsonObject::const_iterator & oit)
   }
 }
 
+// fix ups and compute counts
 bool Board::postLoad()
 {
   // ensure the default internal module is set in case default is not parsed
@@ -1903,15 +1905,19 @@ bool Board::postLoad()
     }
   }
 
-  // json files do not normally specify stick labels so load legacy labels
+  // hwdefn json files do not normally specify stick labels so load legacy labels
   for (auto &defn : m_inputs) {
     if (defn.type == Board::AIT_STICK && defn.name.empty())
       defn.name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, defn.tag.c_str());
   }
 
+  // nust do last
+  setInputCounts();
+  setSwitchCounts();
   return true;
 }
 
+// capabilities use these counts and more efficient to perform calculations once
 void Board::setInputCounts()
 {
   for (int i = 0; i < (int)m_inputs.size(); i++) {
@@ -1936,6 +1942,7 @@ void Board::setInputCounts()
   }
 }
 
+// capabilities use these counts and more efficient to perform calculations once
 void Board::setSwitchCounts()
 {
   for (int i = 0; i < (int)m_switches.size(); i++) {
