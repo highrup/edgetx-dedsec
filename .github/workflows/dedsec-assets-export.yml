@@ -1,0 +1,59 @@
+name: Export DedSec V12 editable graphics
+
+on:
+  push:
+    branches: [dedsec-ui]
+    paths:
+      - '.github/workflows/dedsec-assets-export.yml'
+  workflow_dispatch:
+
+jobs:
+  package:
+    name: Package original SVGs and V12 PNG references
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout DedSec source
+        uses: actions/checkout@v4
+      - name: Create graphics archive and asset manifest
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import csv
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+
+          root = Path('radio/src/bitmaps')
+          sources = sorted((root / 'img-src').glob('*.svg'))
+          previews = sorted((root / '320x240').glob('*.png'))
+          assert len(sources) > 0 and len(previews) > 0, 'Expected image sources missing'
+
+          archive = Path('dedsec-v12-editable-graphics.zip')
+          manifest = Path('manifest.csv')
+          with manifest.open('w', newline='', encoding='utf-8') as fp:
+              w = csv.writer(fp)
+              w.writerow(['asset','editable_svg','v12_320x240_png'])
+              for svg in sources:
+                  png = root / '320x240' / (svg.stem + '.png')
+                  w.writerow([svg.stem, str(svg), str(png) if png.is_file() else ''])
+          readme = (
+              '# DedSec V12 MAX graphic assets\n\n'
+              'Edit the original SVG files in radio/src/bitmaps/img-src/.\n'
+              'The 320x240 PNG files are generated-size references, not the master files.\n'
+              'Keep SVG filenames and drawing canvas geometry when returning edits.\n'
+              'These are source assets only; no fonts, code-drawn borders, or firmware files are included.\n'
+              'The manifest.csv maps each SVG to its V12 PNG counterpart.\n'
+          )
+          with ZipFile(archive, 'w', ZIP_DEFLATED) as z:
+              z.writestr('README.md', readme)
+              z.write(manifest)
+              for file in sources + previews:
+                  z.write(file)
+          print(f'Exported {len(sources)} SVG masters and {len(previews)} PNG previews.')
+          PY
+      - name: Upload editable graphics ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: dedsec-v12-editable-graphics
+          path: dedsec-v12-editable-graphics.zip
+          retention-days: 30
+          if-no-files-found: error
