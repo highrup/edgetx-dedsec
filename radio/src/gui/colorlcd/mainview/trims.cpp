@@ -50,12 +50,12 @@ class TrimIcon : public SliderIcon
     }
 
     bar1 = lv_line_create(lvobj);
-    etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);
+    etx_obj_add_style(bar1, styles->div_line_black, LV_PART_MAIN);
     etx_obj_add_style(bar1, styles->div_line_black, LV_STATE_USER_1);
     lv_obj_set_style_line_width(bar1, lw, LV_PART_MAIN);
     lv_line_set_points(bar1, &barPoints[0], 2);
     bar2 = lv_line_create(lvobj);
-    etx_obj_add_style(bar2, styles->div_line_white, LV_PART_MAIN);
+    etx_obj_add_style(bar2, styles->div_line_black, LV_PART_MAIN);
     etx_obj_add_style(bar2, styles->div_line_black, LV_STATE_USER_1);
     lv_obj_set_style_line_width(bar2, lw, LV_PART_MAIN);
     lv_line_set_points(bar2, &barPoints[2], 2);
