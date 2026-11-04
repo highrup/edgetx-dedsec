@@ -30,8 +30,9 @@ jobs:
               png = root / "320x240" / (stem + ".png")
               pixels = cairosvg.svg2png(url=str(svg), output_width=24, output_height=24)
               rgba = Image.open(io.BytesIO(pixels)).convert("RGBA")
-              alpha = rgba.getchannel("A")
-              Image.merge("RGB", (alpha, alpha, alpha)).save(png)
+              white = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+              white.alpha_composite(rgba)
+              white.convert("RGB").save(png)
               print(stem, png, rgba.size)
           PY
       - name: Commit all rendered V12 icons
