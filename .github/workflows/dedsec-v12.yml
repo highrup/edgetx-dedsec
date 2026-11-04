@@ -1,4 +1,4 @@
-name: DedSec V12 firmware build
+name: DedSec V12 MAX firmware build
 on:
   push:
     branches:
@@ -25,12 +25,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Test V12 target
+      # V12 MAX uses the same official EdgeTX v12 target as V12.
+      - name: Test V12 MAX (v12 target)
         env:
           FLAVOR: v12
           CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: ./tools/commit-tests.sh
-      - name: Build V12 firmware
+      - name: Build V12 MAX firmware (v12 target)
         env:
           FLAVOR: v12
           CMAKE_BUILD_PARALLEL_LEVEL: 4
@@ -38,7 +39,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dedsec-v12-firmware
+          name: dedsec-v12-max-firmware
           path: |
             fw.json
             LICENSE
