@@ -96,7 +96,47 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   return true;
 }
 
-TEST(Lcd_colorlcd, lines)
+// Reference screenshots were captured using upstream EdgeTX theme colors.
+// Restore that palette only for bitmap regression tests so changing the
+// runtime DedSec theme doesn't invalidate unrelated drawing assertions.
+class LcdColorlcdPaletteFixture : public ::testing::Test
+{
+ protected:
+  uint16_t previousColors[THEME_COLOR_COUNT] = {};
+
+  void SetUp() override
+  {
+    static const uint16_t referenceColors[THEME_COLOR_COUNT] = {
+        RGB(0, 0, 0),        // PRIMARY1
+        RGB(255, 255, 255),  // PRIMARY2
+        RGB(12, 63, 102),    // PRIMARY3
+        RGB(18, 94, 153),    // SECONDARY1
+        RGB(182, 224, 242),  // SECONDARY2
+        RGB(228, 238, 242),  // SECONDARY3
+        RGB(20, 161, 229),   // FOCUS
+        RGB(0, 153, 9),      // EDIT
+        RGB(255, 222, 0),    // ACTIVE
+        RGB(224, 0, 0),      // WARNING
+        RGB(140, 140, 140),  // DISABLED
+        RGB(0, 0, 0),        // QUICK MENU BACKGROUND
+        RGB(255, 255, 255),  // QUICK MENU FOREGROUND
+        RGB(170, 85, 0),     // CUSTOM
+    };
+    for (unsigned i = 0; i < THEME_COLOR_COUNT; ++i) {
+      previousColors[i] = lcdColorTable[i];
+      lcdColorTable[i] = referenceColors[i];
+    }
+  }
+
+  void TearDown() override
+  {
+    for (unsigned i = 0; i < THEME_COLOR_COUNT; ++i) {
+      lcdColorTable[i] = previousColors[i];
+    }
+  }
+};
+
+TEST_F(LcdColorlcdPaletteFixture, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -117,7 +157,7 @@ TEST(Lcd_colorlcd, lines)
   dc.removeCanvas();
 }
 
-TEST(Lcd_colorlcd, vline)
+TEST_F(LcdColorlcdPaletteFixture, vline)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -131,7 +171,7 @@ TEST(Lcd_colorlcd, vline)
   dc.removeCanvas();
 }
 
-TEST(Lcd_colorlcd, primitives)
+TEST_F(LcdColorlcdPaletteFixture, primitives)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -164,7 +204,7 @@ TEST(Lcd_colorlcd, primitives)
   dc.removeCanvas();
 }
 
-TEST(Lcd_colorlcd, transparency)
+TEST_F(LcdColorlcdPaletteFixture, transparency)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -215,7 +255,7 @@ TEST(Lcd_colorlcd, transparency)
 // combination.
 //
 #if 0
-TEST(Lcd_colorlcd, fonts)
+TEST_F(LcdColorlcdPaletteFixture, fonts)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -239,7 +279,7 @@ TEST(Lcd_colorlcd, fonts)
 }
 #endif
 
-TEST(Lcd_colorlcd, clipping)
+TEST_F(LcdColorlcdPaletteFixture, clipping)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -273,7 +313,7 @@ TEST(Lcd_colorlcd, clipping)
   dc.removeCanvas();
 }
 
-TEST(Lcd_colorlcd, bitmap)
+TEST_F(LcdColorlcdPaletteFixture, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -297,7 +337,7 @@ static const uint8_t mask_menu_radio[] = {
 
 extern MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed);
 
-TEST(Lcd_colorlcd, masks)
+TEST_F(LcdColorlcdPaletteFixture, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -350,7 +390,7 @@ TEST(Lcd_colorlcd, masks)
 
 #define EXTRA_FULL EXTRA_TEST EXTRA_TEST2
 
-TEST(Lcd_colorlcd, extra_font)
+TEST_F(LcdColorlcdPaletteFixture, extra_font)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
@@ -374,7 +414,7 @@ const uint8_t LBM_USB_PLUGGED[] = {
 #include "mask_usb_symbol.lbm"
 };
 
-TEST(Lcd_colorlcd, darkmode)
+TEST_F(LcdColorlcdPaletteFixture, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
   dc.addCanvas(nullptr);
