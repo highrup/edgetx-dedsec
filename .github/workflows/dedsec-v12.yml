@@ -1,0 +1,48 @@
+name: DedSec V12 firmware build
+on:
+  push:
+    branches:
+      - dedsec-ui
+    paths:
+      - 'radio/**'
+      - 'cmake/**'
+      - 'tools/**'
+      - '.github/workflows/dedsec-v12.yml'
+      - 'CMakeLists.txt'
+      - '.gitmodules'
+  workflow_dispatch:
+
+jobs:
+  v12:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out firmware and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Test V12 target
+        env:
+          FLAVOR: v12
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/commit-tests.sh
+      - name: Build V12 firmware
+        env:
+          FLAVOR: v12
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/build-gh.sh
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dedsec-v12-firmware
+          path: |
+            fw.json
+            LICENSE
+            *.bin
+            *.uf2
+          retention-days: 15
+          if-no-files-found: error
