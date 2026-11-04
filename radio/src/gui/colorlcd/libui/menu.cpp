@@ -298,7 +298,8 @@ class MenuWindowContent : public NavWindow
 
     header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "",
                             COLOR_THEME_PRIMARY2_INDEX);
-    etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+    // DedSec: black menu title strip with white text.
+    etx_solid_bg(header->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     header->padAll(PAD_SMALL);
     header->hide();
 
