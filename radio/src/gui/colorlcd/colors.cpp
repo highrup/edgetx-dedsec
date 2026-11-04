@@ -25,24 +25,24 @@
 
 #include <algorithm>
 
-// DedSec monochrome defaults. Keep WARNING red for flight-safety visibility.
+// DedSec two-color theme defaults (pure black and white).
 // An existing SD-card theme may override these values.
 const uint16_t defaultColors[] = {
     // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
-    RGB(12, 12, 12),     // PRIMARY3
-    RGB(24, 24, 24),     // SECONDARY1
-    RGB(192, 192, 192),  // SECONDARY2
-    RGB(42, 42, 42),     // SECONDARY3
+    RGB(0, 0, 0),        // PRIMARY3
+    RGB(0, 0, 0),        // SECONDARY1
+    RGB(255, 255, 255),  // SECONDARY2
+    RGB(0, 0, 0),        // SECONDARY3
     RGB(255, 255, 255),  // FOCUS
-    RGB(210, 210, 210),  // EDIT
+    RGB(255, 255, 255),  // EDIT
     RGB(255, 255, 255),  // ACTIVE
-    RGB(224, 0, 0),      // WARNING
-    RGB(140, 140, 140),  // DISABLED
+    RGB(255, 255, 255),  // WARNING
+    RGB(255, 255, 255),  // DISABLED
     RGB(0, 0, 0),        // Quick Menu Background
     RGB(255, 255, 255),  // Quick Menu Foreground
-    RGB(110, 110, 110),  // CUSTOM
+    RGB(255, 255, 255),  // CUSTOM
     // Fixed
     RGB(0x00, 0x00, 0x00), // BLACK
     RGB(0xFF, 0xFF, 0xFF), // WHITE
@@ -71,18 +71,18 @@ uint16_t lcdColorTable[] = {
     // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
-    RGB(12, 12, 12),     // PRIMARY3
-    RGB(24, 24, 24),     // SECONDARY1
-    RGB(192, 192, 192),  // SECONDARY2
-    RGB(42, 42, 42),     // SECONDARY3
+    RGB(0, 0, 0),        // PRIMARY3
+    RGB(0, 0, 0),        // SECONDARY1
+    RGB(255, 255, 255),  // SECONDARY2
+    RGB(0, 0, 0),        // SECONDARY3
     RGB(255, 255, 255),  // FOCUS
-    RGB(210, 210, 210),  // EDIT
+    RGB(255, 255, 255),  // EDIT
     RGB(255, 255, 255),  // ACTIVE
-    RGB(224, 0, 0),      // WARNING
-    RGB(140, 140, 140),  // DISABLED
+    RGB(255, 255, 255),  // WARNING
+    RGB(255, 255, 255),  // DISABLED
     RGB(0, 0, 0),        // Quick Menu Background
     RGB(255, 255, 255),  // Quick Menu Foreground
-    RGB(110, 110, 110),  // CUSTOM
+    RGB(255, 255, 255),  // CUSTOM
     // Fixed
     RGB(0x00, 0x00, 0x00), // BLACK
     RGB(0xFF, 0xFF, 0xFF), // WHITE
