@@ -44,7 +44,7 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   setWindowFlag(OPAQUE);
-  etx_solid_bg(lvobj, (type == WARNING_TYPE_ALERT) ? COLOR_THEME_WARNING_INDEX : COLOR_THEME_SECONDARY1_INDEX);
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
 
   // In case alert raised while splash screen is showing.
   cancelSplash();
@@ -58,7 +58,7 @@ void FullScreenDialog::build()
 {
   auto div = new Window(this, {0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT});
   div->setWindowFlag(NO_FOCUS);
-  etx_solid_bg(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
+  etx_solid_bg(div->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
   new StaticIcon(
       this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
@@ -87,7 +87,7 @@ void FullScreenDialog::build()
                      rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP,
                             LCD_W - ALERT_MESSAGE_LEFT - PAD_MEDIUM,
                             LCD_H - ALERT_MESSAGE_TOP - PAD_MEDIUM},
-                     message.c_str(), COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
+                     message.c_str(), COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD));
 
   if (!action.empty()) {
     auto btn = new TextButton(
@@ -97,7 +97,7 @@ void FullScreenDialog::build()
           return 0;
         });
     etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
-    etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+    etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
       auto btn = new TextButton(
@@ -107,7 +107,7 @@ void FullScreenDialog::build()
             return 0;
           });
       etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
-      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
       btn = new TextButton(
           this, {LCD_W * 2 / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_OK,
           [=]() {
@@ -115,7 +115,7 @@ void FullScreenDialog::build()
             return 0;
           });
       etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
-      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+      etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
     }
   }
 }
