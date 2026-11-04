@@ -34,7 +34,11 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
-  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+  // DedSec: black page header with a restrained white separator.
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+  lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+  lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
   new HeaderIcon(this, icon);
 
@@ -49,7 +53,11 @@ PageHeader::PageHeader(Window* parent, const char* iconFile) :
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
-  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+  // DedSec: black page header with a restrained white separator.
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+  lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+  lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
   new HeaderIcon(this, iconFile);
 
