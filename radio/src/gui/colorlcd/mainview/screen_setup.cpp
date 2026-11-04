@@ -122,7 +122,7 @@ void ScreenSetupPage::build(Window* window)
 
   // Layout choice...
   auto line = window->newLine(grid);
-  auto label = new StaticText(line, rect_t{}, STR_LAYOUT);
+  auto label = new StaticText(line, rect_t{}, STR_LAYOUT, COLOR_THEME_PRIMARY2_INDEX);
 
   lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
@@ -248,7 +248,7 @@ void ScreenSetupPage::buildLayoutOptions()
 
     // Option label
     auto line = layoutOptions->newLine(grid);
-    new StaticText(line, rect_t{}, STR_VAL(option->name));
+    new StaticText(line, rect_t{}, STR_VAL(option->name), COLOR_THEME_PRIMARY2_INDEX);
 
     // Option value
     switch (option->type) {
