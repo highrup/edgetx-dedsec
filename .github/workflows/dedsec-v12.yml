@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 # Run visual regression tests independently from the firmware compilation.
-# Icon-source updates are rendered before this workflow is triggered.
+# Icon-source updates are rendered with firmware mask polarity before this workflow is triggered.
 # This keeps genuine image comparison failures visible without preventing
 # us from determining whether the V12 firmware itself compiles.
 jobs:
