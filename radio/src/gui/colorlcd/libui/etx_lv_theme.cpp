@@ -579,8 +579,9 @@ void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 
 void etx_std_ctrl_colors(lv_obj_t* obj, lv_style_selector_t selector)
 {
-  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX, selector);
-  etx_txt_color(obj, COLOR_THEME_SECONDARY1_INDEX, selector);
+  // DedSec: dark controls, high-contrast white labels.
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY3_INDEX, selector);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, selector);
 
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
                     selector | LV_STATE_FOCUSED);
