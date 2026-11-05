@@ -60,6 +60,19 @@ class TrimIcon : public SliderIcon
     lv_obj_set_style_line_width(bar2, lw, LV_PART_MAIN);
     lv_line_set_points(bar2, &barPoints[2], 2);
 
+    if (isVertical) {
+      centerBarPoints[0] = {x1, MainViewSlider::SLIDER_ICON_SIZE / 2};
+      centerBarPoints[1] = {x2, MainViewSlider::SLIDER_ICON_SIZE / 2};
+    } else {
+      centerBarPoints[0] = {MainViewSlider::SLIDER_ICON_SIZE / 2, x1};
+      centerBarPoints[1] = {MainViewSlider::SLIDER_ICON_SIZE / 2, x2};
+    }
+    bar3 = lv_line_create(lvobj);
+    etx_obj_add_style(bar3, styles->div_line_black, LV_PART_MAIN);
+    etx_obj_add_style(bar3, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_width(bar3, lw, LV_PART_MAIN);
+    lv_line_set_points(bar3, centerBarPoints, 2);
+
     etx_img_color(mask, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
   }
 
@@ -69,10 +82,12 @@ class TrimIcon : public SliderIcon
       lv_obj_add_state(mask, LV_STATE_USER_1);
       lv_obj_add_state(bar1, LV_STATE_USER_1);
       lv_obj_add_state(bar2, LV_STATE_USER_1);
+      lv_obj_add_state(bar3, LV_STATE_USER_1);
     } else {
       lv_obj_clear_state(mask, LV_STATE_USER_1);
       lv_obj_clear_state(bar1, LV_STATE_USER_1);
       lv_obj_clear_state(bar2, LV_STATE_USER_1);
+      lv_obj_clear_state(bar3, LV_STATE_USER_1);
     }
 
     if (value >= 0)
@@ -89,7 +104,9 @@ class TrimIcon : public SliderIcon
  protected:
   lv_obj_t* bar1 = nullptr;
   lv_obj_t* bar2 = nullptr;
+  lv_obj_t* bar3 = nullptr;
   lv_point_t barPoints[4];
+  lv_point_t centerBarPoints[2];
 };
 
 MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
@@ -97,7 +114,7 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
     Window(parent, rect), idx(idx), isVertical(isVertical)
 {
   trimBar = lv_obj_create(lvobj);
-  etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
+  etx_solid_bg(trimBar, COLOR_THEME_SECONDARY2_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
   if (isVertical) {
     lv_obj_set_pos(trimBar, (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH) / 2,

@@ -54,7 +54,8 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
 
   if (mask) {
     maskCanvas = lv_canvas_create(lvobj);
-    etx_img_color(maskCanvas, COLOR_THEME_SECONDARY1_INDEX);
+    // S1/S2 sit on the black main-view background, so keep their scale visible.
+    etx_img_color(maskCanvas, COLOR_THEME_PRIMARY2_INDEX);
     lv_canvas_set_buffer(maskCanvas, mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
 
     if (isVertical) {

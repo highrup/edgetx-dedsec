@@ -139,6 +139,14 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
 void TextEdit::checkEvents()
 {
   TextButton::checkEvents();
+  // Keep a trailing blank in the focused label's draw area.  The pixel-font
+  // closing bracket reaches its final advance edge and was being clipped even
+  // when the model name itself was short enough to fit.
+  if (labelFocused) {
+    std::string focusedText(text, strnlen(text, length));
+    focusedText = "[ " + focusedText + " ] ";
+    lv_label_set_text(label, focusedText.c_str());
+  }
   // TextButton adds/removes focused brackets. Reapply the text-edit label's
   // outside-left alignment after its width changes so the closing bracket is
   // not clipped by the edit field.
