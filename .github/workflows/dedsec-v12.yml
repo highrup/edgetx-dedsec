@@ -12,7 +12,7 @@ on:
       - '.gitmodules'
   workflow_dispatch:
 
-# Rebuild marker: Tiny5 300/400 generated font sources.
+# Rebuild marker: generated custom font sources.
 # Run visual regression tests independently from the firmware compilation.
 # Icon-source updates are rendered with firmware mask polarity before this workflow is triggered.
 # This keeps genuine image comparison failures visible without preventing

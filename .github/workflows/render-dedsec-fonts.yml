@@ -21,30 +21,21 @@ jobs:
           ref: dedsec-ui
           submodules: recursive
 
-      - name: Install font tools
-        run: |
-          npm install --global lv_font_conv
-          python -m pip install fonttools
+      - name: Install LVGL font converter
+        run: npm install --global lv_font_conv
 
-      - name: Source Tiny5 and create fixed weights
+      - name: Source Silkscreen Regular from Google Fonts
         shell: bash
         run: |
           mkdir -p radio/src/fonts/DedSecPixel
+          rm -f radio/src/fonts/DedSecPixel/Tiny5-Light.ttf \
+                radio/src/fonts/DedSecPixel/Tiny5-Regular.ttf
           curl --fail --location --retry 3 \
-            'https://raw.githubusercontent.com/Gissio/font_Tiny5/main/fonts/variable/Tiny5%5BBLED%2CJITT%2CROND%2Cwdth%2Cwght%5D.ttf' \
-            --output /tmp/Tiny5-Variable.ttf
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf' \
+            --output radio/src/fonts/DedSecPixel/Silkscreen-Regular.ttf
           curl --fail --location --retry 3 \
-            'https://raw.githubusercontent.com/google/fonts/main/ofl/tiny5/OFL.txt' \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/OFL.txt' \
             --output radio/src/fonts/DedSecPixel/OFL.txt
-          python - <<'PY'
-          from fontTools.ttLib import TTFont
-          from fontTools.varLib.instancer import instantiateVariableFont
-
-          for weight, filename in ((300, "Tiny5-Light.ttf"), (400, "Tiny5-Regular.ttf")):
-              font = TTFont("/tmp/Tiny5-Variable.ttf")
-              instantiateVariableFont(font, {"wght": weight}, inplace=True)
-              font.save(f"radio/src/fonts/DedSecPixel/{filename}")
-          PY
 
       - name: Generate firmware font sources
         working-directory: radio/src/fonts/lvgl
@@ -55,10 +46,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add radio/src/fonts/DedSecPixel/Tiny5-Light.ttf \
-                  radio/src/fonts/DedSecPixel/Tiny5-Regular.ttf \
-                  radio/src/fonts/DedSecPixel/OFL.txt \
+          git add -A radio/src/fonts/DedSecPixel \
                   radio/src/fonts/lvgl/sml radio/src/fonts/lvgl/std radio/src/fonts/lvgl/lrg
           git diff --cached --quiet && exit 0
-          git commit -m "Render Tiny5 firmware fonts"
+          git commit -m "Render Silkscreen firmware fonts"
           git push
