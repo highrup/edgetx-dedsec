@@ -27,6 +27,8 @@
 #include "quick_menu.h"
 #include "quick_menu_def.h"
 
+extern "C" const lv_font_t lv_font_tiles;
+
 static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
                                          lv_obj_t* obj)
 {
@@ -70,7 +72,9 @@ class QuickMenuButton : public ButtonBase
     etx_img_color(iconPtr->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_STATE_USER_1);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenu::QM_BUTTON_WIDTH - 1, 0},
-                   title, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XXS));
+                   title, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
+    lv_obj_set_style_text_font(textPtr->getLvObj(), &lv_font_tiles,
+                               LV_PART_MAIN);
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
     etx_txt_color(textPtr->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_STATE_USER_1);
 

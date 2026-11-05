@@ -32,10 +32,11 @@ LATIN_FONT_BOLD="DedSecPixel/Silkscreen-Regular.ttf"
 # Silkscreen supplies the UI letters; Roboto supplies only uncommon symbols
 # that Silkscreen does not contain (degree, comparison and extended glyphs).
 LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
-LATIN_FONT_SIZE=10
-LATIN_FONT_BOLD_SIZE=10
+LATIN_FONT_SIZE=8
+LATIN_FONT_BOLD_SIZE=8
 KEYBOARD_FONT="DedSecPixel/Tiny5-Regular.ttf"
-KEYBOARD_FONT_SIZE=13
+KEYBOARD_FONT_SIZE=10
+TILE_FONT_SIZE=8
 
 # Printable ASCII only. U+007F is the non-printing DEL control character and
 # is intentionally absent from Silkscreen.
@@ -157,6 +158,17 @@ function make_keyboard_font() {
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
                --format lvgl -o "${dir}/lv_font_keyboard.c" \
+               --no-compress
+}
+
+function make_tile_font() {
+  local dir=$1
+
+  echo "Creating quick-menu tile font (size: ${TILE_FONT_SIZE})"
+  lv_font_conv --no-prefilter --no-kerning --bpp 4 --size "${TILE_FONT_SIZE}" \
+               --font "../${LATIN_FONT}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${LATIN1}" \
+               --format lvgl -o "${dir}/lv_font_tiles.c" \
                --no-compress
 }
 
@@ -369,6 +381,9 @@ main() {
     make_keyboard_font "std"
     make_keyboard_font "sml"
     make_keyboard_font "lrg"
+    make_tile_font "std"
+    make_tile_font "sml"
+    make_tile_font "lrg"
     make_font_set "tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${TW_SYMBOLS}" "-DNO_KERN"
     make_font_set "cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${CN_SYMBOLS}" "-DNO_KERN"
     make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${JP_SYMBOLS}" ""
