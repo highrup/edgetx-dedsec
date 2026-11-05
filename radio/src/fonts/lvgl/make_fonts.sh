@@ -28,7 +28,7 @@ ARROWS_FONT="EdgeTX/OpenArrow-Regular.woff"
 ARROWS="0x21E8=>0x80,0x21E6=>0x81,0x21E7=>0x82,0x21E9=>0x83"
 
 LATIN_FONT="DedSecPixel/5x5_pixel.ttf"
-LATIN_FONT_BOLD="DedSecPixel/Pixeland.ttf"
+LATIN_FONT_BOLD="DedSecPixel/5x5_pixel.ttf"
 LATIN_FONT_SIZE=13
 LATIN_FONT_BOLD_SIZE=16
 
