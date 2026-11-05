@@ -29,9 +29,13 @@ ARROWS="0x21E8=>0x80,0x21E6=>0x81,0x21E7=>0x82,0x21E9=>0x83"
 
 LATIN_FONT="DedSecPixel/Silkscreen-Regular.ttf"
 LATIN_FONT_BOLD="DedSecPixel/Silkscreen-Regular.ttf"
-LATIN_FONT_FALLBACK="DedSecPixel/Silkscreen-Regular.ttf"
+# Silkscreen supplies the UI letters; Roboto supplies only uncommon symbols
+# that Silkscreen does not contain (degree, comparison and extended glyphs).
+LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
 LATIN_FONT_SIZE=11
 LATIN_FONT_BOLD_SIZE=14
+KEYBOARD_FONT="DedSecPixel/Tiny5-Regular.ttf"
+KEYBOARD_FONT_SIZE=13
 
 ASCII="0x20-0x7F"
 DEGREE="0xB0"
@@ -138,6 +142,16 @@ function make_en_font() {
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
                --format lvgl -o "${dir}/lv_font_${name}_${sfx}.c" --force-fast-kern-format --no-compress
+}
+
+function make_keyboard_font() {
+  local dir=$1
+
+  echo "Creating keyboard font (size: ${KEYBOARD_FONT_SIZE})"
+  lv_font_conv --no-prefilter --bpp 4 --size "${KEYBOARD_FONT_SIZE}" \
+               --font "../${KEYBOARD_FONT}" -r "${ASCII}" \
+               --format lvgl -o "${dir}/lv_font_keyboard.c" \
+               --force-fast-kern-format --no-compress
 }
 
 function make_en_bold_font_lz4() {
@@ -346,6 +360,9 @@ main() {
     # Language fonts
     echo "Generating language font sets..."
     make_en_font_set "en"
+    make_keyboard_font "std"
+    make_keyboard_font "sml"
+    make_keyboard_font "lrg"
     make_font_set "tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${TW_SYMBOLS}" "-DNO_KERN"
     make_font_set "cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${CN_SYMBOLS}" "-DNO_KERN"
     make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${JP_SYMBOLS}" ""

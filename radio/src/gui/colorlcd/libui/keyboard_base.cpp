@@ -24,6 +24,8 @@
 #include "debug.h"
 #include "keys.h"
 
+extern "C" const lv_font_t lv_font_keyboard;
+
 static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_solid_bg(obj, COLOR_THEME_PRIMARY1_INDEX);
@@ -43,6 +45,7 @@ static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS);
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_CHECKED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
+  lv_obj_set_style_text_font(obj, &lv_font_keyboard, LV_PART_ITEMS);
 }
 
 static const lv_obj_class_t keyboard_class = {

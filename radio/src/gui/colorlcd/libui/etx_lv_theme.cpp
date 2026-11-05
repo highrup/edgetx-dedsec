@@ -677,6 +677,8 @@ static void textarea_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_bg_color(obj, COLOR_THEME_EDIT_INDEX, LV_PART_MAIN | LV_STATE_EDITED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX,
                 LV_PART_MAIN | LV_STATE_EDITED);
+  lv_obj_set_style_text_color(obj, lv_color_black(),
+                              LV_PART_MAIN | LV_STATE_EDITED);
 
   etx_obj_add_style(obj, styles->bg_opacity_50,
                     LV_PART_CURSOR | LV_STATE_EDITED);
