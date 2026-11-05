@@ -37,10 +37,19 @@ jobs:
           FLAVOR: v12
           CMAKE_BUILD_PARALLEL_LEVEL: 4
         run: ./tools/commit-tests.sh
+      - name: Upload changed graphical-test images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v12-failed-graphical-tests
+          path: radio/src/tests/images/color/failed_*.png
+          retention-days: 3
+          if-no-files-found: ignore
 
   build:
     if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[font-source]')
     name: Compile V12 MAX firmware
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 60
     container:
