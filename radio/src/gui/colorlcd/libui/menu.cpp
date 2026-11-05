@@ -222,6 +222,9 @@ class MenuBody : public TableField
     if (icon) {
       lv_draw_img_dsc_t img_dsc;
       lv_draw_img_dsc_init(&img_dsc);
+      img_dsc.recolor = (row == selectedIndex) ? lv_color_black()
+                                                : lv_color_white();
+      img_dsc.recolor_opa = LV_OPA_COVER;
 
       lv_img_dsc_t* img = lv_canvas_get_img(icon);
       lv_area_t coords;
@@ -263,7 +266,7 @@ class MenuBody : public TableField
   void updateLineText(int index)
   {
     if (index < 0 || index >= (int)lines.size()) return;
-    std::string display = (index == selectedIndex ? "> " : "") +
+    std::string display = (index == selectedIndex ? " >" : "") +
                           lines[index]->text;
     lv_table_set_cell_value(lvobj, index, 0, display.c_str());
   }

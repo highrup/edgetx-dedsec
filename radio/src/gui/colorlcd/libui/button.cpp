@@ -116,15 +116,30 @@ TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
     text(std::move(text))
 {
   label = etx_label_create(lvobj);
-  lv_label_set_text(label, this->text.c_str());
+  refreshLabel();
   lv_obj_center(label);
+  lv_obj_add_event_cb(lvobj, TextButton::focusEvent, LV_EVENT_FOCUSED, this);
+  lv_obj_add_event_cb(lvobj, TextButton::focusEvent, LV_EVENT_DEFOCUSED, this);
+}
+
+void TextButton::focusEvent(lv_event_t* event)
+{
+  auto button = static_cast<TextButton*>(lv_event_get_user_data(event));
+  if (button) button->refreshLabel();
+}
+
+void TextButton::refreshLabel()
+{
+  if (!label) return;
+  std::string display = hasFocus() ? "[ " + text + " ]" : text;
+  lv_label_set_text(label, display.c_str());
 }
 
 void TextButton::setText(std::string value)
 {
   if (value != text) {
     text = std::move(value);
-    lv_label_set_text(label, text.c_str());
+    refreshLabel();
   }
 }
 

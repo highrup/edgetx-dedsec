@@ -107,6 +107,9 @@ class TextButton : public ButtonBase
   }
 
  protected:
+  static void focusEvent(lv_event_t* event);
+  void refreshLabel();
+
   std::string text;
   lv_obj_t* label = nullptr;
 };
