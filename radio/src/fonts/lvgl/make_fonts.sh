@@ -27,8 +27,10 @@ ARROWS_FONT="EdgeTX/OpenArrow-Regular.woff"
 # 0x80: right, 0x81: left, 0x82: up, 0x83: down
 ARROWS="0x21E8=>0x80,0x21E6=>0x81,0x21E7=>0x82,0x21E9=>0x83"
 
-LATIN_FONT="Roboto/Roboto-Regular.ttf"
-LATIN_FONT_BOLD="Roboto/Roboto-Bold.ttf"
+LATIN_FONT="DedSecPixel/5x5_pixel.ttf"
+LATIN_FONT_BOLD="DedSecPixel/Pixeland.ttf"
+LATIN_FONT_SIZE=13
+LATIN_FONT_BOLD_SIZE=16
 
 ASCII="0x20-0x7F"
 DEGREE="0xB0"
@@ -242,28 +244,28 @@ function make_en_font_set() {
   echo "Creating EN font set for: ${name}"
 
   # Standard LCD fonts (480x272, 480x320, 320x480)
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 9 "XXS" "std"
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XS" "std"
-  make_en_font "${name}" "${LATIN_FONT}" 16 "STD" "std"
-  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 16 "STD" "std"
-  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 24 "L" "std"
-  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 32 "XL" "std"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XXS" "std"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XS" "std"
+  make_en_font "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "STD" "std"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "STD" "std"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "L" "std"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XL" "std"
 
   # Small LCD fonts (320x240)
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 8 "XXS" "sml"
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 10 "XS" "sml"
-  make_en_font "${name}" "${LATIN_FONT}" 13 "STD" "sml"
-  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 13 "STD" "sml"
-  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 19 "L" "sml"
-  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 25 "XL" "sml"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XXS" "sml"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XS" "sml"
+  make_en_font "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "STD" "sml"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "STD" "sml"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "L" "sml"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XL" "sml"
 
   # Large LCD fonts (800x480)
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 12 "XXS" "lrg"
-  make_en_font_lz4 "${name}" "${LATIN_FONT}" 18 "XS" "lrg"
-  make_en_font "${name}" "${LATIN_FONT}" 22 "STD" "lrg"
-  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 22 "STD" "lrg"
-  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 33 "L" "lrg"
-  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 44 "XL" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XXS" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "XS" "lrg"
+  make_en_font "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "STD" "lrg"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "STD" "lrg"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "L" "lrg"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XL" "lrg"
 }
 
 function make_font_set() {
@@ -318,21 +320,21 @@ main() {
 
     # Bootloader fonts
     # echo "Generating bootloader fonts..."
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 16 "std" # 480x272, 480x320, 320x480
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 14 "sml" # 320x240
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 24 "lrg" # 800x480
+    make_bootloader_font "bl" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "std" # 480x272, 480x320, 320x480
+    make_bootloader_font "bl" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "sml" # 320x240
+    make_bootloader_font "bl" "${LATIN_FONT}" "${LATIN_FONT_SIZE}" "lrg" # 800x480
 
     # LXL fonts (no translation chars) - twice size of L, bold
     # echo "Generating LXL fonts..."
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 48 "LXL" "std"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 38 "LXL" "sml"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 66 "LXL" "lrg"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "LXL" "std"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "LXL" "sml"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "LXL" "lrg"
 
     # XXL fonts (no translation chars) - twice size of XL, bold
     # echo "Generating XXL fonts..."
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 64 "XXL" "std"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 50 "XXL" "sml"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 88 "XXL" "lrg"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XXL" "std"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XXL" "sml"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" "${LATIN_FONT_BOLD_SIZE}" "XXL" "lrg"
 
     # Language fonts
     echo "Generating language font sets..."
