@@ -37,7 +37,9 @@ LATIN_FONT_BOLD_SIZE=14
 KEYBOARD_FONT="DedSecPixel/Tiny5-Regular.ttf"
 KEYBOARD_FONT_SIZE=13
 
-ASCII="0x20-0x7F"
+# Printable ASCII only. U+007F is the non-printing DEL control character and
+# is intentionally absent from Silkscreen.
+ASCII="0x20-0x7E"
 DEGREE="0xB0"
 BULLET="0x2022"
 LATIN1_SUPPLEMENT="0xC0-0xFF"
