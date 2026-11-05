@@ -35,7 +35,7 @@ LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
 LATIN_FONT_SIZE=8
 LATIN_FONT_BOLD_SIZE=8
 KEYBOARD_FONT="DedSecPixel/Tiny5-Regular.ttf"
-KEYBOARD_FONT_SIZE=13
+KEYBOARD_FONT_SIZE=10
 TILE_FONT_SIZE=8
 
 # Printable ASCII only. U+007F is the non-printing DEL control character and
