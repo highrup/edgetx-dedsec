@@ -517,10 +517,6 @@ class ModelLayoutButton : public IconButton
       layout(layout)
   {
     updateIconColor();
-    lv_obj_add_event_cb(lvobj, ModelLayoutButton::focusEvent,
-                        LV_EVENT_FOCUSED, this);
-    lv_obj_add_event_cb(lvobj, ModelLayoutButton::focusEvent,
-                        LV_EVENT_DEFOCUSED, this);
   }
 
   uint8_t getLayout() const { return layout; }
@@ -532,17 +528,14 @@ class ModelLayoutButton : public IconButton
   }
 
  protected:
-  static void focusEvent(lv_event_t* event)
+  void checkEvents() override
   {
-    auto button = static_cast<ModelLayoutButton*>(
-        lv_event_get_user_data(event));
-    if (button) button->updateIconColor();
+    IconButton::checkEvents();
+    updateIconColor();
   }
 
   void updateIconColor()
   {
-    // Keep the mask opposite the button background: white on the normal dark
-    // button, black when the focused button inverts to white.
     iconImage->setColor(hasFocus() ? COLOR_THEME_PRIMARY1_INDEX
                                    : COLOR_THEME_PRIMARY2_INDEX);
   }

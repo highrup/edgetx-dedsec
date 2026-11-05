@@ -56,14 +56,8 @@ class LayoutChoice : public Button
     padAll(PAD_ZERO);
     canvas = lv_canvas_create(lvobj);
     lv_obj_center(canvas);
-    lv_obj_set_style_img_recolor(canvas, lv_color_white(), LV_PART_MAIN);
     lv_obj_set_style_img_recolor_opa(canvas, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_img_recolor(canvas, lv_color_black(),
-                                 LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_add_event_cb(lvobj, LayoutChoice::focusEvent,
-                        LV_EVENT_FOCUSED, this);
-    lv_obj_add_event_cb(lvobj, LayoutChoice::focusEvent,
-                        LV_EVENT_DEFOCUSED, this);
+    updateFocusColor();
     update();
   }
 
@@ -87,14 +81,18 @@ class LayoutChoice : public Button
   }
 
  protected:
-  static void focusEvent(lv_event_t* event)
+  void checkEvents() override
   {
-    auto choice = static_cast<LayoutChoice*>(lv_event_get_user_data(event));
-    if (!choice || !choice->canvas) return;
-    if (choice->hasFocus())
-      lv_obj_add_state(choice->canvas, LV_STATE_USER_1);
-    else
-      lv_obj_clear_state(choice->canvas, LV_STATE_USER_1);
+    Button::checkEvents();
+    updateFocusColor();
+  }
+
+  void updateFocusColor()
+  {
+    lv_obj_set_style_img_recolor(canvas,
+                                 hasFocus() ? lv_color_black()
+                                            : lv_color_white(),
+                                 LV_PART_MAIN);
   }
 
   lv_obj_t* canvas = nullptr;

@@ -222,8 +222,6 @@ class MenuBody : public TableField
     if (icon) {
       lv_draw_img_dsc_t img_dsc;
       lv_draw_img_dsc_init(&img_dsc);
-      // Layout masks are black in a normal menu row and invert only for the
-      // currently highlighted row.
       img_dsc.recolor = (row == selectedIndex) ? lv_color_white()
                                                 : lv_color_black();
       img_dsc.recolor_opa = LV_OPA_COVER;

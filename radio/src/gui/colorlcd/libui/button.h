@@ -107,11 +107,12 @@ class TextButton : public ButtonBase
   }
 
  protected:
-  static void focusEvent(lv_event_t* event);
-  void refreshLabel();
+  void checkEvents() override;
+  void refreshLabel(bool focused);
 
   std::string text;
   lv_obj_t* label = nullptr;
+  bool labelFocused = false;
 };
 
 class IconButton : public ButtonBase
