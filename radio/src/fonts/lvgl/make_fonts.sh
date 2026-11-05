@@ -29,6 +29,7 @@ ARROWS="0x21E8=>0x80,0x21E6=>0x81,0x21E7=>0x82,0x21E9=>0x83"
 
 LATIN_FONT="DedSecPixel/5x5_pixel.ttf"
 LATIN_FONT_BOLD="DedSecPixel/5x5_pixel.ttf"
+LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
 LATIN_FONT_SIZE=13
 LATIN_FONT_BOLD_SIZE=16
 
@@ -114,7 +115,8 @@ function make_font_no_sym_no_trans() {
   echo "Creating basic font: ${name}_${sfx} (size: ${size})"
   
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
   compress_font "${dir}/lv_font_${name}_${sfx}" ""
 }
@@ -130,7 +132,8 @@ function make_en_font() {
   
   # Use relative paths for lv_font_conv to avoid absolute paths in generated files
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
                --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
@@ -149,7 +152,8 @@ function make_en_bold_font_lz4() {
   
   # Use relative paths for lv_font_conv
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
   compress_font "${dir}/lv_font_${name}_${sfx}" ""
 }
@@ -165,7 +169,8 @@ function make_en_font_lz4() {
   
   # Use relative paths for lv_font_conv
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
                --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
@@ -183,7 +188,8 @@ function make_en_font_w_extra_sym() {
   echo "Creating EN compressed font with extra symbols only: ${name}_${sfx} (size: ${size})"
   
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${LATIN1}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${LATIN1}" \
                --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
   compress_font "${dir}/lv_font_${name}_${sfx}" ""
@@ -199,7 +205,8 @@ function make_en_font_no_sym() {
   echo "Creating EN compressed font without symbols: ${name}_${sfx} (size: ${size})"
   
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${LATIN1}" \
+               --font "../${latin_ttf}" -r "${ASCII}" \
+               --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${LATIN1}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
   compress_font "${dir}/lv_font_${name}_${sfx}" ""
 }
