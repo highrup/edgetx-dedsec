@@ -27,9 +27,9 @@ ARROWS_FONT="EdgeTX/OpenArrow-Regular.woff"
 # 0x80: right, 0x81: left, 0x82: up, 0x83: down
 ARROWS="0x21E8=>0x80,0x21E6=>0x81,0x21E7=>0x82,0x21E9=>0x83"
 
-LATIN_FONT="DedSecPixel/5x5_pixel.ttf"
-LATIN_FONT_BOLD="DedSecPixel/5x5_pixel.ttf"
-LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
+LATIN_FONT="DedSecPixel/Tiny5-Regular.ttf"
+LATIN_FONT_BOLD="DedSecPixel/Tiny5-Light.ttf"
+LATIN_FONT_FALLBACK="DedSecPixel/Tiny5-Regular.ttf"
 LATIN_FONT_SIZE=13
 LATIN_FONT_BOLD_SIZE=16
 
