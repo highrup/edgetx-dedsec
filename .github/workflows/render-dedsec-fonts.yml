@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dedsec-ui
+          submodules: recursive
 
       - name: Install LVGL font converter
         run: npm install --global lv_font_conv
