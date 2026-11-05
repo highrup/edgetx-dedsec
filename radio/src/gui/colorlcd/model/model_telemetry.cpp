@@ -103,6 +103,7 @@ static TSStyle tsStyle;
 static void ts_num_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_center, LV_PART_MAIN);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
   etx_font(obj, FONT_XS_INDEX, ETX_STATE_VALUE_SMALL_FONT);
 }
 
@@ -130,6 +131,7 @@ lv_obj_t* TSStyle::newNum(lv_obj_t* parent, uint8_t index)
 static void ts_id_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_center, LV_PART_MAIN);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
   etx_font(obj, FONT_XXS_INDEX);
 }
 
@@ -157,6 +159,7 @@ lv_obj_t* TSStyle::newId(lv_obj_t* parent, const char* id)
 static void ts_name_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_left, LV_PART_MAIN);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
 }
 
 static const lv_obj_class_t ts_name_class = {
@@ -183,6 +186,7 @@ lv_obj_t* TSStyle::newName(lv_obj_t* parent, const char* name)
 static void ts_value_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_left, LV_PART_MAIN);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
   etx_txt_color(obj, COLOR_THEME_WARNING_INDEX, ETX_STATE_VALUE_STALE_WARN);
 }
 

@@ -58,7 +58,7 @@ void ScreenUserInterfacePage::build(Window* window)
 
   // Top Bar
   auto line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_TOP_BAR);
+  new StaticText(line, rect_t{}, STR_TOP_BAR, COLOR_THEME_PRIMARY2_INDEX);
 
   new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
             [=]() -> uint8_t {
@@ -68,7 +68,7 @@ void ScreenUserInterfacePage::build(Window* window)
             });
 
   line = window->newLine(grid);
-  new StaticText(line, rect_t{}, STR_WIDGET_SIZE);
+  new StaticText(line, rect_t{}, STR_WIDGET_SIZE, COLOR_THEME_PRIMARY2_INDEX);
   line = window->newLine(grid);
   auto box = new Window(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);

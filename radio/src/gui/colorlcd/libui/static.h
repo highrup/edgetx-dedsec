@@ -30,7 +30,7 @@ class StaticText : public Window
 {
  public:
   StaticText(Window *parent, const rect_t &rect, std::string text = "",
-             LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0);
+             LcdColorIndex color = COLOR_THEME_PRIMARY2_INDEX, LcdFlags textFlags = 0);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override;
@@ -44,7 +44,7 @@ class StaticText : public Window
 };
 
 #define Subtitle(parent, text) \
-  StaticText(parent, rect_t{}, text, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD))
+  StaticText(parent, rect_t{}, text, COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD))
 
 //-----------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ class DynamicText : public StaticText
  public:
   DynamicText(Window *parent, const rect_t &rect,
               std::function<std::string()> textHandler,
-              LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0) :
+              LcdColorIndex color = COLOR_THEME_PRIMARY2_INDEX, LcdFlags textFlags = 0) :
       StaticText(parent, rect, "", color, textFlags),
       textHandler(std::move(textHandler))
   {
@@ -75,7 +75,7 @@ class DynamicNumber : public StaticText
  public:
   DynamicNumber(Window *parent, const rect_t &rect,
                 std::function<T()> numberHandler,
-                LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0,
+                LcdColorIndex color = COLOR_THEME_PRIMARY2_INDEX, LcdFlags textFlags = 0,
                 const char *prefix = nullptr, const char *suffix = nullptr) :
       StaticText(parent, rect, "", color, textFlags),
       numberHandler(std::move(numberHandler)),

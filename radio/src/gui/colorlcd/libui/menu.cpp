@@ -86,7 +86,11 @@ class MenuBody : public TableField
   {
     if (index < (int)lines.size()) {
       if (index == selectedIndex) return;
+      int oldIndex = selectedIndex;
       selectedIndex = index;
+
+      updateLineText(oldIndex);
+      updateLineText(selectedIndex);
 
       lv_obj_invalidate(lvobj);
       lv_table_t* table = (lv_table_t*)lvobj;
@@ -144,7 +148,7 @@ class MenuBody : public TableField
 
     if (update) {
       auto idx = lines.size() - 1;
-      lv_table_set_cell_value(lvobj, idx, 0, text.c_str());
+      updateLineText(idx);
     }
   }
 
@@ -152,7 +156,7 @@ class MenuBody : public TableField
   {
     setRowCount(lines.size());
     for (unsigned int idx = 0; idx < lines.size(); idx++) {
-      lv_table_set_cell_value(lvobj, idx, 0, lines[idx]->text.c_str());
+      updateLineText(idx);
     }
   }
 
@@ -247,9 +251,23 @@ class MenuBody : public TableField
     }
   }
 
-  void onSelected(uint16_t row, uint16_t col) override { selectedIndex = row; }
+  void onSelected(uint16_t row, uint16_t col) override
+  {
+    int oldIndex = selectedIndex;
+    selectedIndex = row;
+    updateLineText(oldIndex);
+    updateLineText(selectedIndex);
+  }
 
  protected:
+  void updateLineText(int index)
+  {
+    if (index < 0 || index >= (int)lines.size()) return;
+    std::string display = (index == selectedIndex ? "> " : "") +
+                          lines[index]->text;
+    lv_table_set_cell_value(lvobj, index, 0, display.c_str());
+  }
+
   std::vector<MenuLine*> lines;
   int selectedIndex = 0;
 

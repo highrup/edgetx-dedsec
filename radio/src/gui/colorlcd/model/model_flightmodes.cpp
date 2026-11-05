@@ -210,6 +210,18 @@ class FlightModeBtn : public ListLineButton
     padAll(PAD_ZERO);
     setHeight(BTN_H);
 
+    // The active flight mode remains dark; a stronger white border identifies
+    // it without making the whole row look permanently focused.
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX,
+                 LV_PART_MAIN | LV_STATE_CHECKED);
+    etx_txt_color(lvobj, COLOR_THEME_PRIMARY2_INDEX,
+                  LV_PART_MAIN | LV_STATE_CHECKED);
+    etx_obj_add_style(lvobj,
+                      styles->border_color[COLOR_THEME_PRIMARY2_INDEX],
+                      LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_width(lvobj, 2,
+                                  LV_PART_MAIN | LV_STATE_CHECKED);
+
     delayLoad();
   }
 

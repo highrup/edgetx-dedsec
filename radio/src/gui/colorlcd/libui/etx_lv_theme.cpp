@@ -583,14 +583,15 @@ void etx_std_ctrl_colors(lv_obj_t* obj, lv_style_selector_t selector)
   etx_solid_bg(obj, COLOR_THEME_PRIMARY3_INDEX, selector);
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, selector);
 
-  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
-                    selector | LV_STATE_FOCUSED);
+  // DedSec focus: invert the control instead of drawing a second outline.
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX,
+               selector | LV_STATE_FOCUSED);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX,
+                selector | LV_STATE_FOCUSED);
 
   etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, selector | LV_STATE_CHECKED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, selector | LV_STATE_CHECKED);
 
-  etx_obj_add_style(obj, styles->outline_color_focus,
-                    selector | LV_STATE_FOCUSED);
 }
 
 void etx_std_settings(lv_obj_t* obj, lv_style_selector_t selector)
@@ -599,7 +600,6 @@ void etx_std_settings(lv_obj_t* obj, lv_style_selector_t selector)
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY2_INDEX], selector);
   etx_obj_add_style(obj, styles->rounded, selector);
 
-  etx_obj_add_style(obj, styles->outline, selector | LV_STATE_FOCUSED);
   etx_obj_add_style(obj, styles->disabled, selector | LV_STATE_DISABLED);
   etx_obj_add_style(obj, styles->pressed, selector | LV_STATE_PRESSED);
 }

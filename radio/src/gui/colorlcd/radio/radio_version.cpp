@@ -379,10 +379,10 @@ void RadioVersionPage::build(Window* window)
   qrBox->padAll(PAD_ZERO);
 
   new StaticText(qrBox, {0, PAD_SMALL, LV_PCT(100), 0}, copyright_str,
-                 COLOR_THEME_SECONDARY1_INDEX, CENTERED);
+                 COLOR_THEME_PRIMARY2_INDEX, CENTERED);
 
   new StaticText(qrBox, {0, qh - QR_SZ - PAD_MEDIUM - EdgeTxStyles::STD_FONT_HEIGHT, LV_PCT(100), 0},
-                 edgetx_url, COLOR_THEME_SECONDARY1_INDEX, CENTERED);
+                 edgetx_url, COLOR_THEME_PRIMARY2_INDEX, CENTERED);
 
   new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
 

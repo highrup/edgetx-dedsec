@@ -708,13 +708,14 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
         titleH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY + PAD_LARGE;
         editY = PAD_SMALL + 1;
       }
-      new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title);
+      new StaticText(this, {PAD_TINY, titleY, lblWidth, titleH}, title,
+                     COLOR_THEME_PRIMARY2_INDEX);
     }
     setHeight(h);
     createEdit(this, col2, editY);
   } else {
     setHeight(h);
-    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
+    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD));
   }
 }
 
