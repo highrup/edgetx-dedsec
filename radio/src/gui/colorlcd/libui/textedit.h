@@ -45,6 +45,7 @@ class TextEdit : public TextButton
   char* text;
   uint8_t length;
 
+  void checkEvents() override;
   void openEdit();
 };
 

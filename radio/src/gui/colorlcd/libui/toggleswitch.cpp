@@ -43,7 +43,29 @@ static void switch_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_KNOB);
   etx_obj_add_style(obj, styles->circle, LV_PART_KNOB);
   etx_obj_add_style(obj, switch_knob, LV_PART_KNOB);
-  etx_bg_color(obj, COLOR_THEME_SECONDARY1_INDEX, LV_PART_KNOB);
+
+  // DedSec toggles use opposing track/knob colors. Focusing the switch
+  // reverses whichever logical state is currently displayed.
+  etx_bg_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_MAIN);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY2_INDEX,
+               LV_PART_MAIN | LV_STATE_FOCUSED);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY2_INDEX,
+               LV_PART_MAIN | LV_STATE_CHECKED);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY1_INDEX,
+               LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
+
+  etx_bg_color(obj, COLOR_THEME_PRIMARY2_INDEX,
+               LV_PART_INDICATOR | LV_STATE_CHECKED);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY1_INDEX,
+               LV_PART_INDICATOR | LV_STATE_CHECKED | LV_STATE_FOCUSED);
+
+  etx_bg_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_KNOB);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY1_INDEX,
+               LV_PART_KNOB | LV_STATE_FOCUSED);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY1_INDEX,
+               LV_PART_KNOB | LV_STATE_CHECKED);
+  etx_bg_color(obj, COLOR_THEME_PRIMARY2_INDEX,
+               LV_PART_KNOB | LV_STATE_CHECKED | LV_STATE_FOCUSED);
 
   etx_obj_add_style(obj, styles->disabled, LV_PART_KNOB | LV_STATE_DISABLED);
 }

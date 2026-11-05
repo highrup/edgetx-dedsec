@@ -266,7 +266,7 @@ class MenuBody : public TableField
   void updateLineText(int index)
   {
     if (index < 0 || index >= (int)lines.size()) return;
-    std::string display = (index == selectedIndex ? " >" : "") +
+    std::string display = (index == selectedIndex ? ">" : "") +
                           lines[index]->text;
     lv_table_set_cell_value(lvobj, index, 0, display.c_str());
   }

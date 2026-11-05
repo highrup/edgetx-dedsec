@@ -136,6 +136,15 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
   lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
 }
 
+void TextEdit::checkEvents()
+{
+  TextButton::checkEvents();
+  // TextButton adds/removes focused brackets. Reapply the text-edit label's
+  // outside-left alignment after its width changes so the closing bracket is
+  // not clipped by the edit field.
+  lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
+}
+
 void TextEdit::update()
 {
   if (text[0]) {
