@@ -32,8 +32,8 @@ LATIN_FONT_BOLD="DedSecPixel/Silkscreen-Regular.ttf"
 # Silkscreen supplies the UI letters; Roboto supplies only uncommon symbols
 # that Silkscreen does not contain (degree, comparison and extended glyphs).
 LATIN_FONT_FALLBACK="Roboto/Roboto-Regular.ttf"
-LATIN_FONT_SIZE=8
-LATIN_FONT_BOLD_SIZE=8
+LATIN_FONT_SIZE=10
+LATIN_FONT_BOLD_SIZE=10
 KEYBOARD_FONT="DedSecPixel/Tiny5-Regular.ttf"
 KEYBOARD_FONT_SIZE=10
 TILE_FONT_SIZE=8
