@@ -35,7 +35,7 @@ jobs:
             'https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf' \
             --output radio/src/fonts/DedSecPixel/Silkscreen-Regular.ttf
           curl --fail --location --retry 3 \
-            'https://raw.githubusercontent.com/google/fonts/main/ofl/tiny5/Tiny5-Regular.ttf' \
+            'https://raw.githubusercontent.com/Gissio/font_Tiny5/main/fonts/ttf/Tiny5-Regular.ttf' \
             --output radio/src/fonts/DedSecPixel/Tiny5-Regular.ttf
           curl --fail --location --retry 3 \
             'https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/OFL.txt' \
