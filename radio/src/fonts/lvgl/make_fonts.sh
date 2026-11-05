@@ -124,7 +124,7 @@ function make_font_no_sym_no_trans() {
                --font "../${latin_ttf}" -r "${ASCII}" \
                --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" ""
+  compress_font "${dir}/lv_font_${name}_${sfx}" "-DNO_KERN"
 }
 
 function make_en_font() {
@@ -171,7 +171,7 @@ function make_en_bold_font_lz4() {
                --font "../${latin_ttf}" -r "${ASCII}" \
                --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" ""
+  compress_font "${dir}/lv_font_${name}_${sfx}" "-DNO_KERN"
 }
 
 function make_en_font_lz4() {
@@ -191,7 +191,7 @@ function make_en_font_lz4() {
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" ""
+  compress_font "${dir}/lv_font_${name}_${sfx}" "-DNO_KERN"
 }
 
 function make_en_font_w_extra_sym() {
@@ -208,7 +208,7 @@ function make_en_font_w_extra_sym() {
                --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${LATIN1}" \
                --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" ""
+  compress_font "${dir}/lv_font_${name}_${sfx}" "-DNO_KERN"
 }
 
 function make_en_font_no_sym() {
@@ -224,7 +224,7 @@ function make_en_font_no_sym() {
                --font "../${latin_ttf}" -r "${ASCII}" \
                --font "../${LATIN_FONT_FALLBACK}" -r "${DEGREE},${LATIN1}" \
                --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" ""
+  compress_font "${dir}/lv_font_${name}_${sfx}" "-DNO_KERN"
 }
 
 function make_font() {
