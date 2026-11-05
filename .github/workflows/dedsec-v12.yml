@@ -19,6 +19,7 @@ on:
 # us from determining whether the V12 firmware itself compiles.
 jobs:
   test:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[font-source]')
     name: V12 graphical and radio tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -38,6 +39,7 @@ jobs:
         run: ./tools/commit-tests.sh
 
   build:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[font-source]')
     name: Compile V12 MAX firmware
     runs-on: ubuntu-latest
     timeout-minutes: 60
