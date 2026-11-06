@@ -35,15 +35,32 @@ class ModelBitmapWidget : public Widget
                     int screenNum, int zoneNum) :
       Widget(factory, parent, rect, screenNum, zoneNum)
   {
+    padAll(PAD_ZERO);
     etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
+    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
 
     delayLoad();
   }
 
   void delayedInit() override
   {
+    titleBar = new Window(this, {0, 0, width(), TITLE_HEIGHT});
+    titleBar->setWindowFlag(NO_FOCUS | NO_CLICK);
+    lv_obj_set_style_bg_opa(titleBar->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_side(titleBar->getLvObj(), LV_BORDER_SIDE_BOTTOM,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(titleBar->getLvObj(), 1, LV_PART_MAIN);
+    titleLabel = new StaticText(
+        titleBar,
+        {PAD_SMALL, 0, width() - TITLE_HEIGHT - PAD_SMALL, TITLE_HEIGHT},
+        "DRONE RENDER_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
+    closeLabel = new StaticText(
+        titleBar, {width() - TITLE_HEIGHT, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
+        COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
+
     label = new StaticText(this, rect_t{}, "");
     label->hide();
 
@@ -83,32 +100,48 @@ class ModelBitmapWidget : public Widget
     etx_font(label->getLvObj(),
              (FontIndex)widgetData->options[1].value.unsignedValue);
 
+    LcdFlags textColor;
+
     // set font colour from options[0], if use theme color option off
     if (widgetData->options[4].value.boolValue) {
+      textColor = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
       etx_txt_color(label->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
       etx_txt_color(status->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
     } else {
-      auto textColor = widgetData->options[0].value.unsignedValue;
+      textColor = widgetData->options[0].value.unsignedValue;
       etx_txt_color_from_flags(label->getLvObj(), textColor);
       etx_txt_color_from_flags(status->getLvObj(), textColor);
     }
 
+    etx_txt_color_from_flags(titleLabel->getLvObj(), textColor);
+    etx_txt_color_from_flags(closeLabel->getLvObj(), textColor);
+    lv_obj_set_style_border_color(lvobj,
+                                  makeLvColor(colorToRGB(textColor)),
+                                  LV_PART_MAIN);
+    lv_obj_set_style_border_color(titleBar->getLvObj(),
+                                  makeLvColor(colorToRGB(textColor)),
+                                  LV_PART_MAIN);
+
     // Set label position
     if (isLarge)
-      lv_obj_set_pos(label->getLvObj(), LARGE_LBL_X, LARGE_LBL_Y);
+      lv_obj_set_pos(label->getLvObj(), LARGE_LBL_X,
+                     TITLE_HEIGHT + LARGE_LBL_Y);
     else
-      lv_obj_set_pos(label->getLvObj(), 0, 0);
+      lv_obj_set_pos(label->getLvObj(), LARGE_LBL_X, TITLE_HEIGHT);
     lv_obj_set_size(label->getLvObj(), width() - LARGE_LBL_X * 2,
                     EdgeTxStyles::STD_FONT_HEIGHT);
 
     lv_obj_set_pos(status->getLvObj(), LARGE_LBL_X,
-                   LARGE_LBL_Y + EdgeTxStyles::STD_FONT_HEIGHT);
+                   TITLE_HEIGHT + LARGE_LBL_Y +
+                       EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_size(status->getLvObj(), width() - LARGE_LBL_X * 2,
                     EdgeTxStyles::STD_FONT_HEIGHT);
     // get fill color from options[3]
     etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
+    etx_bg_color_from_flags(titleBar->getLvObj(),
+                            widgetData->options[3].value.unsignedValue);
 
     // Set background opacity from options[2]
     if (widgetData->options[2].value.boolValue)
@@ -151,6 +184,9 @@ class ModelBitmapWidget : public Widget
   StaticText* label = nullptr;
   StaticText* status = nullptr;
   StaticBitmap* image = nullptr;
+  Window* titleBar = nullptr;
+  StaticText* titleLabel = nullptr;
+  StaticText* closeLabel = nullptr;
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
 
@@ -158,7 +194,8 @@ class ModelBitmapWidget : public Widget
   static LAYOUT_VAL_SCALED(LARGE_H, 96)
   static LAYOUT_VAL_SCALED(LARGE_LBL_X, 5)
   static LAYOUT_VAL_SCALED(LARGE_LBL_Y, 5)
-  static LAYOUT_VAL_SCALED(LARGE_IMG_H, 38)
+  static LAYOUT_VAL_SCALED(TITLE_HEIGHT, 18)
+  static LAYOUT_VAL_SCALED(LARGE_IMG_H, 56)
 };
 
 const WidgetOption ModelBitmapWidget::options[] = {

@@ -30,6 +30,7 @@
 #define ETX_NAME_TXT_WARNING LV_STATE_USER_2
 #define ETX_NAME_COLOR_WHITE LV_STATE_USER_3
 #define ETX_VALUE_SMALL_FONT LV_STATE_USER_1
+#define ETX_STATE_TIMER_BG_FILL LV_STATE_USER_2
 
 class TimerWidget : public Widget
 {
@@ -38,6 +39,12 @@ class TimerWidget : public Widget
               int screenNum, int zoneNum) :
       Widget(factory, parent, rect, screenNum, zoneNum)
   {
+    padAll(PAD_ZERO);
+    etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
+    etx_obj_add_style(lvobj, styles->bg_opacity_cover,
+                      LV_PART_MAIN | ETX_STATE_TIMER_BG_FILL);
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
+    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
     delayLoad();
   }
 
@@ -46,12 +53,28 @@ class TimerWidget : public Widget
     etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX,
                  LV_PART_MAIN | ETX_STATE_BG_WARNING);
 
+    titleBar = new Window(this, {0, 0, width(), TITLE_HEIGHT});
+    titleBar->setWindowFlag(NO_FOCUS | NO_CLICK);
+    lv_obj_set_style_bg_opa(titleBar->getLvObj(), LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_side(titleBar->getLvObj(), LV_BORDER_SIDE_BOTTOM,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(titleBar->getLvObj(), 1, LV_PART_MAIN);
+    titleLabel = new StaticText(
+        titleBar,
+        {PAD_SMALL, 0, width() - TITLE_HEIGHT - PAD_SMALL, TITLE_HEIGHT},
+        "TIMER 1_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
+    closeLabel = new StaticText(
+        titleBar, {width() - TITLE_HEIGHT, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
+        COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
+
     lv_style_init(&style);
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, LV_SIZE_CONTENT);
 
-    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2_INDEX);
-    timerIcon = new StaticIcon(this, PAD_THREE, PAD_SMALL, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
+    timerBg = new StaticIcon(this, 0, TITLE_HEIGHT, ICON_TIMER_BG,
+                             COLOR_THEME_PRIMARY2_INDEX);
+    timerIcon = new StaticIcon(this, PAD_THREE, TITLE_HEIGHT + PAD_SMALL,
+                               ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
 
     // Timer name
     nameLabel = etx_label_create(lvobj, FONT_XS_INDEX);
@@ -72,17 +95,17 @@ class TimerWidget : public Widget
     lv_obj_add_style(valLabel, &style, LV_PART_MAIN);
     etx_txt_color(valLabel, COLOR_THEME_PRIMARY2_INDEX);
     etx_font(valLabel, FONT_XS_INDEX, LV_PART_MAIN | ETX_VALUE_SMALL_FONT);
-    lv_obj_set_pos(valLabel, PAD_THREE, VAL_LBL_Y);
+    lv_obj_set_pos(valLabel, PAD_THREE, TITLE_HEIGHT + VAL_LBL_Y);
 
     // Timer value - on large widgets
     unit0 = createUnitLabel();
-    lv_obj_set_pos(unit0, U0_X, U0_Y);
+    lv_obj_set_pos(unit0, U0_X, TITLE_HEIGHT + U0_Y);
     unit1 = createUnitLabel();
-    lv_obj_set_pos(unit1, U1_X, U1_Y);
+    lv_obj_set_pos(unit1, U1_X, TITLE_HEIGHT + U1_Y);
     digits0 = createDigitsLabel();
-    lv_obj_set_pos(digits0, D0_X, D0_Y);
+    lv_obj_set_pos(digits0, D0_X, TITLE_HEIGHT + D0_Y);
     digits1 = createDigitsLabel();
-    lv_obj_set_pos(digits1, D1_X, D1_Y);
+    lv_obj_set_pos(digits1, D1_X, TITLE_HEIGHT + D1_Y);
     minusLabel = etx_label_create(lvobj, FONT_XL_INDEX);
     lv_label_set_text(minusLabel, "-");
     etx_txt_color(minusLabel, COLOR_THEME_SECONDARY1_INDEX);
@@ -99,7 +122,7 @@ class TimerWidget : public Widget
     lv_arc_set_start_angle(timerArc, 0);
     lv_obj_remove_style(timerArc, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_set_pos(timerArc, PAD_TINY, PAD_THREE);
+    lv_obj_set_pos(timerArc, PAD_TINY, TITLE_HEIGHT + PAD_THREE);
     lv_obj_set_size(timerArc, TMR_ARC_SZ, TMR_ARC_SZ);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_MAIN);
@@ -195,8 +218,8 @@ class TimerWidget : public Widget
           lv_obj_add_state(unit1, ETX_NAME_TXT_WARNING);
           lv_obj_add_state(minusLabel, ETX_NAME_TXT_WARNING);
           lv_obj_clear_state(lvobj, ETX_STATE_BG_WARNING);
-          timerBg->setColor(COLOR_THEME_WARNING_INDEX);
-          timerIcon->setColor(COLOR_THEME_SECONDARY2_INDEX);
+          setIconColor(timerBg, COLOR_THEME_WARNING);
+          setIconColor(timerIcon, COLOR_THEME_SECONDARY2);
         } else {
           lv_obj_add_state(lvobj, ETX_STATE_BG_WARNING);
         }
@@ -208,8 +231,8 @@ class TimerWidget : public Widget
           lv_obj_clear_state(unit0, ETX_NAME_TXT_WARNING);
           lv_obj_clear_state(unit1, ETX_NAME_TXT_WARNING);
           lv_obj_clear_state(minusLabel, ETX_NAME_TXT_WARNING);
-          timerBg->setColor(COLOR_THEME_PRIMARY2_INDEX);
-          timerIcon->setColor(COLOR_THEME_SECONDARY1_INDEX);
+          setIconColor(timerBg, accentColor);
+          setIconColor(timerIcon, accentColor);
         }
         lv_obj_clear_state(lvobj, ETX_STATE_BG_WARNING);
       }
@@ -236,6 +259,7 @@ class TimerWidget : public Widget
   static LAYOUT_VAL_SCALED(D0_Y, 31)
   static LAYOUT_VAL_SCALED(D1_X, 125)
   static LAYOUT_VAL_SCALED(D1_Y, 31)
+  static LAYOUT_VAL_SCALED(TITLE_HEIGHT, 18)
 
  protected:
   tmrval_t lastValue = 0;
@@ -253,6 +277,20 @@ class TimerWidget : public Widget
   lv_obj_t* timerArc = nullptr;
   StaticIcon* timerBg = nullptr;
   StaticIcon* timerIcon = nullptr;
+  Window* titleBar = nullptr;
+  StaticText* titleLabel = nullptr;
+  StaticText* closeLabel = nullptr;
+  LcdFlags textColor = COLOR_THEME_SECONDARY1;
+  LcdFlags accentColor = COLOR_THEME_SECONDARY1;
+
+  static void setIconColor(StaticIcon* icon, LcdFlags color)
+  {
+    lv_obj_set_style_img_recolor(icon->getLvObj(),
+                                 makeLvColor(colorToRGB(color)),
+                                 LV_PART_MAIN);
+    lv_obj_set_style_img_recolor_opa(icon->getLvObj(), LV_OPA_COVER,
+                                     LV_PART_MAIN);
+  }
 
   void update() override
   {
@@ -266,19 +304,54 @@ class TimerWidget : public Widget
     uint32_t index = widgetData->options[0].value.unsignedValue;
     TimerData& timerData = g_model.timers[index];
 
+    char title[16];
+    snprintf(title, sizeof(title), "TIMER %u_", (unsigned)(index + 1));
+    titleLabel->setText(title);
+
+    const LcdFlags backgroundColor =
+        widgetData->options[2].value.unsignedValue;
+    textColor = widgetData->options[3].value.unsignedValue;
+    accentColor = widgetData->options[4].value.unsignedValue;
+
+    etx_bg_color_from_flags(lvobj, backgroundColor);
+    etx_bg_color_from_flags(titleBar->getLvObj(), backgroundColor);
+    if (widgetData->options[1].value.boolValue)
+      lv_obj_add_state(lvobj, ETX_STATE_TIMER_BG_FILL);
+    else
+      lv_obj_clear_state(lvobj, ETX_STATE_TIMER_BG_FILL);
+
+    etx_txt_color_from_flags(titleLabel->getLvObj(), textColor);
+    etx_txt_color_from_flags(closeLabel->getLvObj(), textColor);
+    etx_txt_color_from_flags(nameLabel, textColor);
+    etx_txt_color_from_flags(valLabel, textColor);
+    etx_txt_color_from_flags(unit0, textColor);
+    etx_txt_color_from_flags(unit1, textColor);
+    etx_txt_color_from_flags(digits0, textColor);
+    etx_txt_color_from_flags(digits1, textColor);
+    etx_txt_color_from_flags(minusLabel, textColor);
+    lv_obj_set_style_border_color(lvobj,
+                                  makeLvColor(colorToRGB(accentColor)),
+                                  LV_PART_MAIN);
+    lv_obj_set_style_border_color(titleBar->getLvObj(),
+                                  makeLvColor(colorToRGB(accentColor)),
+                                  LV_PART_MAIN);
+    etx_arc_color_from_flags(timerArc, accentColor, LV_PART_INDICATOR);
+    setIconColor(timerBg, accentColor);
+    setIconColor(timerIcon, accentColor);
+
     bool hasName = ZLEN(timerData.name) > 0;
 
     // Force value and color refresh
     lastStartValue = -1;
     lastWarning = -1;
 
-    if (width() >= TMR_LRG_W && height() >= TMR_LRG_H) {
+    if (width() >= TMR_LRG_W && height() >= TMR_LRG_H + TITLE_HEIGHT) {
       isLarge = true;
       if (hasName)
         lv_obj_clear_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
       else
         lv_obj_add_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
-      lv_obj_set_pos(nameLabel, NM_LRG_X, NM_LRG_Y);
+      lv_obj_set_pos(nameLabel, NM_LRG_X, TITLE_HEIGHT + NM_LRG_Y);
       lv_obj_set_width(nameLabel, NM_LRG_W);
       lv_obj_clear_state(nameLabel, ETX_NAME_COLOR_WHITE);
 
@@ -290,7 +363,7 @@ class TimerWidget : public Widget
       timerBg->show();
     } else {
       isLarge = false;
-      lv_obj_set_pos(nameLabel, PAD_TINY, 0);
+      lv_obj_set_pos(nameLabel, PAD_TINY, TITLE_HEIGHT);
       lv_obj_set_width(nameLabel, lv_pct(100));
       lv_obj_add_state(nameLabel, ETX_NAME_COLOR_WHITE);
 
@@ -335,6 +408,13 @@ class TimerWidget : public Widget
 
 const WidgetOption TimerWidget::options[] = {
     {STR_TIMER_SOURCE, WidgetOption::Timer, 0},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
+    {STR_BG_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_TEXT_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<TimerWidget> timerWidget("Timer", TimerWidget::options,

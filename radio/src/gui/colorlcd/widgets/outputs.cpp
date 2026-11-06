@@ -54,7 +54,9 @@ class InputMonitorChannelValue : public Window
   void delayedInit() override
   {
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
-    lv_obj_set_style_border_color(lvobj, makeLvColor(barColor), LV_PART_MAIN);
+    lv_obj_set_style_border_color(lvobj,
+                                  makeLvColor(colorToRGB(barColor)),
+                                  LV_PART_MAIN);
 
     padAll(PAD_ZERO);
 
@@ -236,10 +238,12 @@ class InputMonitorWidget : public Widget
 
     etx_txt_color_from_flags(titleLabel->getLvObj(), newTextColor);
     etx_txt_color_from_flags(closeLabel->getLvObj(), newTextColor);
-    lv_obj_set_style_border_color(lvobj, makeLvColor(newBarColor),
+    lv_obj_set_style_border_color(lvobj,
+                                  makeLvColor(colorToRGB(newBarColor)),
                                   LV_PART_MAIN);
     lv_obj_set_style_border_color(titleBar->getLvObj(),
-                                  makeLvColor(newBarColor), LV_PART_MAIN);
+                                  makeLvColor(colorToRGB(newBarColor)),
+                                  LV_PART_MAIN);
 
     if (height() <= SHOW_MIN_H || width() <= SHOW_MIN_W)
       return;
@@ -359,4 +363,4 @@ class InputMonitorWidgetFactory : public WidgetFactory
 };
 
 InputMonitorWidgetFactory<InputMonitorWidget> outputsWidget(
-    "Outputs", InputMonitorWidget::options, "OUTPUT MONITOR_");
+    "Outputs", InputMonitorWidget::options, STR_WIDGET_OUTPUTS);
