@@ -68,7 +68,7 @@ class ModelBitmapWidget : public Widget
 
     char s[LEN_MODEL_NAME + 1];
     strAppend(s, g_model.header.name, LEN_MODEL_NAME);
-    label->setText(std::string("CONNECTED DEVICE: [ ") + s + " ]");
+    label->setText(std::string("CONNECTED: [ ") + s + " ]");
   }
 
   void update() override
@@ -87,8 +87,12 @@ class ModelBitmapWidget : public Widget
     if (widgetData->options[4].value.boolValue) {
       etx_txt_color(label->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
+      etx_txt_color(status->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                    LV_PART_MAIN);
     } else {
-      etx_txt_color_from_flags(label->getLvObj(), widgetData->options[0].value.unsignedValue);
+      auto textColor = widgetData->options[0].value.unsignedValue;
+      etx_txt_color_from_flags(label->getLvObj(), textColor);
+      etx_txt_color_from_flags(status->getLvObj(), textColor);
     }
 
     // Set label position
@@ -103,9 +107,6 @@ class ModelBitmapWidget : public Widget
                    LARGE_LBL_Y + EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_size(status->getLvObj(), width() - LARGE_LBL_X * 2,
                     EdgeTxStyles::STD_FONT_HEIGHT);
-    etx_txt_color(status->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
-                  LV_PART_MAIN);
-
     // get fill color from options[3]
     etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
 

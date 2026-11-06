@@ -488,6 +488,7 @@ enum {
   // IDs for special functions [0:64]
   // IDs for global functions [64:128]
   ID_PLAY_PROMPT_BASE = 128,
+  ID_PLAY_STARTUP = 254,
   ID_PLAY_FROM_SD_MANAGER = 255,
 };
 
@@ -510,7 +511,7 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_KEY_PRESS()        audioKeyPress()
 #define AUDIO_KEY_ERROR()        audioKeyError()
 
-#define AUDIO_HELLO()            audioPlay(AUDIO_HELLO)
+#define AUDIO_HELLO()            audioPlay(AUDIO_HELLO, ID_PLAY_STARTUP)
 #define AUDIO_BYE()              audioPlay(AU_BYE, ID_PLAY_PROMPT_BASE + AU_BYE)
 #define AUDIO_WARNING1()         audioEvent(AU_WARNING1)
 #define AUDIO_WARNING2()         audioEvent(AU_WARNING2)

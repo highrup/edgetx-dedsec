@@ -554,7 +554,8 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   action(std::move(action))
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
-  this->icon->center(width() - PAD_SMALL, height());
+  this->icon->setPos(PAD_SMALL,
+                     (EdgeTxStyles::MENU_HEADER_HEIGHT - this->icon->height()) / 2);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -568,7 +569,8 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   action(std::move(action))
 {
   this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
-  this->icon->center(width(), height());
+  this->icon->setPos(PAD_SMALL,
+                     (EdgeTxStyles::MENU_HEADER_HEIGHT - this->icon->height()) / 2);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -581,7 +583,10 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO, 0, ICON_TOPRIGHT_BG, COLOR_THEME_PRIMARY1_INDEX),
   action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, ICON_BTN_PREV, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
+  auto backIcon =
+      new StaticIcon(this, 0, 0, ICON_BTN_PREV, COLOR_THEME_PRIMARY2_INDEX);
+  backIcon->setPos((width() + PAD_MEDIUM - backIcon->width()) / 2,
+                   (EdgeTxStyles::MENU_HEADER_HEIGHT - backIcon->height()) / 2);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);

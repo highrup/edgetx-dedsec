@@ -194,6 +194,10 @@ void startSplash()
 
 void cancelSplash()
 {
+  if (splashRunning) {
+    STOP_PLAY(ID_PLAY_STARTUP);
+    splashRunning = false;
+  }
   if (splashScreen) {
     splashScreen->closeWindow();
     freeDedsecSplash();
