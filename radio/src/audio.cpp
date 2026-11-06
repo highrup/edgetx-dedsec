@@ -845,6 +845,7 @@ void AudioQueue::stopPlay(uint8_t id)
   _audio_lock();
 
   fragmentsFifo.removePromptById(id);
+  if (normalContext.hasPromptId(id)) normalContext.clear();
   backgroundContext.stop(id);
 
   _audio_unlock();

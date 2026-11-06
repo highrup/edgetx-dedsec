@@ -255,9 +255,9 @@ QuickMenu::QuickMenu() :
 {
   setWindowFlag(OPAQUE);
 
-  // Keep the main view from bleeding through the quick-menu backdrop. The
-  // menu tiles retain their existing colors and focused-state inversion.
-  etx_solid_bg(lvobj, COLOR_THEME_QM_BG_INDEX);
+  // Dark overlay: retain 10% of the main view behind the quick menu.
+  etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
+  etx_bg_color(lvobj, COLOR_BLACK_INDEX);
 
   auto sep = lv_obj_create(lvobj);
   etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
