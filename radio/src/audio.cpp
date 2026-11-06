@@ -213,6 +213,7 @@ constexpr unsigned int MAX_SWITCH_POSITIONS =
     MAX_SWITCHES * 3 + MAX_POTS * XPOTS_MULTIPOS_COUNT;
 
 BitField<(AU_SPECIAL_SOUND_FIRST)> sdAvailableSystemAudioFiles;
+static uint8_t nextSystemAudioVariant[AU_SPECIAL_SOUND_FIRST] = {};
 BitField<(MAX_FLIGHT_MODES * 2/*on, off*/)> sdAvailableFlightmodeAudioFiles;
 BitField<MAX_SWITCH_POSITIONS> sdAvailableSwitchAudioFiles;
 BitField<(MAX_LOGICAL_SWITCHES * 2/*on, off*/)> sdAvailableLogicalSwitchAudioFiles;
@@ -236,6 +237,45 @@ void getSystemAudioFile(char * filename, int index)
   char * str = strAppendSystemAudioPath(filename);
   strcpy(str, audioFilenames[index]);
   strcat(str, SOUNDS_EXT);
+}
+
+static bool getRotatingSystemAudioFile(char* filename, uint8_t event)
+{
+  char base[AUDIO_FILENAME_MAXLEN + 1];
+  getSystemAudioFile(base, event);
+
+  // The standard filename is variant zero. Numbered alternatives use the
+  // same basename followed by 1-9 (for example telemko1.wav). File checks
+  // happen only when an alert is requested, so this has no mixer-loop cost.
+  uint8_t available[10];
+  uint8_t count = 0;
+  if (f_stat(base, nullptr) == FR_OK) available[count++] = 0;
+
+  char* extension = strrchr(base, '.');
+  if (!extension) return false;
+  const size_t prefixLength = extension - base;
+
+  for (uint8_t variant = 1; variant <= 9; ++variant) {
+    char candidate[AUDIO_FILENAME_MAXLEN + 1];
+    snprintf(candidate, sizeof(candidate), "%.*s%u%s", (int)prefixLength,
+             base, variant, extension);
+    if (f_stat(candidate, nullptr) == FR_OK) available[count++] = variant;
+  }
+
+  if (count == 0) return false;
+
+  const uint8_t selected =
+      available[nextSystemAudioVariant[event] % count];
+  nextSystemAudioVariant[event] =
+      (nextSystemAudioVariant[event] + 1) % count;
+
+  if (selected == 0) {
+    strcpy(filename, base);
+  } else {
+    snprintf(filename, AUDIO_FILENAME_MAXLEN + 1, "%.*s%u%s",
+             (int)prefixLength, base, selected, extension);
+  }
+  return true;
 }
 
 void referenceSystemAudioFiles()
@@ -345,10 +385,8 @@ bool isAudioFileReferenced(uint32_t i, char * filename)
   // TRACE("isAudioFileReferenced(%08x)", i);
 
   if (category == SYSTEM_AUDIO_CATEGORY) {
-    if (sdAvailableSystemAudioFiles.getBit(event)) {
-      getSystemAudioFile(filename, event);
-      return true;
-    }
+    if (event < AU_SPECIAL_SOUND_FIRST)
+      return getRotatingSystemAudioFile(filename, event);
   }
   else if (category == PHASE_AUDIO_CATEGORY) {
     if (sdAvailableFlightmodeAudioFiles.getBit(INDEX_PHASE_AUDIO_FILE(index, event))) {

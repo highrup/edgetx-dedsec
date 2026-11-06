@@ -503,7 +503,7 @@ void RadioVersionPage::build(Window* window)
   buttonRow->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_PCT(100),
                            LV_SIZE_CONTENT);
 
-  new TextButton(buttonRow, {0, 0, LV_PCT(50), 0}, "BROADCAST", [=]() {
+  new TextButton(buttonRow, {0, 0, LV_PCT(50), 0}, "DEDSEC", [=]() {
     new DedsecBroadcastDialog();
     return 0;
   });

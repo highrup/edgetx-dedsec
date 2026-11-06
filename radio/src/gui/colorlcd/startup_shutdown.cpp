@@ -259,6 +259,35 @@ const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
 static Window* shutdownWindow = nullptr;
 static StaticIcon* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
+static StaticBitmap* shutdownFrameImg = nullptr;
+static uint8_t shutdownFrameCount = 0;
+static uint8_t shutdownFrame = 0xff;
+
+static constexpr char SHUTDOWN_FRAME_FORMAT[] =
+    BITMAPS_PATH "/SHUTDOWN/%03u.png";
+
+static void findShutdownFrames()
+{
+  shutdownFrameCount = 0;
+  char path[sizeof(SHUTDOWN_FRAME_FORMAT) + 8];
+  for (uint8_t frame = 1; frame <= 99; ++frame) {
+    snprintf(path, sizeof(path), SHUTDOWN_FRAME_FORMAT, frame);
+    if (f_stat(path, nullptr) != FR_OK) break;
+    shutdownFrameCount = frame;
+  }
+}
+
+static void showShutdownFrame(uint8_t frame)
+{
+  if (!shutdownFrameImg || frame >= shutdownFrameCount ||
+      frame == shutdownFrame)
+    return;
+
+  char path[sizeof(SHUTDOWN_FRAME_FORMAT) + 8];
+  snprintf(path, sizeof(path), SHUTDOWN_FRAME_FORMAT, frame + 1);
+  shutdownFrameImg->setSource(path);
+  shutdownFrame = frame;
+}
 
 void drawSleepBitmap()
 {
@@ -282,6 +311,9 @@ void cancelShutdownAnimation()
     if (shutdownSplashImg) shutdownSplashImg->removeCanvas();
     shutdownWindow->closeWindow();
     shutdownWindow = nullptr;
+    shutdownFrameImg = nullptr;
+    shutdownFrameCount = 0;
+    shutdownFrame = 0xff;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
 }
@@ -297,11 +329,19 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-    if (sdMounted() && !shutdownSplashImg)
-      shutdownSplashImg = BitmapBuffer::loadBitmap(
-          BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
-    if (shutdownSplashImg)
-      shutdownSplashImg->addCanvas(shutdownWindow);
+    if (sdMounted()) findShutdownFrames();
+
+    if (shutdownFrameCount > 0) {
+      shutdownFrameImg =
+          new StaticBitmap(shutdownWindow, {0, 0, LCD_W, LCD_H});
+      showShutdownFrame(0);
+    } else {
+      if (sdMounted() && !shutdownSplashImg)
+        shutdownSplashImg = BitmapBuffer::loadBitmap(
+            BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
+      if (shutdownSplashImg)
+        shutdownSplashImg->addCanvas(shutdownWindow);
+    }
 
     (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
@@ -312,6 +352,12 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
           LCD_H / 2 + bmp_shutdown_yo[i],
           (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2_INDEX);
     }
+  }
+
+  if (shutdownFrameCount > 0) {
+    uint32_t frame = (duration * shutdownFrameCount) / totalDuration;
+    if (frame >= shutdownFrameCount) frame = shutdownFrameCount - 1;
+    showShutdownFrame(frame);
   }
 
   int quarter = 4 - (duration * 5) / totalDuration;
