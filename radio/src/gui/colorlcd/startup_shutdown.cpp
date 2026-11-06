@@ -207,11 +207,6 @@ void waitSplash()
   // Handle color splash screen
   if (splashRunning) {
     inactivityCheckInputs();
-    tmr10ms_t animationDuration =
-        DEDSEC_SPLASH_FRAME_COUNT * DEDSEC_SPLASH_FRAME_MS / 10;
-    tmr10ms_t splashDuration =
-        animationDuration > SPLASH_TIMEOUT ? animationDuration : SPLASH_TIMEOUT;
-    tmr10ms_t splashEndTime = splashStartTime + splashDuration;
 
 #if defined(PWR_BUTTON_DUAL)
     // Wait for dual power buttons to be released
@@ -223,6 +218,16 @@ void waitSplash()
     killAllEvents();
     MainWindow::instance()->run();
 #endif
+
+    // The splash window is created before the rest of radio initialization.
+    // Start the animation clock here so those startup tasks do not consume and
+    // visually skip the opening frames.
+    splashStartTime = get_tmr10ms();
+    tmr10ms_t animationDuration =
+        DEDSEC_SPLASH_FRAME_COUNT * DEDSEC_SPLASH_FRAME_MS / 10;
+    tmr10ms_t splashDuration =
+        animationDuration > SPLASH_TIMEOUT ? animationDuration : SPLASH_TIMEOUT;
+    tmr10ms_t splashEndTime = splashStartTime + splashDuration;
 
     MainWindow::instance()->blockUntilClose(true, [=]() {
       tmr10ms_t now = get_tmr10ms();

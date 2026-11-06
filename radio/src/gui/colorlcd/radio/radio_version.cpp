@@ -25,6 +25,7 @@
 #include "dialog.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "modal_window.h"
 #include "fw_version.h"
 #include "hal/module_port.h"
 #include "options.h"
@@ -337,6 +338,70 @@ class VersionDialog : public BaseDialog
 const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
 const std::string edgetx_url = "https://edgetx.org";
 
+namespace {
+
+constexpr char DEDSEC_BROADCAST_AUDIO[] =
+    "/SOUNDS/en/DEDSEC/broadcast.wav";
+constexpr char DEDSEC_BROADCAST_IMAGE_FORMAT[] =
+    "/IMAGES/DEDSEC/BROADCAST/%03u.png";
+constexpr uint32_t DEDSEC_BROADCAST_FRAME_TIME = 1500;  // 15 seconds
+constexpr uint32_t DEDSEC_BROADCAST_DURATION = 12100;  // 121 seconds
+
+class DedsecBroadcastDialog : public ModalWindow
+{
+ public:
+  DedsecBroadcastDialog() : ModalWindow(false)
+  {
+    padAll(PAD_ZERO);
+    etx_bg_color(getLvObj(), COLOR_BLACK_INDEX, LV_PART_MAIN);
+
+    image = new StaticBitmap(this, {0, 0, LCD_W, LCD_H});
+    showFrame(0);
+
+    startedAt = get_tmr10ms();
+    audioQueue.stopPlay(ID_PLAY_FROM_SD_MANAGER);
+    audioQueue.playFile(DEDSEC_BROADCAST_AUDIO, PLAY_NOW,
+                        ID_PLAY_FROM_SD_MANAGER);
+
+    onClosing([=]() {
+      audioQueue.stopPlay(ID_PLAY_FROM_SD_MANAGER);
+    });
+  }
+
+  void checkEvents() override
+  {
+    ModalWindow::checkEvents();
+
+    const uint32_t elapsed = get_tmr10ms() - startedAt;
+    const uint8_t requestedFrame = elapsed / DEDSEC_BROADCAST_FRAME_TIME;
+    if (requestedFrame != frame) showFrame(requestedFrame);
+
+    if (elapsed >= DEDSEC_BROADCAST_DURATION) closeWindow();
+  }
+
+  void onClicked() override { closeWindow(); }
+  void onCancel() override { closeWindow(); }
+
+ private:
+  void showFrame(uint8_t requestedFrame)
+  {
+    char path[sizeof(DEDSEC_BROADCAST_IMAGE_FORMAT) + 8];
+    snprintf(path, sizeof(path), DEDSEC_BROADCAST_IMAGE_FORMAT,
+             requestedFrame + 1);
+
+    if (f_stat(path, nullptr) == FR_OK) {
+      image->setSource(path);
+      frame = requestedFrame;
+    }
+  }
+
+  StaticBitmap* image = nullptr;
+  uint32_t startedAt = 0;
+  uint8_t frame = 0xFF;
+};
+
+}  // namespace
+
 RadioVersionPage::RadioVersionPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
@@ -433,10 +498,20 @@ void RadioVersionPage::build(Window* window)
 
   new StaticText(textBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
 
+  auto buttonRow = new Window(infoBox, {0, 0, LV_PCT(100), 0});
+  buttonRow->padAll(PAD_ZERO);
+  buttonRow->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL, LV_PCT(100),
+                           LV_SIZE_CONTENT);
+
+  new TextButton(buttonRow, {0, 0, LV_PCT(50), 0}, "BROADCAST", [=]() {
+    new DedsecBroadcastDialog();
+    return 0;
+  });
+
   // Module and receivers versions
-  new TextButton(infoBox, {0, 0, LV_PCT(100), 0},
-                  STR_MODULES_RX_VERSION, [=]() {
-                    new VersionDialog();
-                    return 0;
-                  });
+  new TextButton(buttonRow, {0, 0, LV_PCT(50), 0},
+                 STR_MODULES_RX_VERSION, [=]() {
+                   new VersionDialog();
+                   return 0;
+                 });
 }
