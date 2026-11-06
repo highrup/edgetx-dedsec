@@ -255,8 +255,8 @@ QuickMenu::QuickMenu() :
 {
   setWindowFlag(OPAQUE);
 
-  // Dark overlay: retain 10% of the main view behind the quick menu.
-  etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
+  // Dark overlay: retain 5% of the main view behind the quick menu.
+  lv_obj_set_style_bg_opa(lvobj, 242, LV_PART_MAIN);
   etx_bg_color(lvobj, COLOR_BLACK_INDEX);
 
   auto sep = lv_obj_create(lvobj);
