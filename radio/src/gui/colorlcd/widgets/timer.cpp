@@ -131,6 +131,14 @@ class TimerWidget : public Widget
     etx_arc_color(timerArc, COLOR_THEME_SECONDARY1_INDEX, LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
+    frame = new Window(this, {0, 0, width(), height()});
+    frame->setWindowFlag(NO_FOCUS | NO_CLICK);
+    etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
+                      LV_PART_MAIN);
+    lv_obj_set_style_border_side(frame->getLvObj(), LV_BORDER_SIDE_FULL,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(frame->getLvObj(), 1, LV_PART_MAIN);
+
     update();
     foreground();
   }
@@ -280,6 +288,7 @@ class TimerWidget : public Widget
   Window* titleBar = nullptr;
   StaticText* titleLabel = nullptr;
   StaticText* closeLabel = nullptr;
+  Window* frame = nullptr;
   LcdFlags textColor = COLOR_THEME_SECONDARY1;
   LcdFlags accentColor = COLOR_THEME_SECONDARY1;
 
@@ -333,6 +342,9 @@ class TimerWidget : public Widget
                                   makeLvColor(colorToRGB(accentColor)),
                                   LV_PART_MAIN);
     lv_obj_set_style_border_color(titleBar->getLvObj(),
+                                  makeLvColor(colorToRGB(accentColor)),
+                                  LV_PART_MAIN);
+    lv_obj_set_style_border_color(frame->getLvObj(),
                                   makeLvColor(colorToRGB(accentColor)),
                                   LV_PART_MAIN);
     etx_arc_color_from_flags(timerArc, accentColor, LV_PART_INDICATOR);

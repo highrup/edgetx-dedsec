@@ -72,6 +72,14 @@ class ModelBitmapWidget : public Widget
     image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
+    frame = new Window(this, {0, 0, width(), height()});
+    frame->setWindowFlag(NO_FOCUS | NO_CLICK);
+    etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
+                      LV_PART_MAIN);
+    lv_obj_set_style_border_side(frame->getLvObj(), LV_BORDER_SIDE_FULL,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(frame->getLvObj(), 1, LV_PART_MAIN);
+
     foreground();
   }
 
@@ -121,6 +129,9 @@ class ModelBitmapWidget : public Widget
                                   makeLvColor(colorToRGB(textColor)),
                                   LV_PART_MAIN);
     lv_obj_set_style_border_color(titleBar->getLvObj(),
+                                  makeLvColor(colorToRGB(textColor)),
+                                  LV_PART_MAIN);
+    lv_obj_set_style_border_color(frame->getLvObj(),
                                   makeLvColor(colorToRGB(textColor)),
                                   LV_PART_MAIN);
 
@@ -187,6 +198,7 @@ class ModelBitmapWidget : public Widget
   Window* titleBar = nullptr;
   StaticText* titleLabel = nullptr;
   StaticText* closeLabel = nullptr;
+  Window* frame = nullptr;
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
 

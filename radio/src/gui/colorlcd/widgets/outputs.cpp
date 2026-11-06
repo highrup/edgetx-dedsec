@@ -34,13 +34,15 @@ class InputMonitorChannelValue : public Window
  public:
   InputMonitorChannelValue(Window* parent, uint8_t col, uint8_t row,
                            coord_t colWidth, uint8_t channel,
-                           LcdFlags textColor, LcdFlags barColor,
+                           LcdFlags textColor, LcdFlags accentColor,
+                           LcdFlags barColor,
                            LcdFlags backgroundColor) :
       Window(parent,
              {col * colWidth, row * ROW_HEIGHT,
               colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
       channel(channel),
       textColor(textColor),
+      accentColor(accentColor),
       barColor(barColor),
       backgroundColor(backgroundColor)
   {
@@ -55,7 +57,7 @@ class InputMonitorChannelValue : public Window
   {
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     lv_obj_set_style_border_color(lvobj,
-                                  makeLvColor(colorToRGB(barColor)),
+                                  makeLvColor(colorToRGB(accentColor)),
                                   LV_PART_MAIN);
 
     padAll(PAD_ZERO);
@@ -95,7 +97,7 @@ class InputMonitorChannelValue : public Window
 
     auto divLine = lv_line_create(lvobj);
     lv_line_set_points(divLine, divPoints, 2);
-    etx_line_color_from_flags(divLine, barColor);
+    etx_line_color_from_flags(divLine, accentColor);
 
     refresh();
   }
@@ -166,6 +168,7 @@ class InputMonitorChannelValue : public Window
  protected:
   uint8_t channel;
   LcdFlags textColor;
+  LcdFlags accentColor;
   LcdFlags barColor;
   LcdFlags backgroundColor;
   int16_t lastValue = OUTPUT_INVALID_VALUE;
@@ -215,6 +218,14 @@ class InputMonitorWidget : public Widget
         this, {0, TITLE_HEIGHT, width(), height() - TITLE_HEIGHT});
     content->setWindowFlag(NO_FOCUS | NO_CLICK);
 
+    frame = new Window(this, {0, 0, width(), height()});
+    frame->setWindowFlag(NO_FOCUS | NO_CLICK);
+    etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
+                      LV_PART_MAIN);
+    lv_obj_set_style_border_side(frame->getLvObj(), LV_BORDER_SIDE_FULL,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(frame->getLvObj(), 1, LV_PART_MAIN);
+
     update();
   }
 
@@ -226,8 +237,10 @@ class InputMonitorWidget : public Widget
         widgetData->options[3].value.unsignedValue;
     const LcdFlags newTextColor =
         widgetData->options[4].value.unsignedValue;
-    const LcdFlags newBarColor =
+    const LcdFlags newAccentColor =
         widgetData->options[5].value.unsignedValue;
+    const LcdFlags newBarColor =
+        widgetData->options[6].value.unsignedValue;
 
     etx_bg_color_from_flags(lvobj, newBackgroundColor);
     etx_bg_color_from_flags(titleBar->getLvObj(), newBackgroundColor);
@@ -239,10 +252,13 @@ class InputMonitorWidget : public Widget
     etx_txt_color_from_flags(titleLabel->getLvObj(), newTextColor);
     etx_txt_color_from_flags(closeLabel->getLvObj(), newTextColor);
     lv_obj_set_style_border_color(lvobj,
-                                  makeLvColor(colorToRGB(newBarColor)),
+                                  makeLvColor(colorToRGB(newAccentColor)),
                                   LV_PART_MAIN);
     lv_obj_set_style_border_color(titleBar->getLvObj(),
-                                  makeLvColor(colorToRGB(newBarColor)),
+                                  makeLvColor(colorToRGB(newAccentColor)),
+                                  LV_PART_MAIN);
+    lv_obj_set_style_border_color(frame->getLvObj(),
+                                  makeLvColor(colorToRGB(newAccentColor)),
                                   LV_PART_MAIN);
 
     if (height() <= SHOW_MIN_H || width() <= SHOW_MIN_W)
@@ -256,6 +272,10 @@ class InputMonitorWidget : public Widget
     }
     if (newTextColor != textColor) {
       textColor = newTextColor;
+      changed = true;
+    }
+    if (newAccentColor != accentColor) {
+      accentColor = newAccentColor;
       changed = true;
     }
     if (newBarColor != barColor) {
@@ -286,7 +306,8 @@ class InputMonitorWidget : public Widget
         for (uint8_t r = 0; r < rows && chan <= lastChan;
              r += 1, chan += 1) {
           new InputMonitorChannelValue(content, c, r, colWidth, chan - 1,
-                                       textColor, barColor, backgroundColor);
+                                       textColor, accentColor, barColor,
+                                       backgroundColor);
         }
       }
     }
@@ -307,12 +328,14 @@ class InputMonitorWidget : public Widget
   uint8_t cols = 0;
   uint8_t rows = 0;
   LcdFlags textColor = 0;
+  LcdFlags accentColor = 0;
   LcdFlags barColor = 0;
   LcdFlags backgroundColor = 0;
   Window* titleBar = nullptr;
   StaticText* titleLabel = nullptr;
   StaticText* closeLabel = nullptr;
   Window* content = nullptr;
+  Window* frame = nullptr;
   static LAYOUT_VAL_SCALED(TITLE_HEIGHT, 18)
   static LAYOUT_VAL_SCALED(SHOW_MIN_W, 100)
   static LAYOUT_VAL_SCALED(SHOW_MIN_H, 20)
@@ -326,6 +349,8 @@ const WidgetOption InputMonitorWidget::options[] = {
     {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
     {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {"Bar fill", WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {nullptr, WidgetOption::Bool}};
 
 // Note: Must be a template class otherwise the linker will discard the 'outputsWidget' object
