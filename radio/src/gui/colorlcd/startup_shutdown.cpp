@@ -46,7 +46,99 @@ const uint8_t __bmp_splash_logo[] __FLASH = {
 #include "bmp_logo_edgetx_splash.lbm"
 };
 
+#include "dedsec_splash_data.inc"
+
 static Window* splashScreen = nullptr;
+static lv_obj_t* dedsecSplashCanvas = nullptr;
+static uint8_t* dedsecSplashPacked = nullptr;
+static uint8_t* dedsecSplashAlpha = nullptr;
+static uint16_t dedsecSplashFrame = 0;
+
+static uint16_t readSplashUint16(const uint8_t*& data)
+{
+  uint16_t value = data[0] | (data[1] << 8);
+  data += 2;
+  return value;
+}
+
+static void renderDedsecSplashFrame(uint16_t frame)
+{
+  const uint8_t* data =
+      dedsecSplashFrameData + dedsecSplashFrameOffsets[frame];
+  uint32_t position = 0;
+
+  while (true) {
+    uint16_t skip = readSplashUint16(data);
+    if (skip == 0xffff) break;
+
+    uint16_t count = readSplashUint16(data);
+    position += skip;
+    memcpy(dedsecSplashPacked + position, data, count);
+    data += count;
+    position += count;
+  }
+
+  for (uint32_t pixel = 0;
+       pixel < DEDSEC_SPLASH_WIDTH * DEDSEC_SPLASH_HEIGHT; pixel += 1) {
+    dedsecSplashAlpha[pixel] =
+        (dedsecSplashPacked[pixel >> 3] & (0x80 >> (pixel & 7)))
+            ? 0xff
+            : 0x00;
+  }
+  lv_obj_invalidate(dedsecSplashCanvas);
+}
+
+static bool createDedsecSplash()
+{
+  dedsecSplashPacked = (uint8_t*)malloc(DEDSEC_SPLASH_PACKED_BYTES);
+  dedsecSplashAlpha =
+      (uint8_t*)malloc(DEDSEC_SPLASH_WIDTH * DEDSEC_SPLASH_HEIGHT);
+  if (!dedsecSplashPacked || !dedsecSplashAlpha) {
+    free(dedsecSplashPacked);
+    free(dedsecSplashAlpha);
+    dedsecSplashPacked = nullptr;
+    dedsecSplashAlpha = nullptr;
+    return false;
+  }
+
+  memset(dedsecSplashPacked, 0, DEDSEC_SPLASH_PACKED_BYTES);
+  memset(dedsecSplashAlpha, 0,
+         DEDSEC_SPLASH_WIDTH * DEDSEC_SPLASH_HEIGHT);
+
+  dedsecSplashCanvas = lv_canvas_create(splashScreen->getLvObj());
+  lv_canvas_set_buffer(dedsecSplashCanvas, dedsecSplashAlpha,
+                       DEDSEC_SPLASH_WIDTH, DEDSEC_SPLASH_HEIGHT,
+                       LV_IMG_CF_ALPHA_8BIT);
+  etx_img_color(dedsecSplashCanvas, COLOR_WHITE_INDEX);
+  lv_obj_set_pos(dedsecSplashCanvas, 0, 0);
+
+  dedsecSplashFrame = 0;
+  renderDedsecSplashFrame(0);
+  return true;
+}
+
+static void updateDedsecSplash(tmr10ms_t elapsed)
+{
+  if (!dedsecSplashCanvas) return;
+
+  uint16_t target = elapsed / (DEDSEC_SPLASH_FRAME_MS / 10);
+  if (target >= DEDSEC_SPLASH_FRAME_COUNT)
+    target = DEDSEC_SPLASH_FRAME_COUNT - 1;
+
+  while (dedsecSplashFrame < target) {
+    dedsecSplashFrame += 1;
+    renderDedsecSplashFrame(dedsecSplashFrame);
+  }
+}
+
+static void freeDedsecSplash()
+{
+  dedsecSplashCanvas = nullptr;
+  free(dedsecSplashPacked);
+  free(dedsecSplashAlpha);
+  dedsecSplashPacked = nullptr;
+  dedsecSplashAlpha = nullptr;
+}
 
 void drawSplash()
 {
@@ -57,11 +149,16 @@ void drawSplash()
 
   etx_solid_bg(splashScreen->getLvObj(), COLOR_BLACK_INDEX);
 
-  auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
-                            BITMAPS_PATH "/" SPLASH_FILE);
-  bg->show(bg->hasImage());
+  if (!createDedsecSplash()) {
+    auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
+                              BITMAPS_PATH "/" SPLASH_FILE);
+    bg->show(bg->hasImage());
 
-  if (!bg->hasImage()) {
+    if (bg->hasImage()) {
+      MainWindow::instance()->run();
+      return;
+    }
+
     LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
     coord_t x = (LANDSCAPE ? LCD_W / 3 : LCD_W / 2) - logo->width / 2;
     coord_t y = (LANDSCAPE ? LCD_H / 2 : LCD_H * 2 / 5) - logo->height / 2;
@@ -99,6 +196,7 @@ void cancelSplash()
 {
   if (splashScreen) {
     splashScreen->closeWindow();
+    freeDedsecSplash();
     splashScreen = nullptr;
     splashStartTime = 0;
   }
@@ -109,7 +207,11 @@ void waitSplash()
   // Handle color splash screen
   if (splashRunning) {
     inactivityCheckInputs();
-    splashStartTime += SPLASH_TIMEOUT;
+    tmr10ms_t animationDuration =
+        DEDSEC_SPLASH_FRAME_COUNT * DEDSEC_SPLASH_FRAME_MS / 10;
+    tmr10ms_t splashDuration =
+        animationDuration > SPLASH_TIMEOUT ? animationDuration : SPLASH_TIMEOUT;
+    tmr10ms_t splashEndTime = splashStartTime + splashDuration;
 
 #if defined(PWR_BUTTON_DUAL)
     // Wait for dual power buttons to be released
@@ -123,7 +225,9 @@ void waitSplash()
 #endif
 
     MainWindow::instance()->blockUntilClose(true, [=]() {
-      if (splashStartTime < get_tmr10ms())
+      tmr10ms_t now = get_tmr10ms();
+      updateDedsecSplash(now - splashStartTime);
+      if (splashEndTime < now)
         return true;
       auto evt = getEvent();
       if (evt || inactivityCheckInputs()) {
