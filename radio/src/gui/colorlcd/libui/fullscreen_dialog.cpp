@@ -90,24 +90,24 @@ void FullScreenDialog::build()
                  t.c_str(), COLOR_THEME_WARNING_INDEX, FONT(XL) | CENTERED);
 
   const coord_t textLeft = groupLeft + alertIcon->width() + titleGap;
-  const coord_t messageTop =
+  const coord_t detailTop =
       ALERT_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT * 2;
-  messageLabel = new StaticText(
-      this,
-      rect_t{textLeft, messageTop, titleWidth,
-             EdgeTxStyles::STD_FONT_HEIGHT},
-      message.c_str(), COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD) | CENTERED);
-
   detailLabel =
       new StaticText(this,
                      rect_t{textLeft,
-                            messageTop + EdgeTxStyles::STD_FONT_HEIGHT,
+                            detailTop,
                             titleWidth,
-                            LCD_H - messageTop -
-                                EdgeTxStyles::STD_FONT_HEIGHT - ONEBTN_H -
-                                PAD_LARGE},
+                            ALERT_MESSAGE_TOP - detailTop - PAD_SMALL},
                      "", COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
   lv_label_set_long_mode(detailLabel->getLvObj(), LV_LABEL_LONG_WRAP);
+
+  // Keep the original warning condition in its centered position above the
+  // button, after the custom description text.
+  messageLabel = new StaticText(
+      this,
+      rect_t{PAD_LARGE, ALERT_MESSAGE_TOP, LCD_W - PAD_LARGE * 2,
+             EdgeTxStyles::STD_FONT_HEIGHT},
+      message.c_str(), COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD) | CENTERED);
 
   if (!action.empty()) {
     auto btn = new TextButton(
