@@ -36,6 +36,12 @@ class TrimIcon : public SliderIcon
     lv_obj_add_flag(mask, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(shadow, LV_OBJ_FLAG_HIDDEN);
 
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
+    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
+    lv_obj_set_style_radius(lvobj, 0, LV_PART_MAIN);
+
     lv_coord_t x1 = MainViewSlider::SLIDER_ICON_SIZE / 5;
     lv_coord_t x2 = MainViewSlider::SLIDER_ICON_SIZE - x1;
     lv_coord_t y1 = (MainViewSlider::SLIDER_ICON_SIZE + 1) / 4;

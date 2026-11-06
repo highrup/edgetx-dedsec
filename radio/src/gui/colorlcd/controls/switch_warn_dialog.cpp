@@ -29,6 +29,8 @@ SwitchWarnDialog::SwitchWarnDialog() :
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
+  setDetail("You should probably toggle off your switches before you blow "
+            "something up.\n-WR3NCH <3");
   AUDIO_ERROR_MESSAGE(AU_SWITCH_ALERT);
 }
 
@@ -83,6 +85,8 @@ ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
   lv_label_set_long_mode(messageLabel->getLvObj(), LV_LABEL_LONG_WRAP);
+  setDetail("You can barely lift off, what are you tryin to do? Send us "
+            "straight to the FUCKING MOON?\n-WR3NCH");
   AUDIO_ERROR_MESSAGE(AU_THROTTLE_ALERT);
 }
 

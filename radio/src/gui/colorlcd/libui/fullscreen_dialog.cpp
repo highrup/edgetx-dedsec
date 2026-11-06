@@ -60,8 +60,8 @@ void FullScreenDialog::build()
   div->setWindowFlag(NO_FOCUS);
   etx_solid_bg(div->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-  new StaticIcon(
-      this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
+  auto alertIcon = new StaticIcon(
+      this, 0, ALERT_BITMAP_TOP,
       (type == WARNING_TYPE_INFO) ? ICON_BUSY : ICON_ERROR,
       COLOR_THEME_WARNING_INDEX);
 
@@ -76,18 +76,37 @@ void FullScreenDialog::build()
   } else if (!title.empty()) {
     t = title;
   }
+  // Keep the icon and two-line warning title centered as one visual group.
+  constexpr coord_t titleGap = PAD_MEDIUM;
+  const coord_t titleWidth = LCD_W / 2;
+  const coord_t groupWidth = alertIcon->width() + titleGap + titleWidth;
+  const coord_t groupLeft = (LCD_W - groupWidth) / 2;
+  alertIcon->setPos(groupLeft, ALERT_BITMAP_TOP);
+
   new StaticText(this,
-                 rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP,
-                        LCD_W - ALERT_TITLE_LEFT - PAD_MEDIUM,
+                 rect_t{groupLeft + alertIcon->width() + titleGap,
+                        ALERT_TITLE_TOP, titleWidth,
                         LCD_H - ALERT_TITLE_TOP - PAD_MEDIUM},
-                 t.c_str(), COLOR_THEME_WARNING_INDEX, FONT(XL));
+                 t.c_str(), COLOR_THEME_WARNING_INDEX, FONT(XL) | CENTERED);
 
   messageLabel =
       new StaticText(this,
-                     rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP,
-                            LCD_W - ALERT_MESSAGE_LEFT - PAD_MEDIUM,
-                            LCD_H - ALERT_MESSAGE_TOP - PAD_MEDIUM},
-                     message.c_str(), COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD));
+                     rect_t{PAD_LARGE, ALERT_MESSAGE_TOP,
+                            LCD_W - PAD_LARGE * 2,
+                            EdgeTxStyles::STD_FONT_HEIGHT},
+                     message.c_str(), COLOR_THEME_PRIMARY2_INDEX,
+                     FONT(BOLD) | CENTERED);
+
+  detailLabel =
+      new StaticText(this,
+                     rect_t{PAD_LARGE,
+                            ALERT_MESSAGE_TOP + EdgeTxStyles::STD_FONT_HEIGHT,
+                            LCD_W - PAD_LARGE * 2,
+                            LCD_H - ALERT_MESSAGE_TOP -
+                                EdgeTxStyles::STD_FONT_HEIGHT - ONEBTN_H -
+                                PAD_LARGE},
+                     "", COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
+  lv_label_set_long_mode(detailLabel->getLvObj(), LV_LABEL_LONG_WRAP);
 
   if (!action.empty()) {
     auto btn = new TextButton(
@@ -150,6 +169,11 @@ void FullScreenDialog::onPressTELE() { alertCancel(); }
 void FullScreenDialog::setMessage(const char* text)
 {
   if (messageLabel) messageLabel->setText(text);
+}
+
+void FullScreenDialog::setDetail(const char* text)
+{
+  if (detailLabel) detailLabel->setText(text);
 }
 
 //-----------------------------------------------------------------------------

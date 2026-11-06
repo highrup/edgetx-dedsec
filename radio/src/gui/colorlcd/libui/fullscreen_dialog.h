@@ -42,6 +42,7 @@ class FullScreenDialog : public NavWindow
 #endif
 
   void setMessage(const char* text);
+  void setDetail(const char* text);
 
   bool onLongPress() override;
   void onCancel() override { closeWindow(); }
@@ -81,6 +82,7 @@ class FullScreenDialog : public NavWindow
   std::string action;
   std::function<void(void)> confirmHandler;
   StaticText* messageLabel = nullptr;
+  StaticText* detailLabel = nullptr;
 
   void build();
 };
