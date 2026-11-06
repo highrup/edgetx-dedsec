@@ -24,7 +24,7 @@
 // Modal overlay style (for dimming background)
 void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  etx_obj_add_style(obj, styles->bg_opacity_90, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->bg_opacity_50, LV_PART_MAIN);
   etx_bg_color(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
 }
 
