@@ -47,6 +47,11 @@ class ModelBitmapWidget : public Widget
     label = new StaticText(this, rect_t{}, "");
     label->hide();
 
+    status = new StaticText(this, rect_t{},
+                            "We'll show you what hackers can do",
+                            COLOR_THEME_SECONDARY1_INDEX, FONT(XXS));
+    status->hide();
+
     image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
@@ -63,7 +68,7 @@ class ModelBitmapWidget : public Widget
 
     char s[LEN_MODEL_NAME + 1];
     strAppend(s, g_model.header.name, LEN_MODEL_NAME);
-    label->setText(s);
+    label->setText(std::string("CONNECTED DEVICE: [ ") + s + " ]");
   }
 
   void update() override
@@ -91,6 +96,15 @@ class ModelBitmapWidget : public Widget
       lv_obj_set_pos(label->getLvObj(), LARGE_LBL_X, LARGE_LBL_Y);
     else
       lv_obj_set_pos(label->getLvObj(), 0, 0);
+    lv_obj_set_size(label->getLvObj(), width() - LARGE_LBL_X * 2,
+                    EdgeTxStyles::STD_FONT_HEIGHT);
+
+    lv_obj_set_pos(status->getLvObj(), LARGE_LBL_X,
+                   LARGE_LBL_Y + EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_size(status->getLvObj(), width() - LARGE_LBL_X * 2,
+                    EdgeTxStyles::STD_FONT_HEIGHT);
+    etx_txt_color(status->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                  LV_PART_MAIN);
 
     // get fill color from options[3]
     etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
@@ -125,6 +139,7 @@ class ModelBitmapWidget : public Widget
     image->show(image->hasImage());
 
     label->show(isLarge || !image->hasImage());
+    status->show(isLarge);
   }
 
   static const WidgetOption options[];
@@ -133,6 +148,7 @@ class ModelBitmapWidget : public Widget
   bool isLarge = false;
   uint32_t deps_hash = 0;
   StaticText* label = nullptr;
+  StaticText* status = nullptr;
   StaticBitmap* image = nullptr;
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }

@@ -27,11 +27,11 @@
 
 constexpr int16_t OUTPUT_INVALID_VALUE = INT16_MIN;
 
-class ChannelValue : public Window
+class InputMonitorChannelValue : public Window
 {
  public:
-  ChannelValue(Window* parent, uint8_t col, uint8_t row, coord_t colWidth,
-               uint8_t channel) :
+  InputMonitorChannelValue(Window* parent, uint8_t col, uint8_t row,
+                           coord_t colWidth, uint8_t channel) :
       Window(parent,
              {col * colWidth, row * ROW_HEIGHT,
               colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
@@ -170,11 +170,11 @@ class ChannelValue : public Window
   Messaging refreshMsg;
 };
 
-class OutputsWidget : public Widget
+class InputMonitorWidget : public Widget
 {
  public:
-  OutputsWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-                int screenNum, int zoneNum) :
+  InputMonitorWidget(const WidgetFactory* factory, Window* parent,
+                     const rect_t& rect, int screenNum, int zoneNum) :
       Widget(factory, parent, rect, screenNum, zoneNum)
   {
     padAll(PAD_ZERO);
@@ -225,7 +225,8 @@ class OutputsWidget : public Widget
     // Get size
     if (width() != lastWidth) { lastWidth = width(); changed = true; }
     if (height() != lastHeight) { lastHeight = height(); changed = true; }
-    uint8_t n = (lastHeight - TITLE_HEIGHT) / ChannelValue::ROW_HEIGHT;
+    uint8_t n =
+        (lastHeight - TITLE_HEIGHT) / InputMonitorChannelValue::ROW_HEIGHT;
     if (n != rows) { rows = n; changed = true; }
     n = (lastWidth > COLS_MIN_W) ? 2 : 1;
     if (n != cols) { cols = n; changed = true; }
@@ -237,7 +238,7 @@ class OutputsWidget : public Widget
       for (uint8_t c = 0; c < cols && chan <= lastChan; c += 1) {
         for (uint8_t r = 0; r < rows && chan <= lastChan;
              r += 1, chan += 1) {
-          new ChannelValue(content, c, r, colWidth, chan - 1);
+          new InputMonitorChannelValue(content, c, r, colWidth, chan - 1);
         }
       }
     }
@@ -264,7 +265,7 @@ class OutputsWidget : public Widget
   static LAYOUT_VAL_SCALED(COLS_MIN_W, 300)
 };
 
-const WidgetOption OutputsWidget::options[] = {
+const WidgetOption InputMonitorWidget::options[] = {
     {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {MAX_OUTPUT_CHANNELS}},
     {STR_LAST_CHANNEL, WidgetOption::Integer, {MAX_OUTPUT_CHANNELS}, {1}, {MAX_OUTPUT_CHANNELS}},
     {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
@@ -275,11 +276,11 @@ const WidgetOption OutputsWidget::options[] = {
 
 // Note: Must be a template class otherwise the linker will discard the 'outputsWidget' object
 template <class T>
-class OutputsWidgetFactory : public WidgetFactory
+class InputMonitorWidgetFactory : public WidgetFactory
 {
  public:
-  OutputsWidgetFactory(const char* name, const WidgetOption* options,
-                    const char* displayName = nullptr) :
+  InputMonitorWidgetFactory(const char* name, const WidgetOption* options,
+                            const char* displayName = nullptr) :
       WidgetFactory(name, options, displayName)
   {
   }
@@ -307,6 +308,5 @@ class OutputsWidgetFactory : public WidgetFactory
   }
 };
 
-OutputsWidgetFactory<OutputsWidget> outputsWidget("Outputs",
-                                               OutputsWidget::options,
-                                               STR_WIDGET_OUTPUTS);
+InputMonitorWidgetFactory<InputMonitorWidget> inputMonitorWidget(
+    "Input Monitor", InputMonitorWidget::options, "Input Monitor");
