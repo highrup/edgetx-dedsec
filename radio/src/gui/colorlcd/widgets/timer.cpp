@@ -131,7 +131,7 @@ class TimerWidget : public Widget
     etx_arc_color(timerArc, COLOR_THEME_SECONDARY1_INDEX, LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
-    frame = new Window(this, {0, 0, width(), height()});
+    frame = new Window(this, {0, 0, width() - 1, height() - 1});
     frame->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
                       LV_PART_MAIN);

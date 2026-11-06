@@ -99,6 +99,17 @@ class InputMonitorChannelValue : public Window
     lv_line_set_points(divLine, divPoints, 2);
     etx_line_color_from_flags(divLine, accentColor);
 
+    auto rowFrame = lv_obj_create(lvobj);
+    lv_obj_set_pos(rowFrame, 0, 0);
+    lv_obj_set_size(rowFrame, width() - 1, height() - 1);
+    lv_obj_set_style_bg_opa(rowFrame, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_border_side(rowFrame, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
+    lv_obj_set_style_border_width(rowFrame, 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(rowFrame,
+                                  makeLvColor(colorToRGB(accentColor)),
+                                  LV_PART_MAIN);
+    lv_obj_clear_flag(rowFrame, LV_OBJ_FLAG_CLICKABLE);
+
     refresh();
   }
 
@@ -218,7 +229,7 @@ class InputMonitorWidget : public Widget
         this, {0, TITLE_HEIGHT, width(), height() - TITLE_HEIGHT});
     content->setWindowFlag(NO_FOCUS | NO_CLICK);
 
-    frame = new Window(this, {0, 0, width(), height()});
+    frame = new Window(this, {0, 0, width() - 1, height() - 1});
     frame->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
                       LV_PART_MAIN);

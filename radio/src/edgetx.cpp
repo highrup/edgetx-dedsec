@@ -663,6 +663,11 @@ void calcStatusLedBright(int16_t source)
 static uint8_t _statusLedPhase = STATUS_LED_PHASE_BOOT;
 static uint8_t _statusLedColor = STATUS_LED_COLOR_DEFAULT;
 
+uint8_t statusLedGetPhase()
+{
+  return _statusLedPhase;
+}
+
 bool statusLedColorAvailable(int color)
 {
   switch (color) {

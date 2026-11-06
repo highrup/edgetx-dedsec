@@ -72,7 +72,7 @@ class ModelBitmapWidget : public Widget
     image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
-    frame = new Window(this, {0, 0, width(), height()});
+    frame = new Window(this, {0, 0, width() - 1, height() - 1});
     frame->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
                       LV_PART_MAIN);

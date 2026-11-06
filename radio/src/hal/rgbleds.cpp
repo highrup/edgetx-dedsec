@@ -31,6 +31,28 @@ static RGBLedColor ledOverride[NUM_FUNCTIONS_SWITCHES];
 static int cfsEditOverride = -1;
 static uint32_t cfsEditColor;
 
+#if defined(PCBV12)
+static bool applyFrontLedMode()
+{
+  if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_NORMAL)
+    return false;
+
+  uint8_t level = 0;
+  uint8_t red = 0;
+  if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_DIM) {
+    if (statusLedGetPhase() == STATUS_LED_PHASE_ERROR)
+      red = 255;
+    else
+      level = 10;
+  }
+
+  for (uint8_t led = 0; led < LED_STRIP_LENGTH; ++led)
+    rgbSetLedColor(led, red ? red : level, level, level);
+  rgbLedColorApply();
+  return true;
+}
+#endif
+
 void setFSEditOverride(int index, uint32_t color)
 {
   cfsEditOverride = index;
@@ -46,6 +68,9 @@ void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b
 }
 
 void setFSLedOFF(uint8_t index) {
+#if defined(PCBV12)
+  if (applyFrontLedMode()) return;
+#endif
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
     if (cfsEditOverride >= 0) {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);
@@ -61,6 +86,9 @@ void setFSLedOFF(uint8_t index) {
 }
 
 void setFSLedON(uint8_t index) {
+#if defined(PCBV12)
+  if (applyFrontLedMode()) return;
+#endif
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
     if (cfsEditOverride >= 0) {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);

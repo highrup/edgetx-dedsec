@@ -1247,6 +1247,11 @@ PACK(struct RadioData {
   NOBACKUP(int16_t statusLedPwmSpare:6 SKIP);
 #endif
 
+#if defined(PCBV12)
+  NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
+  NOBACKUP(uint8_t frontLedSpare:6 SKIP);
+#endif
+
 #if defined(COLORLCD)
   NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
   NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);

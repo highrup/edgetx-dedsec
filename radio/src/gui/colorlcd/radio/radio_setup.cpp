@@ -584,6 +584,20 @@ const static SetupLineDef backlightSetupLines[] = {
 
 #if defined(STATUS_LED_COLORS)
 const static SetupLineDef statusLedSetupLines[] = {
+#if defined(PCBV12)
+  {
+    STR_DEF(STR_MODE),
+    [](Window* parent, coord_t x, coord_t y) {
+      static const char* const modes[] = {"Normal", "Dim", "Off"};
+      new Choice(parent, {x, y, 0, 0}, modes, 0, 2,
+                 GET_DEFAULT(g_eeGeneral.frontLedMode),
+                 [](int32_t value) {
+                   g_eeGeneral.frontLedMode = value;
+                   SET_DIRTY();
+                 }, "Front LEDs");
+    }
+  },
+#endif
 #if defined(STATUS_LED_PWM)
   {
     // Status LED brightness

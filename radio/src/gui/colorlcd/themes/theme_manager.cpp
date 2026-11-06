@@ -554,8 +554,7 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   action(std::move(action))
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
-  this->icon->setPos(PAD_SMALL,
-                     (EdgeTxStyles::MENU_HEADER_HEIGHT - this->icon->height()) / 2);
+  this->icon->setPos(PAD_SMALL, 6);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -569,8 +568,7 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   action(std::move(action))
 {
   this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
-  this->icon->setPos(PAD_SMALL,
-                     (EdgeTxStyles::MENU_HEADER_HEIGHT - this->icon->height()) / 2);
+  this->icon->setPos(PAD_SMALL, 6);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);

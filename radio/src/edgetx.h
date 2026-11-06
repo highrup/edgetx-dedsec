@@ -349,6 +349,7 @@ void calcStatusLedBright(int16_t source);
 #if defined(STATUS_LED_COLORS)
 void checkStatusLed();
 void statusLedSetPhase(uint8_t phase);
+uint8_t statusLedGetPhase();
 uint8_t statusLedPhaseColor(uint8_t phase);
 bool statusLedColorAvailable(int color);
 #endif

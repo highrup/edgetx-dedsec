@@ -727,6 +727,12 @@ enum StatusLedPhase {
   STATUS_LED_PHASE_EMIT,
 };
 
+enum FrontLedMode {
+  FRONT_LED_MODE_NORMAL,
+  FRONT_LED_MODE_DIM,
+  FRONT_LED_MODE_OFF,
+};
+
 enum PPMUnit {
     PPM_PERCENT_PREC0,
     PPM_PERCENT_PREC1,
