@@ -57,9 +57,13 @@ static void on_draw_end(lv_event_t* e)
 PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon, const char* parentTitle, PageGroupBase* menu) :
     Window(parent, {0, 0, LCD_W, height}), menu(menu)
 {
-  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+  // Match the main-view status bar without changing the configured widgets.
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+  lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+  lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
-  hdrIcon = new HeaderIcon(this, icon);
+  hdrIcon = new HeaderIcon(this, ICON_EDGETX);
 
   new HeaderBackIcon(this);
 
@@ -93,7 +97,9 @@ void PageGroupHeaderBase::setTitle(const char* title)
 
 void PageGroupHeaderBase::setIcon(EdgeTxIcon newIcon)
 {
-  if (hdrIcon) hdrIcon->setIcon(newIcon);
+  (void)newIcon;
+  // The left rail is a consistent menu control in the DedSec UI.
+  if (hdrIcon) hdrIcon->setIcon(ICON_EDGETX);
 }
 
 void PageGroupHeaderBase::addTab(PageGroupItem* page)

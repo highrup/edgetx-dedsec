@@ -31,6 +31,11 @@ class TrimIcon : public SliderIcon
  public:
   TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
   {
+    // Trims use their own three-stroke cursor. Keep the roller cursor visually
+    // distinct by hiding the shared solid marker and its shadow here.
+    lv_obj_add_flag(mask, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(shadow, LV_OBJ_FLAG_HIDDEN);
+
     lv_coord_t x1 = MainViewSlider::SLIDER_ICON_SIZE / 5;
     lv_coord_t x2 = MainViewSlider::SLIDER_ICON_SIZE - x1;
     lv_coord_t y1 = (MainViewSlider::SLIDER_ICON_SIZE + 1) / 4;
@@ -50,13 +55,13 @@ class TrimIcon : public SliderIcon
     }
 
     bar1 = lv_line_create(lvobj);
-    etx_obj_add_style(bar1, styles->div_line_black, LV_PART_MAIN);
-    etx_obj_add_style(bar1, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_color(bar1, lv_color_white(), LV_PART_MAIN);
+    lv_obj_set_style_line_color(bar1, lv_color_white(), LV_STATE_USER_1);
     lv_obj_set_style_line_width(bar1, lw, LV_PART_MAIN);
     lv_line_set_points(bar1, &barPoints[0], 2);
     bar2 = lv_line_create(lvobj);
-    etx_obj_add_style(bar2, styles->div_line_black, LV_PART_MAIN);
-    etx_obj_add_style(bar2, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_color(bar2, lv_color_white(), LV_PART_MAIN);
+    lv_obj_set_style_line_color(bar2, lv_color_white(), LV_STATE_USER_1);
     lv_obj_set_style_line_width(bar2, lw, LV_PART_MAIN);
     lv_line_set_points(bar2, &barPoints[2], 2);
 
@@ -68,8 +73,8 @@ class TrimIcon : public SliderIcon
       centerBarPoints[1] = {MainViewSlider::SLIDER_ICON_SIZE / 2, x2};
     }
     bar3 = lv_line_create(lvobj);
-    etx_obj_add_style(bar3, styles->div_line_black, LV_PART_MAIN);
-    etx_obj_add_style(bar3, styles->div_line_black, LV_STATE_USER_1);
+    lv_obj_set_style_line_color(bar3, lv_color_white(), LV_PART_MAIN);
+    lv_obj_set_style_line_color(bar3, lv_color_white(), LV_STATE_USER_1);
     lv_obj_set_style_line_width(bar3, lw, LV_PART_MAIN);
     lv_line_set_points(bar3, centerBarPoints, 2);
 

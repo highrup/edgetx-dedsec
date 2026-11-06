@@ -113,7 +113,11 @@ TopBar::TopBar(Window * parent) :
   WidgetsContainer(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, MAX_TOPBAR_ZONES)
 {
   setWindowFlag(NO_FOCUS | IS_TOP_BAR);
-  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+  // DedSec status bar: a flat black rail shared with the menu headers.
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+  lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+  lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+  lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 }
 
 unsigned int TopBar::getZonesCount() const

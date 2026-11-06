@@ -32,6 +32,7 @@
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
+  (void)icon;
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   // DedSec: black page header with a restrained white separator.
@@ -40,7 +41,7 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
   lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
-  new HeaderIcon(this, icon);
+  new HeaderIcon(this, ICON_EDGETX);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -51,6 +52,7 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
 PageHeader::PageHeader(Window* parent, const char* iconFile) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
+  (void)iconFile;
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   // DedSec: black page header with a restrained white separator.
@@ -59,7 +61,7 @@ PageHeader::PageHeader(Window* parent, const char* iconFile) :
   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
   lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
-  new HeaderIcon(this, iconFile);
+  new HeaderIcon(this, ICON_EDGETX);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,

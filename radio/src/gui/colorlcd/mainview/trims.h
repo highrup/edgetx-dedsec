@@ -55,7 +55,7 @@ class MainViewTrim : public Window
   coord_t sx();
   coord_t sy();
 
-  static LAYOUT_VAL_SCALED(TRIM_LINE_WIDTH, 8)
+  static LAYOUT_VAL_SCALED(TRIM_LINE_WIDTH, 2)
 };
 
 class MainViewHorizontalTrim : public MainViewTrim
