@@ -510,7 +510,7 @@ HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   etx_txt_color(date, COLOR_THEME_PRIMARY2_INDEX);
 
   time = etx_label_create(lvobj, FONT_XS_INDEX);
-  lv_obj_set_pos(time, 0, HDR_DATE_LINE2);
+  lv_obj_set_pos(time, 0, HDR_DATE_LINE2 + 1);
   lv_obj_set_size(time, HDR_DATE_WIDTH, HDR_DATE_HEIGHT);
   lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   etx_txt_color(time, COLOR_THEME_PRIMARY2_INDEX);

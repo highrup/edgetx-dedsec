@@ -149,6 +149,7 @@ ConfirmDialog::ConfirmDialog(const char* title,
 
   auto box = new Window(form, rect_t{});
   box->padAll(PAD_TINY);
+  box->padTop(PAD_LARGE);
   box->setFlexLayout(LV_FLEX_FLOW_ROW, 40, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);

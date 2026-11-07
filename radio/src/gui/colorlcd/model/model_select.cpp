@@ -67,6 +67,8 @@ class ModelButton : public Button
   {
     padAll(PAD_ZERO);
     setWindowFlag(NO_FOCUS);
+    if (!modelLayouts[layout].hasImage)
+      lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
 
     delayLoad();
   }
@@ -151,11 +153,28 @@ class ModelButton : public Button
 
  protected:
   bool imgLoaded = false;
+  bool lastListFocus = false;
   uint8_t layout;
   ModelCell *modelCell;
   StaticText* modelName = nullptr;
 
   std::function<void()> m_setSelected = nullptr;
+
+  void checkEvents() override
+  {
+    Button::checkEvents();
+    if (!loaded || modelLayouts[layout].hasImage || !modelName) return;
+
+    bool focused = hasFocus();
+    if (focused == lastListFocus) return;
+    lastListFocus = focused;
+    etx_solid_bg(modelName->getLvObj(),
+                 focused ? COLOR_THEME_PRIMARY2_INDEX
+                         : COLOR_THEME_PRIMARY1_INDEX);
+    etx_txt_color(modelName->getLvObj(),
+                  focused ? COLOR_THEME_PRIMARY1_INDEX
+                          : COLOR_THEME_PRIMARY2_INDEX);
+  }
 
   void showNoImgMsg()
   {
@@ -213,6 +232,7 @@ class ModelLabelsListBox : public ListBox
 
     lv_area_t area = *dsc->draw_area;
     area.x1 += PAD_TABLE_H;
+    area.y1 += PAD_TABLE_V;
     area.x2 = area.x1 + PAD_LARGE;
     lv_draw_label(dsc->draw_ctx, &labelDsc, &area, ">", nullptr);
   }

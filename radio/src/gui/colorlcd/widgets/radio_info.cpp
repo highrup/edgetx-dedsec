@@ -125,7 +125,7 @@ class RadioInfoWidget : public Widget
     etx_bg_color_from_flags(batteryFill, widgetData->options[0].value.unsignedValue, LV_STATE_USER_2);
 
     if (compact) {
-      const coord_t pairWidth = 44;
+      const coord_t pairWidth = 49;
       const coord_t alignment = widgetData->options[3].value.unsignedValue;
       const coord_t pairX =
           alignment == ALIGN_RIGHT ? std::max<coord_t>(0, width() - pairWidth)
@@ -136,11 +136,10 @@ class RadioInfoWidget : public Widget
 #if defined(AUDIO)
       for (auto* icon : audioVol) icon->setPos(pairX, iconY);
 #endif
-      batteryIcon->setPos(pairX + 24, iconY);
-      // The fill sits inside the supplied 20 px battery artwork.
-      lv_obj_set_pos(batteryFill, pairX + 24 + 5, iconY + 10);
+      batteryIcon->setPos(pairX + 29, iconY);
+      lv_obj_set_pos(batteryFill, pairX + 28, iconY + 6);
 #if defined(USB_CHARGER)
-      batteryChargeIcon->setPos(pairX + 24, iconY);
+      batteryChargeIcon->setPos(pairX + 29, iconY);
 #endif
     }
   }
