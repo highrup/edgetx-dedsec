@@ -146,7 +146,7 @@ class SystemStatusWidget : public DedsecWindowWidget
   void foreground() override
   {
     if (!loaded || deleted() || !armedLabel || !telemetryLabel ||
-        !droneLabel || !gpsLabel || !loggingLabel)
+        !connectedLabel || !buzzerLabel || !gpsLabel)
       return;
 
     auto widgetData = getPersistentData();
@@ -154,17 +154,18 @@ class SystemStatusWidget : public DedsecWindowWidget
         widgetData->options[4].value.unsignedValue;
     const mixsrc_t gpsSource =
         widgetData->options[5].value.unsignedValue;
+    const mixsrc_t buzzerSource =
+        widgetData->options[6].value.unsignedValue;
     const bool telemetry = TELEMETRY_STREAMING();
     const bool armed = armSource > MIXSRC_NONE && getValue(armSource) > 0;
     const bool gps = telemetry && sourceIsFresh(gpsSource);
-    const bool logging =
-        !usbPlugged() && isFunctionActive(FUNCTION_LOGS);
+    const bool buzzer = telemetry && sourceIsFresh(buzzerSource);
 
     armedLabel->setText(armed ? "[ ARMED ]" : "  ARMED  ");
     telemetryLabel->setText(telemetry ? "[ TELEMETRY ]" : "  TELEMETRY  ");
-    droneLabel->setText(telemetry ? "[ DRONE ]" : "  DRONE  ");
+    connectedLabel->setText(telemetry ? "[ CONNECTED ]" : "  CONNECTED  ");
+    buzzerLabel->setText(buzzer ? "[ BUZZER ]" : "  BUZZER  ");
     gpsLabel->setText(gps ? "[ GPS ]" : "  GPS  ");
-    loggingLabel->setText(logging ? "[ LOGGING ]" : "  LOGGING  ");
   }
 
   void update() override
@@ -174,10 +175,13 @@ class SystemStatusWidget : public DedsecWindowWidget
     if (armedLabel) etx_txt_color_from_flags(armedLabel->getLvObj(), textColor);
     if (telemetryLabel)
       etx_txt_color_from_flags(telemetryLabel->getLvObj(), textColor);
-    if (droneLabel) etx_txt_color_from_flags(droneLabel->getLvObj(), textColor);
+    if (dronePrefix)
+      etx_txt_color_from_flags(dronePrefix->getLvObj(), textColor);
+    if (connectedLabel)
+      etx_txt_color_from_flags(connectedLabel->getLvObj(), textColor);
+    if (buzzerLabel)
+      etx_txt_color_from_flags(buzzerLabel->getLvObj(), textColor);
     if (gpsLabel) etx_txt_color_from_flags(gpsLabel->getLvObj(), textColor);
-    if (loggingLabel)
-      etx_txt_color_from_flags(loggingLabel->getLvObj(), textColor);
   }
 
   static const WidgetOption options[];
@@ -186,8 +190,8 @@ class SystemStatusWidget : public DedsecWindowWidget
   void buildBody() override
   {
     const coord_t contentY = TITLE_HEIGHT + PAD_TINY;
-    const coord_t statusX = PAD_SMALL;
-    const coord_t statusW = width() - PAD_SMALL * 2;
+    const coord_t statusX = width() * 2 / 5;
+    const coord_t statusW = width() - statusX - PAD_SMALL;
 
     armedLabel = new StaticText(
         this, {statusX, contentY, statusW, STATUS_ROW_HEIGHT},
@@ -196,25 +200,30 @@ class SystemStatusWidget : public DedsecWindowWidget
         this, {statusX, contentY + STATUS_ROW_HEIGHT, statusW,
                STATUS_ROW_HEIGHT},
         "  TELEMETRY  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
-    droneLabel = new StaticText(
+    dronePrefix = new StaticText(
+        this, {PAD_SMALL, contentY + STATUS_ROW_HEIGHT * 2,
+               statusX - PAD_SMALL, STATUS_ROW_HEIGHT},
+        "DRONE ---", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    connectedLabel = new StaticText(
         this, {statusX, contentY + STATUS_ROW_HEIGHT * 2, statusW,
                STATUS_ROW_HEIGHT},
-        "  DRONE  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
-    gpsLabel = new StaticText(
+        "  CONNECTED  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    buzzerLabel = new StaticText(
         this, {statusX, contentY + STATUS_ROW_HEIGHT * 3, statusW,
                STATUS_ROW_HEIGHT},
-        "  GPS  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
-    loggingLabel = new StaticText(
+        "  BUZZER  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    gpsLabel = new StaticText(
         this, {statusX, contentY + STATUS_ROW_HEIGHT * 4, statusW,
                STATUS_ROW_HEIGHT},
-        "  LOGGING  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+        "  GPS  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
   }
 
-  StaticText* droneLabel = nullptr;
+  StaticText* dronePrefix = nullptr;
   StaticText* armedLabel = nullptr;
   StaticText* telemetryLabel = nullptr;
+  StaticText* connectedLabel = nullptr;
+  StaticText* buzzerLabel = nullptr;
   StaticText* gpsLabel = nullptr;
-  StaticText* loggingLabel = nullptr;
 
   static LAYOUT_VAL_SCALED(STATUS_ROW_HEIGHT, 14)
 };
@@ -229,6 +238,7 @@ const WidgetOption SystemStatusWidget::options[] = {
      COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {"Arm source", WidgetOption::Source, MIXSRC_FIRST_SWITCH},
     {"GPS source", WidgetOption::Source, MIXSRC_NONE},
+    {"Buzzer source", WidgetOption::Source, MIXSRC_NONE},
     {nullptr, WidgetOption::Bool}};
 
 class FlightLogWidget : public DedsecWindowWidget
