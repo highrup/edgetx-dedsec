@@ -349,7 +349,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
           new StaticBitmap(shutdownWindow, {0, 0, LCD_W, LCD_H});
       showShutdownFrame(0);
 #if !defined(SIMU)
-      AUDIO_BYE();
+      audioPlaySystemFile("bye", ID_PLAY_PROMPT_BASE + AU_BYE);
       shutdownAudioStarted = true;
 #endif
     } else {

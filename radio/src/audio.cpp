@@ -886,6 +886,17 @@ void audioPlay(unsigned int index, uint8_t id)
   }
 }
 
+void audioPlaySystemFile(const char* basename, uint8_t id)
+{
+  if (g_eeGeneral.beepMode >= -1) {
+    char filename[AUDIO_FILENAME_MAXLEN + 1];
+    char* name = strAppendSystemAudioPath(filename);
+    snprintf(name, filename + sizeof(filename) - name, "%s%s", basename,
+             SOUNDS_EXT);
+    audioQueue.playFile(filename, 0, id);
+  }
+}
+
 void audioKeyPress()
 {
   if (g_eeGeneral.beepMode == e_mode_all) {

@@ -495,6 +495,7 @@ enum {
 void codecsInit();
 void audioEvent(unsigned int index);
 void audioPlay(unsigned int index, uint8_t id=0);
+void audioPlaySystemFile(const char* basename, uint8_t id=0);
 
 void onKeyError();
 

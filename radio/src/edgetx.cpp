@@ -1274,8 +1274,10 @@ void edgeTxClose(uint8_t shutdown)
 #if !defined(SIMU)
     // Audio task has been stopped so this will not play
     // when closing the simulator
-    if (!shutdownAnimationAudioStarted())
-      AUDIO_BYE();
+    // The frame animation uses bye.wav. The final power-off stage has its own
+    // deterministic clip so it never repeats the animation audio.
+    STOP_PLAY(ID_PLAY_PROMPT_BASE + AU_BYE);
+    audioPlaySystemFile("bye2", ID_PLAY_PROMPT_BASE + AU_BYE);
 #endif
     // TODO needed? telemetryEnd();
 #if defined(HAPTIC)
