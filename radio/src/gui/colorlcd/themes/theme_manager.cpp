@@ -271,7 +271,7 @@ void ThemeFile::applyBackground()
   }
 
   // Use EdgeTxTheme default background
-  std::string defaultBackground(THEMES_PATH "/EdgeTX/background.png");
+  std::string defaultBackground(THEMES_PATH "/DEDSEC_/background.png");
   tryBackground(defaultBackground);
 }
 
@@ -482,7 +482,7 @@ void ThemePersistance::setDefaultTheme(int index)
 class DefaultEdgeTxTheme : public ThemeFile
 {
  public:
-  DefaultEdgeTxTheme() : ThemeFile(THEMES_PATH "/EdgeTX/", false)
+  DefaultEdgeTxTheme() : ThemeFile(THEMES_PATH "/DEDSEC_/", false)
   {
     setName("DEDSEC_");
     setAuthor("WE ARE DEDSEC_");

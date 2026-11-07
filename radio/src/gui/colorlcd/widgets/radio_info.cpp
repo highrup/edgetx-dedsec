@@ -21,6 +21,8 @@
 
 #include "widget.h"
 
+#include <algorithm>
+
 #include "edgetx.h"
 #include "hal/usb_driver.h"
 #include "layout.h"
@@ -80,8 +82,6 @@ class RadioInfoWidget : public Widget
     lv_obj_set_size(batteryFill, 0, W_BATT_FILL_H);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
 
-    update();
-
     // RSSI bars
     LAYOUT_VAL_SCALED(RSSI_BH, 31)
     const uint8_t rssiBarsHeight[] = {
@@ -100,28 +100,16 @@ class RadioInfoWidget : public Widget
       etx_bg_color(rssiBars[i], COLOR_THEME_PRIMARY2_INDEX, LV_STATE_USER_1);
     }
 
-    // Top-bar layout: use the same fixed icon geometry as the approved header
-    // icons. Battery is left and audio is immediately to its right; neither
-    // is resized or stacked. Remaining status marks continue to the right.
+    // Compact mode is a two-icon status pair; the full-size widget retains
+    // all of the stock radio indicators.
     if (compact) {
-      const coord_t iconY = HeaderDateTime::HDR_DATE_LINE2 +
-                            HeaderDateTime::HDR_DATE_HEIGHT - 20;
-      batteryIcon->setPos(0, iconY);
-      lv_obj_set_pos(batteryFill, 1, iconY + 1);
-#if defined(USB_CHARGER)
-      batteryChargeIcon->setPos(W_BATT_CHG_X, iconY);
-#endif
 #if defined(AUDIO)
       audioScale->hide();
-      for (auto* icon : audioVol) icon->setPos(24, iconY);
 #endif
-      for (unsigned int i = 0; i < DIM(rssiBars); i++) {
-        uint8_t h = lv_obj_get_height(rssiBars[i]);
-        lv_obj_set_pos(rssiBars[i], 48 + i * W_RSSI_BAR_SZ,
-                       iconY + 20 - h);
-      }
+      for (auto* bar : rssiBars) lv_obj_add_flag(bar, LV_OBJ_FLAG_HIDDEN);
     }
 
+    update();
     foreground();
   }
 
@@ -135,19 +123,39 @@ class RadioInfoWidget : public Widget
     etx_bg_color_from_flags(batteryFill, widgetData->options[2].value.unsignedValue, LV_PART_MAIN);
     etx_bg_color_from_flags(batteryFill, widgetData->options[1].value.unsignedValue, LV_STATE_USER_1);
     etx_bg_color_from_flags(batteryFill, widgetData->options[0].value.unsignedValue, LV_STATE_USER_2);
+
+    if (compact) {
+      const coord_t pairWidth = 44;
+      const coord_t alignment = widgetData->options[3].value.unsignedValue;
+      const coord_t pairX =
+          alignment == ALIGN_RIGHT ? std::max<coord_t>(0, width() - pairWidth)
+          : alignment == ALIGN_CENTER ? std::max<coord_t>(0, (width() - pairWidth) / 2)
+                                      : 0;
+      const coord_t iconY = HeaderDateTime::HDR_DATE_LINE2 +
+                            HeaderDateTime::HDR_DATE_HEIGHT - 20;
+#if defined(AUDIO)
+      for (auto* icon : audioVol) icon->setPos(pairX, iconY);
+#endif
+      batteryIcon->setPos(pairX + 24, iconY);
+      // The fill sits inside the supplied 20 px battery artwork.
+      lv_obj_set_pos(batteryFill, pairX + 24 + 5, iconY + 10);
+#if defined(USB_CHARGER)
+      batteryChargeIcon->setPos(pairX + 24, iconY);
+#endif
+    }
   }
 
   void foreground() override
   {
     if (deleted()) return;
 
-    usbIcon->show(usbPlugged());
+    usbIcon->show(!compact && usbPlugged());
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
       usbIcon->setColor(COLOR_THEME_PRIMARY3_INDEX);
     else
       usbIcon->setColor(COLOR_THEME_PRIMARY2_INDEX);
 
-    logsIcon->show(!usbPlugged() && isFunctionActive(FUNCTION_LOGS) &&
+    logsIcon->show(!compact && !usbPlugged() && isFunctionActive(FUNCTION_LOGS) &&
                    BLINK_ON_PHASE);
 
 #if defined(AUDIO)
@@ -173,17 +181,19 @@ class RadioInfoWidget : public Widget
 #endif
 
 #if defined(EXTERNAL_ANTENNA)
-    extAntenna->show(isExternalAntennaEnabled());
+    extAntenna->show(!compact && isExternalAntennaEnabled());
 #endif
 
     // Battery level
-    uint8_t bars = GET_TXBATT_BARS(W_BATT_FILL_W);
+    uint8_t bars = GET_TXBATT_BARS(compact ? 10 : W_BATT_FILL_W);
     if (bars != lastBatt) {
       lastBatt = bars;
       lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
-      if (bars >= W_BATT_FILL_GRN) {
+      const uint8_t highLevel = compact ? 6 : W_BATT_FILL_GRN;
+      const uint8_t midLevel = compact ? 3 : W_BATT_FILL_ORA;
+      if (bars >= highLevel) {
         lv_obj_clear_state(batteryFill, LV_STATE_USER_1 | LV_STATE_USER_2);
-      } else if (bars >= W_BATT_FILL_ORA) {
+      } else if (bars >= midLevel) {
         lv_obj_add_state(batteryFill, LV_STATE_USER_1);
         lv_obj_clear_state(batteryFill, LV_STATE_USER_2);
       } else {
@@ -251,6 +261,7 @@ const WidgetOption RadioInfoWidget::options[] = {
     {STR_LOW_BATT_COLOR, WidgetOption::Color, RGB2FLAGS(0xF4, 0x43, 0x36)},
     {STR_MID_BATT_COLOR, WidgetOption::Color, RGB2FLAGS(0xFF, 0xC1, 0x07)},
     {STR_HIGH_BATT_COLOR, WidgetOption::Color, RGB2FLAGS(0x4C, 0xAF, 0x50)},
+    {STR_ALIGNMENT, WidgetOption::Align, ALIGN_RIGHT},
     {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
