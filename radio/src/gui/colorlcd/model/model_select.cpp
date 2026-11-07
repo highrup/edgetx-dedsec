@@ -88,8 +88,14 @@ class ModelButton : public Button
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
-      etx_bg_color(modelName->getLvObj(), COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
-      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
+      // DedSec model tiles: normal names are white on black; the active model
+      // inverts to black on white.
+      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
+                   LV_STATE_USER_1);
+      etx_txt_color(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
+                    LV_STATE_USER_1);
+      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
+                   LV_PART_MAIN);
       etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
       modelName->padTop(fo);
     } else {
@@ -175,6 +181,26 @@ class ModelButton : public Button
     setFocused();
     ButtonBase::onClicked();
     if (m_setSelected) m_setSelected();
+  }
+};
+
+// Manage Models uses an inverted list independent of the generic table theme:
+// unselected labels are white on black and selected labels are black on white.
+class ModelLabelsListBox : public ListBox
+{
+ public:
+  using ListBox::ListBox;
+
+ protected:
+  void onDrawBegin(uint16_t row, uint16_t col,
+                   lv_obj_draw_part_dsc_t* dsc) override
+  {
+    (void)col;
+    bool selected = multiSelect ? isRowSelected(row) : row == activeItem;
+    dsc->rect_dsc->bg_color = makeLvColor(
+        selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1);
+    dsc->label_dsc->color = makeLvColor(
+        selected ? COLOR_THEME_PRIMARY1 : COLOR_THEME_PRIMARY2);
   }
 };
 
@@ -726,8 +752,9 @@ void ModelLabelsWindow::buildBody(Window *window)
   closeMessage.subscribe(Messaging::ON_CLOSE, [=](uint32_t) { onCancel(); });
 
   // Labels
-  lblselector =
-      new ListBox(window, rect_t{LABELS_X, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT}, getLabels());
+  lblselector = new ModelLabelsListBox(
+      window, rect_t{LABELS_X, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT},
+      getLabels());
   lblselector->setSmallSelectMarker();
   auto lbl_obj = lblselector->getLvObj();
   etx_scrollbar(lbl_obj);
