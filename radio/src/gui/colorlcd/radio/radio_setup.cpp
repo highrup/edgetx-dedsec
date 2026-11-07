@@ -29,6 +29,7 @@
 #include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
+#include "hal/rgbleds.h"
 #include "hal/usb_driver.h"
 #include "input_mapping.h"
 #include "key_shortcuts.h"
