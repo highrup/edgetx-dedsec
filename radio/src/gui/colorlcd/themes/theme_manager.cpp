@@ -484,9 +484,9 @@ class DefaultEdgeTxTheme : public ThemeFile
  public:
   DefaultEdgeTxTheme() : ThemeFile(THEMES_PATH "/EdgeTX/", false)
   {
-    setName("EdgeTX Default");
-    setAuthor("EdgeTX Team");
-    setInfo("Default EdgeTX Color Scheme");
+    setName("DEDSEC_");
+    setAuthor("WE ARE DEDSEC_");
+    setInfo("COMFORT THE DISTURBED AND DISTURB THE COMFORTABLE_");
 
     // initialize the default color table
     for (uint8_t i = COLOR_THEME_PRIMARY1_INDEX; i < THEME_COLOR_COUNT - 1; i += 1)
