@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "theme_manager.h"
 #include "widget.h"
 
 #define ETX_STATE_TIMER_ELAPSED LV_STATE_USER_1
@@ -34,7 +35,7 @@ class ValueWidget : public Widget
  public:
   ValueWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
               int screenNum, int zoneNum) :
-      Widget(factory, parent, rect, screenNum, zoneNum)
+      Widget(factory, parent, rect, screenNum, zoneNum), compact(screenNum < 0)
   {
     delayLoad();
   }
@@ -44,10 +45,12 @@ class ValueWidget : public Widget
     lv_style_init(&labelStyle);
     lv_style_set_width(&labelStyle, lv_pct(100));
     lv_style_set_height(&labelStyle, lv_pct(100));
+    if (compact) lv_style_set_text_font(&labelStyle, getFont(FONT(XS)));
 
     lv_style_init(&valueStyle);
     lv_style_set_width(&valueStyle, lv_pct(100));
     lv_style_set_height(&valueStyle, lv_pct(100));
+    if (compact) lv_style_set_text_font(&valueStyle, getFont(FONT(XS)));
 
     labelShadow = etx_label_create(lvobj);
     lv_obj_add_style(labelShadow, &labelStyle, LV_PART_MAIN);
@@ -81,6 +84,16 @@ class ValueWidget : public Widget
 
   void setValueText(std::string& text)
   {
+    if (compact) {
+      lv_obj_clear_state(value, ETX_STATE_L_FONT | ETX_STATE_XL_FONT);
+      lv_obj_clear_state(valueShadow, ETX_STATE_L_FONT | ETX_STATE_XL_FONT);
+      lv_obj_set_pos(valueShadow, valueX + 1, valueY + 1);
+      lv_obj_set_pos(value, valueX, valueY);
+      lv_label_set_text(value, text.c_str());
+      lv_label_set_text(valueShadow, text.c_str());
+      return;
+    }
+
     // Calculate font size and text position based on text width and window size
     int fontSize = 0;
     int w = getTextWidth(text.c_str(), 0, FONT(XL));
@@ -202,6 +215,7 @@ class ValueWidget : public Widget
 
  protected:
   int32_t lastValue = -10000;
+  bool compact = false;
   bool lastTelemState = false;
   lv_style_t labelStyle;
   lv_style_t valueStyle;
@@ -241,6 +255,11 @@ class ValueWidget : public Widget
     lv_coord_t labelY = 0;
     valueX = 0;
     valueY = VAL_Y1;
+
+    if (compact) {
+      labelY = 0;
+      valueY = HeaderDateTime::HDR_DATE_LINE2;
+    }
 
     // Get positions, alignment and value font size.
     if (height() >= H_CHK) {

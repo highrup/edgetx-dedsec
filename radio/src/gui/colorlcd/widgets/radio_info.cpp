@@ -31,7 +31,7 @@ class RadioInfoWidget : public Widget
  public:
   RadioInfoWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
                   int screenNum, int zoneNum) :
-      Widget(factory, parent, rect, screenNum, zoneNum)
+      Widget(factory, parent, rect, screenNum, zoneNum), compact(screenNum < 0)
   {
     // Logs
     logsIcon = new StaticIcon(this, W_LOG_X, PAD_THREE, ICON_DOT,
@@ -79,6 +79,7 @@ class RadioInfoWidget : public Widget
     lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, W_BATT_Y + 1);
     lv_obj_set_size(batteryFill, 0, W_BATT_FILL_H);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
+
     update();
 
     // RSSI bars
@@ -97,6 +98,28 @@ class RadioInfoWidget : public Widget
       lv_obj_set_size(rssiBars[i], W_RSSI_BAR_W, height);
       etx_solid_bg(rssiBars[i], COLOR_THEME_PRIMARY3_INDEX);
       etx_bg_color(rssiBars[i], COLOR_THEME_PRIMARY2_INDEX, LV_STATE_USER_1);
+    }
+
+    // Top-bar layout: use the same fixed icon geometry as the approved header
+    // icons. Battery is left and audio is immediately to its right; neither
+    // is resized or stacked. Remaining status marks continue to the right.
+    if (compact) {
+      const coord_t iconY = HeaderDateTime::HDR_DATE_LINE2 +
+                            HeaderDateTime::HDR_DATE_HEIGHT - 20;
+      batteryIcon->setPos(0, iconY);
+      lv_obj_set_pos(batteryFill, 1, iconY + 1);
+#if defined(USB_CHARGER)
+      batteryChargeIcon->setPos(W_BATT_CHG_X, iconY);
+#endif
+#if defined(AUDIO)
+      audioScale->hide();
+      for (auto* icon : audioVol) icon->setPos(24, iconY);
+#endif
+      for (unsigned int i = 0; i < DIM(rssiBars); i++) {
+        uint8_t h = lv_obj_get_height(rssiBars[i]);
+        lv_obj_set_pos(rssiBars[i], 48 + i * W_RSSI_BAR_SZ,
+                       iconY + 20 - h);
+      }
     }
 
     foreground();
@@ -203,6 +226,7 @@ class RadioInfoWidget : public Widget
   static LAYOUT_VAL_SCALED(W_BATT_CHG_Y, 23)
 
  protected:
+  bool compact = false;
   uint8_t lastVol = 0;
   uint8_t lastBatt = 0;
   uint8_t lastRSSI = 0;

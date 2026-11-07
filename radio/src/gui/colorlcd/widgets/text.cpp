@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "theme_manager.h"
 #include "widget.h"
 
 #define TEXT_WIDGET_DEFAULT_LABEL "My Label"
@@ -48,6 +49,13 @@ class TextWidget : public Widget
     label = etx_label_create(lvobj);
     lv_obj_add_style(label, &style, LV_PART_MAIN);
 
+    shadow2 = etx_label_create(lvobj);
+    lv_obj_add_style(shadow2, &style, LV_PART_MAIN);
+    lv_obj_set_style_text_color(shadow2, lv_color_black(), LV_PART_MAIN);
+
+    label2 = etx_label_create(lvobj);
+    lv_obj_add_style(label2, &style, LV_PART_MAIN);
+
     update();
   }
 
@@ -57,6 +65,8 @@ class TextWidget : public Widget
   lv_style_t style;
   lv_obj_t* shadow;
   lv_obj_t* label;
+  lv_obj_t* shadow2;
+  lv_obj_t* label2;
 
   void update() override
   {
@@ -67,9 +77,12 @@ class TextWidget : public Widget
     // Set text value from options
     lv_label_set_text(shadow, widgetData->options[0].value.stringValue.c_str());
     lv_label_set_text(label, widgetData->options[0].value.stringValue.c_str());
+    lv_label_set_text(shadow2, widgetData->options[5].value.stringValue.c_str());
+    lv_label_set_text(label2, widgetData->options[5].value.stringValue.c_str());
 
     // get font color from options[1]
     etx_txt_color_from_flags(label, widgetData->options[1].value.unsignedValue);
+    etx_txt_color_from_flags(label2, widgetData->options[1].value.unsignedValue);
     // get font size from options[2]
     lv_style_set_text_font(
         &style, getFont(widgetData->options[2].value.unsignedValue << 8));
@@ -80,11 +93,27 @@ class TextWidget : public Widget
                             : (alignment == ALIGN_CENTER) ? LV_TEXT_ALIGN_CENTER
                                                           : LV_TEXT_ALIGN_LEFT);
 
+    if (screenNum < 0) {
+      lv_style_set_text_font(&style, getFont(FONT(XS)));
+      lv_obj_set_pos(shadow, 1, 1);
+      lv_obj_set_pos(label, 0, 0);
+      lv_obj_set_pos(shadow2, 1, HeaderDateTime::HDR_DATE_LINE2 + 1);
+      lv_obj_set_pos(label2, 0, HeaderDateTime::HDR_DATE_LINE2);
+    } else {
+      lv_obj_add_flag(shadow2, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(label2, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_set_pos(shadow2, 1, EdgeTxStyles::STD_FONT_HEIGHT + 1);
+      lv_obj_set_pos(label2, 0, EdgeTxStyles::STD_FONT_HEIGHT);
+    }
+
     // Show or hide shadow
-    if (widgetData->options[3].value.boolValue)
+    if (widgetData->options[3].value.boolValue) {
       lv_obj_clear_flag(shadow, LV_OBJ_FLAG_HIDDEN);
-    else
+      if (screenNum < 0) lv_obj_clear_flag(shadow2, LV_OBJ_FLAG_HIDDEN);
+    } else {
       lv_obj_add_flag(shadow, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(shadow2, LV_OBJ_FLAG_HIDDEN);
+    }
   }
 };
 
@@ -95,6 +124,7 @@ const WidgetOption TextWidget::options[] = {
     {STR_SIZE, WidgetOption::TextSize, 0},
     {STR_SHADOW, WidgetOption::Bool, false},
     {STR_ALIGNMENT, WidgetOption::Align, ALIGN_LEFT},
+    {"Text 2", WidgetOption::String, WIDGET_OPTION_VALUE_STRING("")},
     {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<TextWidget> textWidget("Text", TextWidget::options,

@@ -875,6 +875,9 @@ void ModelTelemetryPage::build(Window* window)
   sensorWindow = new Window(window, rect_t{});
   sensorWindow->padAll(PAD_TINY);
   sensorWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  etx_bg_color(sensorWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+  etx_border_color(sensorWindow->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
+  lv_obj_set_style_border_width(sensorWindow->getLvObj(), 1, LV_PART_MAIN);
 
   FlexGridLayout grid4(col_dsc4, row_dsc);
 

@@ -32,14 +32,14 @@ const uint16_t defaultColors[] = {
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(0, 0, 0),        // PRIMARY3
-    RGB(0, 0, 0),        // SECONDARY1
+    RGB(255, 255, 255),  // SECONDARY1
     RGB(255, 255, 255),  // SECONDARY2
     RGB(0, 0, 0),        // SECONDARY3
     RGB(255, 255, 255),  // FOCUS
     RGB(255, 255, 255),  // EDIT
     RGB(255, 255, 255),  // ACTIVE
     RGB(255, 255, 255),  // WARNING
-    RGB(255, 255, 255),  // DISABLED
+    RGB(0x60, 0x60, 0x60),  // DISABLED
     RGB(0, 0, 0),        // Quick Menu Background
     RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(255, 255, 255),  // CUSTOM
@@ -72,14 +72,14 @@ uint16_t lcdColorTable[] = {
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(0, 0, 0),        // PRIMARY3
-    RGB(0, 0, 0),        // SECONDARY1
+    RGB(255, 255, 255),  // SECONDARY1
     RGB(255, 255, 255),  // SECONDARY2
     RGB(0, 0, 0),        // SECONDARY3
     RGB(255, 255, 255),  // FOCUS
     RGB(255, 255, 255),  // EDIT
     RGB(255, 255, 255),  // ACTIVE
     RGB(255, 255, 255),  // WARNING
-    RGB(255, 255, 255),  // DISABLED
+    RGB(0x60, 0x60, 0x60),  // DISABLED
     RGB(0, 0, 0),        // Quick Menu Background
     RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(255, 255, 255),  // CUSTOM
