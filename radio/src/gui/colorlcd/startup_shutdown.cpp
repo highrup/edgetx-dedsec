@@ -378,6 +378,11 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (shutdownFrameCount > 0) {
     uint32_t frame = (duration * shutdownFrameCount) / totalDuration;
     if (frame >= shutdownFrameCount) frame = shutdownFrameCount - 1;
+    // Never jump over animation frames when the UI loop arrives late. The
+    // shutdown sequence is short enough to advance one frame per refresh and
+    // this preserves every authored frame in its original order.
+    if (shutdownFrame != 0xff && frame > shutdownFrame + 1)
+      frame = shutdownFrame + 1;
     showShutdownFrame(frame);
   }
 

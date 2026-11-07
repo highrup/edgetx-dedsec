@@ -125,7 +125,9 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
     Window(parent, rect), idx(idx), isVertical(isVertical)
 {
   trimBar = lv_obj_create(lvobj);
-  etx_solid_bg(trimBar, COLOR_THEME_SECONDARY2_INDEX);
+  // Match the large-menu scrollbar track gray while leaving the trim cursor
+  // and the two roller controls unchanged.
+  etx_solid_bg(trimBar, COLOR_GREY_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
   if (isVertical) {
     lv_obj_set_pos(trimBar, (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH) / 2,

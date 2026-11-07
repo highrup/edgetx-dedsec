@@ -97,6 +97,13 @@ class TimerWidget : public Widget
     etx_font(valLabel, FONT_XS_INDEX, LV_PART_MAIN | ETX_VALUE_SMALL_FONT);
     lv_obj_set_pos(valLabel, PAD_THREE, TITLE_HEIGHT + VAL_LBL_Y);
 
+    for (uint8_t i = 0; i < TIMERS; ++i) {
+      allTimerLabels[i] = etx_label_create(lvobj, FONT_XS_INDEX);
+      lv_label_set_text(allTimerLabels[i], "");
+      etx_txt_color(allTimerLabels[i], COLOR_THEME_PRIMARY2_INDEX);
+      lv_obj_add_flag(allTimerLabels[i], LV_OBJ_FLAG_HIDDEN);
+    }
+
     // Timer value - on large widgets
     unit0 = createUnitLabel();
     lv_obj_set_pos(unit0, U0_X, TITLE_HEIGHT + U0_Y);
@@ -150,6 +157,33 @@ class TimerWidget : public Widget
     auto widgetData = getPersistentData();
 
     uint32_t index = widgetData->options[0].value.unsignedValue;
+    if (index >= TIMERS) {
+      for (uint8_t i = 0; i < TIMERS; ++i) {
+        char timerName[LEN_TIMER_NAME + 1];
+        char timerValue[LEN_TIMER_STRING];
+        char timerText[LEN_TIMER_NAME + LEN_TIMER_STRING + 8];
+        TimerData& data = g_model.timers[i];
+        TimerState& state = timersStates[i];
+
+        if (ZLEN(data.name) > 0)
+          strAppend(timerName, data.name, LEN_TIMER_NAME);
+        else
+          formatNumberAsString(timerName, sizeof(timerName), i + 1, 1, 0,
+                               "TMR");
+
+        int value = state.val;
+        if (data.start && data.showElapsed && (int)data.start != value)
+          value = (int)data.start - value;
+        TimerOptions timerOptions;
+        timerOptions.options =
+            (abs(value) >= 3600) ? SHOW_TIME : SHOW_TIMER;
+        getTimerString(timerValue, value, timerOptions);
+        snprintf(timerText, sizeof(timerText), "[ %s ]\n%s", timerName,
+                 timerValue);
+        lv_label_set_text(allTimerLabels[i], timerText);
+      }
+      return;
+    }
     TimerData& timerData = g_model.timers[index];
     TimerState& timerState = timersStates[index];
 
@@ -277,6 +311,7 @@ class TimerWidget : public Widget
   lv_style_t style;
   lv_obj_t* nameLabel = nullptr;
   lv_obj_t* valLabel = nullptr;
+  lv_obj_t* allTimerLabels[TIMERS] = {};
   lv_obj_t* digits0 = nullptr;
   lv_obj_t* digits1 = nullptr;
   lv_obj_t* unit0 = nullptr;
@@ -311,11 +346,15 @@ class TimerWidget : public Widget
     char s[16];
 
     uint32_t index = widgetData->options[0].value.unsignedValue;
-    TimerData& timerData = g_model.timers[index];
-
-    char title[16];
-    snprintf(title, sizeof(title), "TIMER %u_", (unsigned)(index + 1));
-    titleLabel->setText(title);
+    const bool showAll = index >= TIMERS;
+    if (showAll) {
+      titleLabel->setText("TIMERS_");
+    } else {
+      char title[16];
+      snprintf(title, sizeof(title), "TIMER %u_", (unsigned)(index + 1));
+      titleLabel->setText(title);
+    }
+    TimerData& timerData = g_model.timers[showAll ? 0 : index];
 
     const LcdFlags backgroundColor =
         widgetData->options[2].value.unsignedValue;
@@ -338,6 +377,8 @@ class TimerWidget : public Widget
     etx_txt_color_from_flags(digits0, textColor);
     etx_txt_color_from_flags(digits1, textColor);
     etx_txt_color_from_flags(minusLabel, textColor);
+    for (uint8_t i = 0; i < TIMERS; ++i)
+      etx_txt_color_from_flags(allTimerLabels[i], textColor);
     lv_obj_set_style_border_color(lvobj,
                                   makeLvColor(colorToRGB(accentColor)),
                                   LV_PART_MAIN);
@@ -357,8 +398,40 @@ class TimerWidget : public Widget
     lastStartValue = -1;
     lastWarning = -1;
 
-    if (width() >= TMR_LRG_W && height() >= TMR_LRG_H + TITLE_HEIGHT) {
+    if (showAll) {
+      isLarge = false;
+      lv_obj_add_flag(nameLabel, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(valLabel, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(digits0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(digits1, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(unit0, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(unit1, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(minusLabel, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
+      timerBg->hide();
+      timerIcon->hide();
+
+      const coord_t columnW = width() / TIMERS;
+      for (uint8_t i = 0; i < TIMERS; ++i) {
+        const coord_t sideInset = i == 1 ? 0 : PAD_SMALL;
+        lv_obj_set_pos(allTimerLabels[i],
+                       i * columnW + (i == 0 ? sideInset : 0),
+                       TITLE_HEIGHT + PAD_SMALL);
+        lv_obj_set_size(allTimerLabels[i],
+                        (i == TIMERS - 1 ? width() - i * columnW : columnW) -
+                            sideInset,
+                        height() - TITLE_HEIGHT - PAD_SMALL);
+        lv_obj_set_style_text_align(
+            allTimerLabels[i],
+            i == 0 ? LV_TEXT_ALIGN_LEFT
+                   : (i == 1 ? LV_TEXT_ALIGN_CENTER : LV_TEXT_ALIGN_RIGHT),
+            LV_PART_MAIN);
+        lv_obj_clear_flag(allTimerLabels[i], LV_OBJ_FLAG_HIDDEN);
+      }
+    } else if (width() >= TMR_LRG_W &&
+               height() >= TMR_LRG_H + TITLE_HEIGHT) {
       isLarge = true;
+      lv_obj_clear_flag(nameLabel, LV_OBJ_FLAG_HIDDEN);
       if (hasName)
         lv_obj_clear_state(nameLabel, EXT_NAME_ALIGN_RIGHT);
       else
@@ -375,6 +448,7 @@ class TimerWidget : public Widget
       timerBg->show();
     } else {
       isLarge = false;
+      lv_obj_clear_flag(nameLabel, LV_OBJ_FLAG_HIDDEN);
       lv_obj_set_pos(nameLabel, PAD_TINY, TITLE_HEIGHT);
       lv_obj_set_width(nameLabel, lv_pct(100));
       lv_obj_add_state(nameLabel, ETX_NAME_COLOR_WHITE);
@@ -388,13 +462,22 @@ class TimerWidget : public Widget
       timerBg->hide();
     }
 
+    if (!showAll) {
+      for (uint8_t i = 0; i < TIMERS; ++i)
+        lv_obj_add_flag(allTimerLabels[i], LV_OBJ_FLAG_HIDDEN);
+    }
+
     // name
     if (hasName) {
       strAppend(s, timerData.name, LEN_TIMER_NAME);
     } else {  // user name not exist "TMRn"
       formatNumberAsString(s, 16, index + 1, 1, 0, "TMR");
     }
-    lv_label_set_text(nameLabel, s);
+    if (!showAll) {
+      char bracketedName[sizeof(s) + 5];
+      snprintf(bracketedName, sizeof(bracketedName), "[ %s ]", s);
+      lv_label_set_text(nameLabel, bracketedName);
+    }
   }
 
   lv_obj_t* createUnitLabel()

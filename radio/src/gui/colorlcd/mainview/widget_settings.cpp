@@ -138,7 +138,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
       case WidgetOption::Timer:  // Unsigned
       {
         auto tmChoice = new Choice(
-            line, rect_t{}, 0, TIMERS - 1,
+            line, rect_t{}, 0, TIMERS,
             [=]() -> int {  // getValue
               return widgetData->getUnsignedValue(optIdx);
             },
@@ -148,6 +148,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
             });
 
         tmChoice->setTextHandler([](int value) {
+          if (value == TIMERS) return std::string("All timers");
           return std::string(STR_TIMER) + std::to_string(value + 1);
         });
       } break;
