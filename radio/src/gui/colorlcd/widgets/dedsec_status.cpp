@@ -5,6 +5,8 @@
 
 #include "widget.h"
 
+#include <math.h>
+
 #include "edgetx.h"
 #include "hal/usb_driver.h"
 #include "static.h"
@@ -29,6 +31,18 @@ static std::string sourceValueText(mixsrc_t source)
     return getSensorCustomValue((source - MIXSRC_FIRST_TELEM) / 3, value, 0);
   }
   return getSourceCustomValueString(source, value, 0);
+}
+
+static int32_t sourceDisplayValue(mixsrc_t source)
+{
+  if (source == MIXSRC_NONE) return 0;
+  int32_t value = getValue(source);
+  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
+    const uint8_t sensor = (source - MIXSRC_FIRST_TELEM) / 3;
+    const int32_t divisor = g_model.telemetrySensors[sensor].getPrecDivisor();
+    if (divisor > 1) value /= divisor;
+  }
+  return value;
 }
 
 class DedsecWindowWidget : public Widget
@@ -402,6 +416,237 @@ const WidgetOption GpsLocatorWidget::options[] = {
     {"Heading", WidgetOption::Source, MIXSRC_NONE},
     {nullptr, WidgetOption::Bool}};
 
+class AttitudeWidget : public DedsecWindowWidget
+{
+ public:
+  AttitudeWidget(const WidgetFactory* factory, Window* parent,
+                 const rect_t& rect, int screenNum, int zoneNum) :
+      DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
+                         "ATTITUDE_")
+  {
+  }
+
+  void foreground() override
+  {
+    if (!loaded || deleted() || !horizon) return;
+
+    auto widgetData = getPersistentData();
+    const mixsrc_t rollSource = widgetData->options[4].value.unsignedValue;
+    const mixsrc_t pitchSource = widgetData->options[5].value.unsignedValue;
+    const bool live = TELEMETRY_STREAMING() && sourceIsFresh(rollSource) &&
+                      sourceIsFresh(pitchSource);
+    const int32_t roll = live ? limit<int32_t>(-60, sourceDisplayValue(rollSource), 60) : 0;
+    const int32_t pitch = live ? limit<int32_t>(-45, sourceDisplayValue(pitchSource), 45) : 0;
+
+    const float angle = roll * 3.14159265f / 180.0f;
+    const float cs = cosf(angle);
+    const float sn = sinf(angle);
+    const coord_t cx = width() / 2;
+    const coord_t cy = TITLE_HEIGHT + (height() - TITLE_HEIGHT) / 2 + pitch / 3;
+
+    setHorizonLine(horizonPoints, cx, cy, HORIZON_HALF_W, cs, sn);
+    lv_line_set_points(horizon, horizonPoints, 2);
+    for (uint8_t i = 0; i < 4; ++i) {
+      const int8_t pitchStep = (i < 2) ? -(2 - i) : (i - 1);
+      const coord_t offset = pitchStep * LADDER_GAP;
+      const coord_t lx = cx + (coord_t)(-sn * offset);
+      const coord_t ly = cy + (coord_t)(cs * offset);
+      setHorizonLine(ladderPoints[i], lx, ly,
+                     i == 1 || i == 2 ? LADDER_HALF_W : LADDER_HALF_W - 5,
+                     cs, sn);
+      lv_line_set_points(ladder[i], ladderPoints[i], 2);
+    }
+
+    char readout[64];
+    snprintf(readout, sizeof(readout), "%s   R%+ld  P%+ld",
+             live ? "[ LIVE ]" : "  STANDBY  ", (long)roll, (long)pitch);
+    statusLabel->setText(readout);
+  }
+
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (!loaded || deleted()) return;
+    if (horizon) etx_line_color_from_flags(horizon, accentColor);
+    for (uint8_t i = 0; i < 4; ++i)
+      if (ladder[i]) etx_line_color_from_flags(ladder[i], accentColor);
+    for (uint8_t i = 0; i < 3; ++i)
+      if (reticle[i]) etx_line_color_from_flags(reticle[i], textColor);
+    if (statusLabel)
+      etx_txt_color_from_flags(statusLabel->getLvObj(), textColor);
+  }
+
+  static const WidgetOption options[];
+
+ protected:
+  void buildBody() override
+  {
+    horizon = lv_line_create(lvobj);
+    lv_obj_set_style_line_width(horizon, 2, LV_PART_MAIN);
+    for (uint8_t i = 0; i < 4; ++i) {
+      ladder[i] = lv_line_create(lvobj);
+      lv_obj_set_style_line_width(ladder[i], 1, LV_PART_MAIN);
+    }
+
+    const coord_t cx = width() / 2;
+    const coord_t cy = TITLE_HEIGHT + (height() - TITLE_HEIGHT) / 2;
+    reticlePoints[0][0] = {(lv_coord_t)(cx - RETICLE_W), (lv_coord_t)cy};
+    reticlePoints[0][1] = {(lv_coord_t)(cx - 4), (lv_coord_t)cy};
+    reticlePoints[1][0] = {(lv_coord_t)(cx + 4), (lv_coord_t)cy};
+    reticlePoints[1][1] = {(lv_coord_t)(cx + RETICLE_W), (lv_coord_t)cy};
+    reticlePoints[2][0] = {(lv_coord_t)cx, (lv_coord_t)(cy - 3)};
+    reticlePoints[2][1] = {(lv_coord_t)cx, (lv_coord_t)(cy + 5)};
+    for (uint8_t i = 0; i < 3; ++i) {
+      reticle[i] = lv_line_create(lvobj);
+      lv_obj_set_style_line_width(reticle[i], 2, LV_PART_MAIN);
+      lv_line_set_points(reticle[i], reticlePoints[i], 2);
+    }
+
+    statusLabel = new StaticText(
+        this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
+               EdgeTxStyles::STD_FONT_HEIGHT},
+        "  STANDBY     R+0  P+0", COLOR_THEME_PRIMARY2_INDEX,
+        FONT(XS) | CENTERED);
+  }
+
+  static void setHorizonLine(lv_point_t* points, coord_t cx, coord_t cy,
+                             coord_t halfWidth, float cs, float sn)
+  {
+    points[0] = {(lv_coord_t)(cx - cs * halfWidth),
+                 (lv_coord_t)(cy - sn * halfWidth)};
+    points[1] = {(lv_coord_t)(cx + cs * halfWidth),
+                 (lv_coord_t)(cy + sn * halfWidth)};
+  }
+
+  lv_obj_t* horizon = nullptr;
+  lv_obj_t* ladder[4] = {nullptr};
+  lv_obj_t* reticle[3] = {nullptr};
+  StaticText* statusLabel = nullptr;
+  lv_point_t horizonPoints[2];
+  lv_point_t ladderPoints[4][2];
+  lv_point_t reticlePoints[3][2];
+
+  static LAYOUT_VAL_SCALED(HORIZON_HALF_W, 92)
+  static LAYOUT_VAL_SCALED(LADDER_HALF_W, 35)
+  static LAYOUT_VAL_SCALED(LADDER_GAP, 12)
+  static LAYOUT_VAL_SCALED(RETICLE_W, 27)
+};
+
+const WidgetOption AttitudeWidget::options[] = {
+    {STR_TEXT_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_BG_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, true},
+    {STR_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {"Roll source", WidgetOption::Source, MIXSRC_NONE},
+    {"Pitch source", WidgetOption::Source, MIXSRC_NONE},
+    {nullptr, WidgetOption::Bool}};
+
+class LinkAnalyzerWidget : public DedsecWindowWidget
+{
+ public:
+  LinkAnalyzerWidget(const WidgetFactory* factory, Window* parent,
+                     const rect_t& rect, int screenNum, int zoneNum) :
+      DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
+                         "LINK ANALYZER_")
+  {
+  }
+
+  void foreground() override
+  {
+    if (!loaded || deleted() || !statusLabel) return;
+    auto widgetData = getPersistentData();
+    const mixsrc_t lqSource = widgetData->options[4].value.unsignedValue;
+    const mixsrc_t rssiSource = widgetData->options[5].value.unsignedValue;
+    const mixsrc_t snrSource = widgetData->options[6].value.unsignedValue;
+    const mixsrc_t powerSource = widgetData->options[7].value.unsignedValue;
+    const bool linked = TELEMETRY_STREAMING();
+    const int32_t quality = sourceIsFresh(lqSource)
+                                ? limit<int32_t>(0, sourceDisplayValue(lqSource), 100)
+                                : (linked ? limit<int32_t>(0, TELEMETRY_RSSI(), 100) : 0);
+
+    statusLabel->setText(linked ? "[ LINKED ]" : "  LINK LOST  ");
+    metricLabels[0]->setText((std::string("LQ\n") + sourceValueText(lqSource)).c_str());
+    metricLabels[1]->setText((std::string("RSSI\n") + sourceValueText(rssiSource)).c_str());
+    metricLabels[2]->setText((std::string("SNR\n") + sourceValueText(snrSource)).c_str());
+    metricLabels[3]->setText((std::string("RF PWR\n") + sourceValueText(powerSource)).c_str());
+
+    const uint8_t activeBars = (quality + 9) / 10;
+    for (uint8_t i = 0; i < 10; ++i)
+      lv_obj_set_style_bg_opa(bars[i], i < activeBars ? LV_OPA_COVER : LV_OPA_20,
+                              LV_PART_MAIN);
+  }
+
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (!loaded || deleted()) return;
+    if (statusLabel)
+      etx_txt_color_from_flags(statusLabel->getLvObj(), textColor);
+    for (uint8_t i = 0; i < 4; ++i)
+      if (metricLabels[i])
+        etx_txt_color_from_flags(metricLabels[i]->getLvObj(), textColor);
+    for (uint8_t i = 0; i < 10; ++i)
+      if (bars[i]) etx_bg_color_from_flags(bars[i], accentColor);
+  }
+
+  static const WidgetOption options[];
+
+ protected:
+  void buildBody() override
+  {
+    statusLabel = new StaticText(
+        this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
+               EdgeTxStyles::STD_FONT_HEIGHT},
+        "  LINK LOST  ", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
+
+    const coord_t metricY = TITLE_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT;
+    const coord_t metricW = width() / 4;
+    for (uint8_t i = 0; i < 4; ++i) {
+      metricLabels[i] = new StaticText(
+          this, {i * metricW, metricY,
+                 i == 3 ? width() - i * metricW : metricW,
+                 EdgeTxStyles::STD_FONT_HEIGHT * 2},
+          i == 0 ? "LQ\n--" : (i == 1 ? "RSSI\n--" :
+                                (i == 2 ? "SNR\n--" : "RF PWR\n--")),
+          COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
+    }
+
+    const coord_t gap = PAD_TINY;
+    const coord_t barW = (width() - PAD_SMALL * 2 - gap * 9) / 10;
+    const coord_t barBottom = height() - PAD_SMALL;
+    for (uint8_t i = 0; i < 10; ++i) {
+      const coord_t barH = 3 + i;
+      bars[i] = lv_obj_create(lvobj);
+      lv_obj_set_pos(bars[i], PAD_SMALL + i * (barW + gap), barBottom - barH);
+      lv_obj_set_size(bars[i], barW, barH);
+      lv_obj_set_style_border_width(bars[i], 0, LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(bars[i], LV_OPA_20, LV_PART_MAIN);
+      lv_obj_clear_flag(bars[i], LV_OBJ_FLAG_CLICKABLE);
+    }
+  }
+
+  StaticText* statusLabel = nullptr;
+  StaticText* metricLabels[4] = {nullptr};
+  lv_obj_t* bars[10] = {nullptr};
+};
+
+const WidgetOption LinkAnalyzerWidget::options[] = {
+    {STR_TEXT_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_BG_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, true},
+    {STR_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {"Link quality", WidgetOption::Source, MIXSRC_NONE},
+    {"RSSI source", WidgetOption::Source, MIXSRC_NONE},
+    {"SNR source", WidgetOption::Source, MIXSRC_NONE},
+    {"RF power", WidgetOption::Source, MIXSRC_NONE},
+    {nullptr, WidgetOption::Bool}};
+
 template <class T>
 class DedsecWidgetFactory : public WidgetFactory
 {
@@ -425,3 +670,7 @@ DedsecWidgetFactory<FlightLogWidget> flightLogWidget(
     "FlightLog", DedsecWindowWidget::commonOptions, "Flight Log");
 DedsecWidgetFactory<GpsLocatorWidget> gpsLocatorWidget(
     "GpsLoc", GpsLocatorWidget::options, "GPS Locator");
+DedsecWidgetFactory<AttitudeWidget> attitudeWidget(
+    "Attitude", AttitudeWidget::options, "Attitude");
+DedsecWidgetFactory<LinkAnalyzerWidget> linkAnalyzerWidget(
+    "LinkAnal", LinkAnalyzerWidget::options, "Link Analyzer");
