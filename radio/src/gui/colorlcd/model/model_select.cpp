@@ -67,8 +67,21 @@ class ModelButton : public Button
   {
     padAll(PAD_ZERO);
     setWindowFlag(NO_FOCUS);
-    if (!modelLayouts[layout].hasImage)
+    if (!modelLayouts[layout].hasImage) {
       lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN);
+      lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN | LV_STATE_FOCUSED);
+      lv_obj_set_style_border_width(lvobj, 0, LV_PART_MAIN | LV_STATE_CHECKED);
+      lv_obj_set_style_border_width(
+          lvobj, 0, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED);
+      lv_obj_set_style_bg_color(
+          lvobj, makeLvColor(COLOR_THEME_PRIMARY1), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(
+          lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
+          LV_PART_MAIN | LV_STATE_FOCUSED);
+      lv_obj_set_style_bg_color(
+          lvobj, makeLvColor(COLOR_THEME_PRIMARY2),
+          LV_PART_MAIN | LV_STATE_CHECKED);
+    }
 
     delayLoad();
   }
@@ -102,7 +115,7 @@ class ModelButton : public Button
     bool chk = (modelCell == modelCellManager.getCurrentModel());
     if (chk != checked()) {
       check(chk);
-      if (chk)
+      if (chk && modelLayouts[layout].hasImage)
         lv_obj_add_state(modelName->getLvObj(), LV_STATE_USER_1);
       else
         lv_obj_clear_state(modelName->getLvObj(), LV_STATE_USER_1);
@@ -165,14 +178,14 @@ class ModelButton : public Button
     Button::checkEvents();
     if (!loaded || modelLayouts[layout].hasImage || !modelName) return;
 
-    bool focused = hasFocus();
-    if (focused == lastListFocus) return;
-    lastListFocus = focused;
+    bool inverted = hasFocus() || checked();
+    if (inverted == lastListFocus) return;
+    lastListFocus = inverted;
     etx_solid_bg(modelName->getLvObj(),
-                 focused ? COLOR_THEME_PRIMARY2_INDEX
+                 inverted ? COLOR_THEME_PRIMARY2_INDEX
                          : COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(modelName->getLvObj(),
-                  focused ? COLOR_THEME_PRIMARY1_INDEX
+                  inverted ? COLOR_THEME_PRIMARY1_INDEX
                           : COLOR_THEME_PRIMARY2_INDEX);
   }
 
