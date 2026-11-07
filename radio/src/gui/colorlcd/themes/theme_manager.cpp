@@ -555,7 +555,8 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
   this->icon->setPos(
-      0, PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
+      (width() - this->icon->width()) / 2,
+      PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
              HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
@@ -571,7 +572,8 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
 {
   this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
   this->icon->setPos(
-      0, PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
+      (width() - this->icon->width()) / 2,
+      PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
              HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height());
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
@@ -588,7 +590,7 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   auto backIcon =
       new StaticIcon(this, 0, 0, ICON_BTN_PREV, COLOR_THEME_PRIMARY2_INDEX);
   backIcon->setPos(
-      width() - backIcon->width(),
+      (width() - backIcon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
           HeaderDateTime::HDR_DATE_HEIGHT - backIcon->height());
 #if defined(HARDWARE_TOUCH)
