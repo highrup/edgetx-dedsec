@@ -1237,7 +1237,11 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t statusLedError:2 ENUM(StatusLedColor));
   NOBACKUP(uint8_t statusLedReady:2 ENUM(StatusLedColor));
   NOBACKUP(uint8_t statusLedEmit:2 ENUM(StatusLedColor));
+#if defined(PCBV12)
+  NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
+#else
   NOBACKUP(uint8_t statusLedSpare:2 SKIP);
+#endif
 #endif
 
 #if defined(STATUS_LED_PWM)
@@ -1245,11 +1249,6 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t statusLedDim);
   NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
   NOBACKUP(int16_t statusLedPwmSpare:6 SKIP);
-#endif
-
-#if defined(PCBV12)
-  NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
-  NOBACKUP(uint8_t frontLedSpare:6 SKIP);
 #endif
 
 #if defined(COLORLCD)
