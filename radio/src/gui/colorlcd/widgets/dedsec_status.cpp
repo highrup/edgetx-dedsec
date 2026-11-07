@@ -125,7 +125,9 @@ class SystemStatusWidget : public DedsecWindowWidget
 
   void foreground() override
   {
-    if (!loaded || deleted() || !bodyLabel) return;
+    if (!loaded || deleted() || !armedLabel || !telemetryLabel ||
+        !connectedLabel)
+      return;
 
     auto widgetData = getPersistentData();
     const mixsrc_t armSource =
@@ -133,13 +135,21 @@ class SystemStatusWidget : public DedsecWindowWidget
     const bool telemetry = TELEMETRY_STREAMING();
     const bool armed = armSource > MIXSRC_NONE && getValue(armSource) > 0;
 
-    const char* teleText = telemetry ? "[ TELE ]" : "  TELE  ";
-    const char* armedText = armed ? "[ ARMED ]" : "  ARMED  ";
-    const char* linkedText = telemetry ? "[ LINKED ]" : "  LINKED  ";
-    char text[40];
-    snprintf(text, sizeof(text), "%s %s %s", teleText, armedText,
-             linkedText);
-    bodyLabel->setText(text);
+    armedLabel->setText(armed ? "[ ARMED ]" : "UNARMED");
+    telemetryLabel->setText(telemetry ? "[ TELEMETRY ]" : "TELEMETRY LOST");
+    connectedLabel->setText(telemetry ? "[ CONNECTED ]" : "DISCONNECTED");
+  }
+
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (!loaded || deleted()) return;
+    if (droneLabel) etx_txt_color_from_flags(droneLabel->getLvObj(), textColor);
+    if (armedLabel) etx_txt_color_from_flags(armedLabel->getLvObj(), textColor);
+    if (telemetryLabel)
+      etx_txt_color_from_flags(telemetryLabel->getLvObj(), textColor);
+    if (connectedLabel)
+      etx_txt_color_from_flags(connectedLabel->getLvObj(), textColor);
   }
 
   static const WidgetOption options[];
@@ -147,12 +157,33 @@ class SystemStatusWidget : public DedsecWindowWidget
  protected:
   void buildBody() override
   {
-    bodyLabel = new StaticText(
-        this, {PAD_SMALL, TITLE_HEIGHT, width() - 2 * PAD_SMALL,
-               height() - TITLE_HEIGHT},
-        "  TELE     ARMED     LINKED  ", COLOR_THEME_PRIMARY2_INDEX,
-        FONT(XS) | CENTERED);
+    const coord_t contentY = TITLE_HEIGHT + PAD_TINY;
+    const coord_t statusX = width() * 2 / 5;
+    const coord_t statusW = width() - statusX - PAD_SMALL;
+
+    droneLabel = new StaticText(
+        this, {PAD_SMALL, contentY + STATUS_ROW_HEIGHT,
+               statusX - PAD_SMALL, STATUS_ROW_HEIGHT},
+        "DRONE ---", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    armedLabel = new StaticText(
+        this, {statusX, contentY, statusW, STATUS_ROW_HEIGHT},
+        "UNARMED", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
+    telemetryLabel = new StaticText(
+        this, {statusX, contentY + STATUS_ROW_HEIGHT, statusW,
+               STATUS_ROW_HEIGHT},
+        "TELEMETRY LOST", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
+    connectedLabel = new StaticText(
+        this, {statusX, contentY + STATUS_ROW_HEIGHT * 2, statusW,
+               STATUS_ROW_HEIGHT},
+        "DISCONNECTED", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
   }
+
+  StaticText* droneLabel = nullptr;
+  StaticText* armedLabel = nullptr;
+  StaticText* telemetryLabel = nullptr;
+  StaticText* connectedLabel = nullptr;
+
+  static LAYOUT_VAL_SCALED(STATUS_ROW_HEIGHT, 14)
 };
 
 const WidgetOption SystemStatusWidget::options[] = {

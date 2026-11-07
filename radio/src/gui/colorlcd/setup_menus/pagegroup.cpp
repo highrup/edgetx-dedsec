@@ -76,7 +76,8 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
   titleLabel = etx_label_create(lvobj);
   etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
 
-  lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
+  lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT,
+                 PAD_THREE + HeaderDateTime::HDR_DATE_LINE2);
   lv_obj_set_size(titleLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
 
   setTitle("");
