@@ -257,8 +257,8 @@ class ValueWidget : public Widget
     valueY = VAL_Y1;
 
     if (compact) {
-      labelY = 0;
-      valueY = HeaderDateTime::HDR_DATE_LINE2;
+      labelY = 2;
+      valueY = HeaderDateTime::HDR_DATE_LINE2 + 2;
     }
 
     // Get positions, alignment and value font size.

@@ -88,19 +88,12 @@ class ModelButton : public Button
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
-      // DedSec model tiles: normal names are white on black; the active model
-      // inverts to black on white.
-      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
-                   LV_STATE_USER_1);
-      etx_txt_color(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
-                    LV_STATE_USER_1);
-      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX,
-                   LV_PART_MAIN);
-      etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
+      etx_solid_bg(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
       modelName->padTop(fo);
     } else {
       modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::STD_FONT_HEIGHT}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, font);
+      etx_solid_bg(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
@@ -196,11 +189,32 @@ class ModelLabelsListBox : public ListBox
                    lv_obj_draw_part_dsc_t* dsc) override
   {
     (void)col;
+    bool highlighted = row == getSelected();
     bool selected = multiSelect ? isRowSelected(row) : row == activeItem;
+    bool inverted = selected || highlighted;
     dsc->rect_dsc->bg_color = makeLvColor(
-        selected ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1);
+        inverted ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1);
     dsc->label_dsc->color = makeLvColor(
-        selected ? COLOR_THEME_PRIMARY1 : COLOR_THEME_PRIMARY2);
+        inverted ? COLOR_THEME_PRIMARY1 : COLOR_THEME_PRIMARY2);
+    if (highlighted) dsc->label_dsc->ofs_x = PAD_LARGE;
+  }
+
+  void onDrawEnd(uint16_t row, uint16_t col,
+                 lv_obj_draw_part_dsc_t* dsc) override
+  {
+    ListBox::onDrawEnd(row, col, dsc);
+    if (row != getSelected()) return;
+
+    lv_draw_label_dsc_t labelDsc;
+    lv_draw_label_dsc_init(&labelDsc);
+    labelDsc.font = dsc->label_dsc->font;
+    labelDsc.color = dsc->label_dsc->color;
+    labelDsc.align = LV_TEXT_ALIGN_LEFT;
+
+    lv_area_t area = *dsc->draw_area;
+    area.x1 += PAD_TABLE_H;
+    area.x2 = area.x1 + PAD_LARGE;
+    lv_draw_label(dsc->draw_ctx, &labelDsc, &area, ">", nullptr);
   }
 };
 
@@ -755,7 +769,6 @@ void ModelLabelsWindow::buildBody(Window *window)
   lblselector = new ModelLabelsListBox(
       window, rect_t{LABELS_X, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT},
       getLabels());
-  lblselector->setSmallSelectMarker();
   auto lbl_obj = lblselector->getLvObj();
   etx_scrollbar(lbl_obj);
 
@@ -836,23 +849,8 @@ void ModelLabelsWindow::buildBody(Window *window)
   updateFilteredLabels(filteredLabels, false);
 
   lblselector->setGetSelectedSymbol([=](uint16_t row) {
-    if (g_eeGeneral.labelSingleSelect)
-      return LV_SYMBOL_OK;
-    if (lblselector->getSelection().size() == 1)
-      return LV_SYMBOL_OK;
-    bool hasMoreSelections = false;
-    for (uint16_t i = row + 1; i < lblselector->getRowCount(); i += 1)
-      if (lblselector->isRowSelected(i)) {
-        hasMoreSelections = true;
-        break;
-      }
-    if (!hasMoreSelections)
-      return LV_SYMBOL_OK;
-    if (row == 0 && (g_eeGeneral.labelMultiMode == 0 || g_eeGeneral.favMultiMode == 0))
-      return STR_VCSWFUNC[7]; // AND
-    if (g_eeGeneral.labelMultiMode == 0)
-      return STR_VCSWFUNC[7]; // AND
-    return STR_VCSWFUNC[8]; // OR
+    (void)row;
+    return LV_SYMBOL_OK;
   });
 
   lblselector->setLongPressHandler([=]() {

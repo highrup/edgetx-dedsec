@@ -219,6 +219,9 @@ class SensorButton : public ListLineButton
   {
     padAll(PAD_ZERO);
     setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL);
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
+    etx_border_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
 
     check(isActive());
 
@@ -229,9 +232,11 @@ class SensorButton : public ListLineButton
   bool showId = false;
   lv_obj_t* numLabel = nullptr;
   lv_obj_t* idLabel = nullptr;
+  lv_obj_t* nameLabel = nullptr;
   lv_obj_t* valLabel = nullptr;
   lv_obj_t* fresh = nullptr;
   uint32_t lastRefresh = 0;
+  bool lastFocused = false;
   std::string valString;
 
   bool isActive() const override { return telemetryItems[index].isAvailable(); }
@@ -276,8 +281,8 @@ class SensorButton : public ListLineButton
     setNumIdState();
 
     strAppend(s, g_model.telemetrySensors[index].label, TELEM_LABEL_LEN);
-    lv_obj_t* nm = tsStyle.newName(lvobj, s);
-    lv_obj_set_pos(nm, TSStyle::NUM_W + PAD_SMALL, PAD_MEDIUM/2);
+    nameLabel = tsStyle.newName(lvobj, s);
+    lv_obj_set_pos(nameLabel, TSStyle::NUM_W + PAD_SMALL, PAD_MEDIUM/2);
 
     auto mask = getBuiltinIcon(ICON_DOT);
     fresh = lv_canvas_create(lvobj);
@@ -297,6 +302,18 @@ class SensorButton : public ListLineButton
   void refresh() override
   {
     if (!loaded) return;
+
+    bool focused = lv_obj_has_state(lvobj, LV_STATE_FOCUSED);
+    if (focused != lastFocused) {
+      lastFocused = focused;
+      LcdColorIndex color = focused ? COLOR_THEME_PRIMARY1_INDEX
+                                    : COLOR_THEME_PRIMARY2_INDEX;
+      etx_txt_color(numLabel, color, LV_PART_MAIN);
+      if (idLabel) etx_txt_color(idLabel, color, LV_PART_MAIN);
+      etx_txt_color(nameLabel, color, LV_PART_MAIN);
+      etx_txt_color(valLabel, color, LV_PART_MAIN);
+      etx_txt_color(valLabel, color, ETX_STATE_VALUE_STALE_WARN);
+    }
 
     if (showId != g_model.showInstanceIds) setNumIdState();
 
@@ -876,8 +893,6 @@ void ModelTelemetryPage::build(Window* window)
   sensorWindow->padAll(PAD_TINY);
   sensorWindow->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
   etx_bg_color(sensorWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
-  etx_border_color(sensorWindow->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
-  lv_obj_set_style_border_width(sensorWindow->getLvObj(), 1, LV_PART_MAIN);
 
   FlexGridLayout grid4(col_dsc4, row_dsc);
 

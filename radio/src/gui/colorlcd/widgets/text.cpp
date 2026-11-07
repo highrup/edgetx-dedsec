@@ -95,10 +95,10 @@ class TextWidget : public Widget
 
     if (screenNum < 0) {
       lv_style_set_text_font(&style, getFont(FONT(XS)));
-      lv_obj_set_pos(shadow, 1, 1);
-      lv_obj_set_pos(label, 0, 0);
-      lv_obj_set_pos(shadow2, 1, HeaderDateTime::HDR_DATE_LINE2 + 1);
-      lv_obj_set_pos(label2, 0, HeaderDateTime::HDR_DATE_LINE2);
+      lv_obj_set_pos(shadow, 1, 3);
+      lv_obj_set_pos(label, 0, 2);
+      lv_obj_set_pos(shadow2, 1, HeaderDateTime::HDR_DATE_LINE2 + 3);
+      lv_obj_set_pos(label2, 0, HeaderDateTime::HDR_DATE_LINE2 + 2);
     } else {
       lv_obj_add_flag(shadow2, LV_OBJ_FLAG_HIDDEN);
       lv_obj_add_flag(label2, LV_OBJ_FLAG_HIDDEN);

@@ -557,7 +557,7 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   this->icon->setPos(
       (width() - this->icon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
-             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height());
+             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 1);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -574,7 +574,7 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   this->icon->setPos(
       (width() - this->icon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
-             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height());
+             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 1);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);

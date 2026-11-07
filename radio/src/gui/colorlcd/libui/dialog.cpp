@@ -51,15 +51,16 @@ BaseDialog::BaseDialog(const char* title,
   content->setWindowFlag(OPAQUE);
   content->padAll(PAD_ZERO);
   content->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, width, LV_SIZE_CONTENT);
-  etx_solid_bg(content->getLvObj());
+  etx_solid_bg(content->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   lv_obj_center(content->getLvObj());
 
   header = new StaticText(content, {0, 0, LV_PCT(100), 0}, title ? title : "", COLOR_THEME_PRIMARY2_INDEX);
-  etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+  etx_solid_bg(header->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   header->padAll(PAD_SMALL);
   header->show(title != nullptr);
 
   form = new BaseDialogForm(content, width, flexLayout);
+  etx_solid_bg(form->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   if (maxHeight != LV_SIZE_CONTENT)
     lv_obj_set_style_max_height(form->getLvObj(), maxHeight - EdgeTxStyles::UI_ELEMENT_HEIGHT, LV_PART_MAIN);
 }
@@ -142,7 +143,8 @@ ConfirmDialog::ConfirmDialog(const char* title,
     cancelHandler(std::move(cancelHandler))
 {
   if (message) {
-    new StaticText(form, {0, 0, LV_PCT(100), 0}, message, COLOR_THEME_PRIMARY1_INDEX, CENTERED);
+    new StaticText(form, {0, 0, LV_PCT(100), 0}, message,
+                   COLOR_THEME_PRIMARY2_INDEX, CENTERED);
   }
 
   auto box = new Window(form, rect_t{});
