@@ -160,12 +160,13 @@ class ModelBitmapWidget : public Widget
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
 
-    coord_t w = width();
+    coord_t w = width() - MODEL_IMG_PAD * 2;
     coord_t h = height() - (isLarge ? LARGE_IMG_H : 0);
     bool sizeChg = (w != image->width()) || (h != image->height());
 
     if (sizeChg)
-      image->setRect({0, isLarge ? LARGE_IMG_H : 0, w, h});
+      image->setRect(
+          {MODEL_IMG_PAD, isLarge ? LARGE_IMG_H : 0, w, h});
 
     if (!image->hasImage() || deps_hash != getHash() || sizeChg) {
       if (g_model.header.bitmap[0]) {
@@ -208,6 +209,7 @@ class ModelBitmapWidget : public Widget
   static LAYOUT_VAL_SCALED(LARGE_LBL_Y, 5)
   static LAYOUT_VAL_SCALED(TITLE_HEIGHT, 18)
   static LAYOUT_VAL_SCALED(LARGE_IMG_H, 56)
+  static LAYOUT_VAL_SCALED(MODEL_IMG_PAD, 4)
 };
 
 const WidgetOption ModelBitmapWidget::options[] = {
