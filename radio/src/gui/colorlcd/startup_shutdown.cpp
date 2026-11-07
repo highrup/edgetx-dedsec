@@ -266,6 +266,7 @@ static BitmapBuffer* shutdownSplashImg = nullptr;
 static StaticBitmap* shutdownFrameImg = nullptr;
 static uint8_t shutdownFrameCount = 0;
 static uint8_t shutdownFrame = 0xff;
+static bool shutdownAudioStarted = false;
 
 static constexpr char SHUTDOWN_FRAME_FORMAT[] =
     BITMAPS_PATH "/SHUTDOWN/%03u.png";
@@ -320,6 +321,14 @@ void cancelShutdownAnimation()
     shutdownFrame = 0xff;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
+  if (shutdownAudioStarted)
+    STOP_PLAY(ID_PLAY_PROMPT_BASE + AU_BYE);
+  shutdownAudioStarted = false;
+}
+
+bool shutdownAnimationAudioStarted()
+{
+  return shutdownAudioStarted;
 }
 
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
@@ -339,6 +348,10 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       shutdownFrameImg =
           new StaticBitmap(shutdownWindow, {0, 0, LCD_W, LCD_H});
       showShutdownFrame(0);
+#if !defined(SIMU)
+      AUDIO_BYE();
+      shutdownAudioStarted = true;
+#endif
     } else {
       if (sdMounted() && !shutdownSplashImg)
         shutdownSplashImg = BitmapBuffer::loadBitmap(
@@ -347,14 +360,18 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
         shutdownSplashImg->addCanvas(shutdownWindow);
     }
 
-    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
-        ->center(LCD_W, LCD_H);
+    if (shutdownFrameCount == 0) {
+      (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN,
+                      COLOR_THEME_PRIMARY2_INDEX))
+          ->center(LCD_W, LCD_H);
 
-    for (int i = 0; i < 4; i += 1) {
-      shutdownAnim[i] = new StaticIcon(
-          shutdownWindow, LCD_W / 2 + bmp_shutdown_xo[i],
-          LCD_H / 2 + bmp_shutdown_yo[i],
-          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2_INDEX);
+      for (int i = 0; i < 4; i += 1) {
+        shutdownAnim[i] = new StaticIcon(
+            shutdownWindow, LCD_W / 2 + bmp_shutdown_xo[i],
+            LCD_H / 2 + bmp_shutdown_yo[i],
+            (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i),
+            COLOR_THEME_PRIMARY2_INDEX);
+      }
     }
   }
 
@@ -364,9 +381,11 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     showShutdownFrame(frame);
   }
 
-  int quarter = 4 - (duration * 5) / totalDuration;
-  if (quarter < 0) quarter = 0;
-  for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
+  if (shutdownFrameCount == 0) {
+    int quarter = 4 - (duration * 5) / totalDuration;
+    if (quarter < 0) quarter = 0;
+    for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
+  }
 
   MainWindow::instance()->run();
 }

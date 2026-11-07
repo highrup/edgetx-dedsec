@@ -209,7 +209,7 @@ class ModelBitmapWidget : public Widget
   static LAYOUT_VAL_SCALED(LARGE_LBL_Y, 5)
   static LAYOUT_VAL_SCALED(TITLE_HEIGHT, 18)
   static LAYOUT_VAL_SCALED(LARGE_IMG_H, 56)
-  static LAYOUT_VAL_SCALED(MODEL_IMG_PAD, 4)
+  static LAYOUT_VAL_SCALED(MODEL_IMG_PAD, 6)
 };
 
 const WidgetOption ModelBitmapWidget::options[] = {

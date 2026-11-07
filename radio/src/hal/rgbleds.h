@@ -35,3 +35,4 @@ uint32_t getFSLedRGBColor(uint8_t index);
 #endif
 
 void turnOffRGBLeds();
+void applyFrontLedModeNow();

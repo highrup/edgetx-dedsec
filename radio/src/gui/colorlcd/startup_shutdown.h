@@ -33,3 +33,4 @@ void drawSleepBitmap();
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message);
 void cancelShutdownAnimation();
+bool shutdownAnimationAudioStarted();

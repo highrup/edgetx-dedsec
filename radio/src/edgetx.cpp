@@ -1274,7 +1274,8 @@ void edgeTxClose(uint8_t shutdown)
 #if !defined(SIMU)
     // Audio task has been stopped so this will not play
     // when closing the simulator
-    AUDIO_BYE();
+    if (!shutdownAnimationAudioStarted())
+      AUDIO_BYE();
 #endif
     // TODO needed? telemetryEnd();
 #if defined(HAPTIC)

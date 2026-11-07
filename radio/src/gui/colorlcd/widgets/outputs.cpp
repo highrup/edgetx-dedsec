@@ -55,7 +55,8 @@ class InputMonitorChannelValue : public Window
 
   void delayedInit() override
   {
-    etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
     lv_obj_set_style_border_color(lvobj,
                                   makeLvColor(colorToRGB(accentColor)),
                                   LV_PART_MAIN);
@@ -98,17 +99,6 @@ class InputMonitorChannelValue : public Window
     auto divLine = lv_line_create(lvobj);
     lv_line_set_points(divLine, divPoints, 2);
     etx_line_color_from_flags(divLine, accentColor);
-
-    auto rowFrame = lv_obj_create(lvobj);
-    lv_obj_set_pos(rowFrame, 0, 0);
-    lv_obj_set_size(rowFrame, width() - 1, height() - 1);
-    lv_obj_set_style_bg_opa(rowFrame, LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_border_side(rowFrame, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
-    lv_obj_set_style_border_width(rowFrame, 1, LV_PART_MAIN);
-    lv_obj_set_style_border_color(rowFrame,
-                                  makeLvColor(colorToRGB(accentColor)),
-                                  LV_PART_MAIN);
-    lv_obj_clear_flag(rowFrame, LV_OBJ_FLAG_CLICKABLE);
 
     refresh();
   }

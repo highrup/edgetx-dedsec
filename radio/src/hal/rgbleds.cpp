@@ -130,6 +130,13 @@ bool getFSLedState(uint8_t index) {
 #endif
 #endif  // FUNCTION_SWITCHES
 
+void applyFrontLedModeNow()
+{
+#if defined(PCBV12) && defined(FUNCTION_SWITCHES_RGB_LEDS)
+  applyFrontLedMode();
+#endif
+}
+
 void turnOffRGBLeds()
 {
   rgbLedClearAll();

@@ -593,6 +593,7 @@ const static SetupLineDef statusLedSetupLines[] = {
                  GET_DEFAULT(g_eeGeneral.frontLedMode),
                  [](int32_t value) {
                    g_eeGeneral.frontLedMode = value;
+                   applyFrontLedModeNow();
                    SET_DIRTY();
                  }, "Front LEDs");
     }
