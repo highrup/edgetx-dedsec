@@ -65,7 +65,7 @@ class ModelBitmapWidget : public Widget
     label->hide();
 
     status = new StaticText(this, rect_t{},
-                            "We'll show you what hackers can do",
+                            "how about i whoop your ass?",
                             COLOR_THEME_SECONDARY1_INDEX, FONT(XXS));
     status->hide();
 

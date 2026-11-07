@@ -74,21 +74,14 @@ class InputMonitorChannelValue : public Window
     etx_txt_color_from_flags(chanLabel, textColor);
     lv_label_set_text(chanLabel, "");
 
-    // Draw the white live-output bar over the white labels, then repeat the
-    // labels in black inside the clipped bar to create a true inversion.
+    // Keep the live-output bar above the row background and below its text.
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_size(bar, 0, ROW_HEIGHT - 1);
     etx_bg_color_from_flags(bar, barColor);
-    barValueLabel = etx_label_create(bar, FONT_XS_INDEX);
-    etx_obj_add_style(barValueLabel, styles->text_align_right, LV_PART_MAIN);
-    etx_txt_color_from_flags(barValueLabel, backgroundColor);
-    lv_obj_set_width(barValueLabel, width());
-    barChanLabel = etx_label_create(bar, FONT_XS_INDEX);
-    etx_obj_add_style(barChanLabel, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color_from_flags(barChanLabel, backgroundColor);
-    lv_obj_set_width(barChanLabel, width());
+    lv_obj_move_foreground(chanLabel);
+    lv_obj_move_foreground(valueLabel);
 
     chanHasName = g_model.limitData[channel].name[0] != 0;
     setChannel();
@@ -113,7 +106,6 @@ class InputMonitorChannelValue : public Window
       getSourceString(s, MIXSRC_FIRST_CH + channel);
     }
     lv_label_set_text(chanLabel, s);
-    lv_label_set_text(barChanLabel, s);
   }
 
   void refresh()
@@ -137,7 +129,6 @@ class InputMonitorChannelValue : public Window
       if (s != lastText) {
         lastText = s;
         lv_label_set_text(valueLabel, s.c_str());
-        lv_label_set_text(barValueLabel, s.c_str());
       }
 
       const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
@@ -152,8 +143,6 @@ class InputMonitorChannelValue : public Window
 
         lv_obj_set_pos(bar, x, 0);
         lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
-        lv_obj_set_pos(barValueLabel, -x, 0);
-        lv_obj_set_pos(barChanLabel, -x, 0);
       }
     }
 
@@ -179,8 +168,6 @@ class InputMonitorChannelValue : public Window
   bool chanHasName = false;
   lv_obj_t* valueLabel = nullptr;
   lv_obj_t* chanLabel = nullptr;
-  lv_obj_t* barValueLabel = nullptr;
-  lv_obj_t* barChanLabel = nullptr;
   lv_point_t divPoints[2];
   lv_obj_t* bar = nullptr;
   Messaging refreshMsg;
