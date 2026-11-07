@@ -256,6 +256,52 @@ void ThemeFile::applyBackground()
   std::string backgroundImageFileName(getPath());
   auto pos = backgroundImageFileName.rfind('/');
   if (pos != std::string::npos) {
+    auto themeDir = backgroundImageFileName.substr(0, pos + 1);
+
+    // DedSec wallpapers rotate once per boot: background.png,
+    // background1.png, background2.png, and so on.
+    static std::string bootThemeDir;
+    static std::string bootWallpaper;
+    if (themeDir.find("/DEDSEC_/") != std::string::npos) {
+      if (bootThemeDir != themeDir) {
+        bootThemeDir = themeDir;
+        bootWallpaper.clear();
+
+        std::vector<std::string> wallpapers;
+        for (uint8_t i = 0; i < 16; ++i) {
+          std::string candidate = themeDir + "background";
+          if (i > 0) candidate += std::to_string(i);
+          candidate += ".png";
+          if (isFileAvailable(candidate.c_str()))
+            wallpapers.push_back(candidate);
+        }
+
+        if (!wallpapers.empty()) {
+          uint8_t index = 0;
+          std::string stateFile = themeDir + "background.idx";
+          FIL file;
+          unsigned int count = 0;
+          if (f_open(&file, stateFile.c_str(), FA_READ) == FR_OK) {
+            f_read(&file, &index, sizeof(index), &count);
+            f_close(&file);
+          }
+
+          index %= wallpapers.size();
+          bootWallpaper = wallpapers[index];
+
+          uint8_t next = (index + 1) % wallpapers.size();
+          if (f_open(&file, stateFile.c_str(), FA_CREATE_ALWAYS | FA_WRITE) ==
+              FR_OK) {
+            f_write(&file, &next, sizeof(next), &count);
+            f_close(&file);
+          }
+        }
+      }
+
+      if (!bootWallpaper.empty() && tryBackground(bootWallpaper))
+        return;
+    }
+
     auto rootDir = backgroundImageFileName.substr(0, pos + 1);
     rootDir = rootDir + "background_" + std::to_string(LCD_W) + "x" +
               std::to_string(LCD_H) + ".png";
@@ -557,7 +603,7 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   this->icon->setPos(
       (width() - this->icon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
-             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 4);
+             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 3);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -574,7 +620,7 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   this->icon->setPos(
       (width() - this->icon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
-             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 4);
+             HeaderDateTime::HDR_DATE_HEIGHT - this->icon->height() + 3);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);
@@ -592,7 +638,7 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   backIcon->setPos(
       (width() - backIcon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +
-          HeaderDateTime::HDR_DATE_HEIGHT - backIcon->height() + 5);
+          HeaderDateTime::HDR_DATE_HEIGHT - backIcon->height() + 3);
 #if defined(HARDWARE_TOUCH)
   if (this->action) {
     setWindowFlag(NO_CLICK);

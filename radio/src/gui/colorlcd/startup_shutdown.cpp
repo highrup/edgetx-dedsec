@@ -261,6 +261,8 @@ const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
                                   -SHUTDOWN_CIRCLE_RADIUS};
 
 static Window* shutdownWindow = nullptr;
+static StaticIcon* sleepIcon = nullptr;
+static bool sleepIconVisible = true;
 static StaticIcon* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
 static StaticBitmap* shutdownFrameImg = nullptr;
@@ -302,10 +304,28 @@ void drawSleepBitmap()
   shutdownWindow->setWindowFlag(OPAQUE);
   etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
-      ->center(LCD_W, LCD_H);
+  sleepIcon = new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN,
+                             COLOR_THEME_PRIMARY2_INDEX);
+  sleepIcon->center(LCD_W, LCD_H);
+  sleepIconVisible = true;
 
   // Force screen refresh
+  lv_refr_now(nullptr);
+}
+
+void updateSleepBitmapFlicker(uint32_t elapsed)
+{
+  if (!sleepIcon) return;
+
+  bool visible = !((elapsed >= 70 && elapsed < 120) ||
+                   (elapsed >= 170 && elapsed < 230));
+  if (visible == sleepIconVisible) return;
+
+  sleepIconVisible = visible;
+  if (visible)
+    sleepIcon->show();
+  else
+    sleepIcon->hide();
   lv_refr_now(nullptr);
 }
 
@@ -319,6 +339,8 @@ void cancelShutdownAnimation()
     shutdownFrameImg = nullptr;
     shutdownFrameCount = 0;
     shutdownFrame = 0xff;
+    sleepIcon = nullptr;
+    sleepIconVisible = true;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
   if (shutdownAudioStarted)

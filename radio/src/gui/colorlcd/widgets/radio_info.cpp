@@ -132,12 +132,12 @@ class RadioInfoWidget : public Widget
           : alignment == ALIGN_CENTER ? std::max<coord_t>(0, (width() - pairWidth) / 2)
                                       : 0;
       const coord_t iconY = HeaderDateTime::HDR_DATE_LINE2 +
-                            HeaderDateTime::HDR_DATE_HEIGHT - 20 + 3;
+                            HeaderDateTime::HDR_DATE_HEIGHT - 20 + 2;
 #if defined(AUDIO)
       for (auto* icon : audioVol) icon->setPos(pairX, iconY);
 #endif
       batteryIcon->setPos(pairX + 29, iconY);
-      lv_obj_set_pos(batteryFill, pairX + 31, iconY + 6);
+      lv_obj_set_pos(batteryFill, pairX + 33, iconY + 6);
 #if defined(USB_CHARGER)
       batteryChargeIcon->setPos(pairX + 29, iconY);
 #endif

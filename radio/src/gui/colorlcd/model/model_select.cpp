@@ -108,7 +108,6 @@ class ModelButton : public Button
     } else {
       modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::STD_FONT_HEIGHT}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, font);
-      etx_solid_bg(modelName->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
@@ -181,9 +180,6 @@ class ModelButton : public Button
     bool inverted = hasFocus() || checked();
     if (inverted == lastListFocus) return;
     lastListFocus = inverted;
-    etx_solid_bg(modelName->getLvObj(),
-                 inverted ? COLOR_THEME_PRIMARY2_INDEX
-                         : COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(modelName->getLvObj(),
                   inverted ? COLOR_THEME_PRIMARY1_INDEX
                           : COLOR_THEME_PRIMARY2_INDEX);
@@ -388,6 +384,7 @@ class ModelsPageBody : public Window
 
   void checkEvents() override
   {
+    Window::checkEvents();
     for (auto c : children) {
       if (((ModelButton*)c)->loadImage()) {
         return;

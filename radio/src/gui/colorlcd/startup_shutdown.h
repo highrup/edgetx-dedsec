@@ -30,6 +30,7 @@ void runFatalErrorScreen(const char* message);
 
 // Screen templates
 void drawSleepBitmap();
+void updateSleepBitmapFlicker(uint32_t elapsed);
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message);
 void cancelShutdownAnimation();
