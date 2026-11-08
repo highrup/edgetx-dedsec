@@ -113,6 +113,18 @@ static const uint8_t mask_ui_widget_art[] __FLASH = {
 #include "mask_ui_widget_art.lbm"
 };
 
+static const uint8_t mask_drone_pilot_1[] __FLASH = {
+#include "mask_widget_drone_pilot_1.lbm"
+};
+
+static const uint8_t mask_drone_pilot_2[] __FLASH = {
+#include "mask_widget_drone_pilot_2.lbm"
+};
+
+static const uint8_t mask_drone_pilot_3[] __FLASH = {
+#include "mask_widget_drone_pilot_3.lbm"
+};
+
 // gfx for settings screens
 
 static const uint8_t mask_edgetx[] __FLASH = {
@@ -520,6 +532,9 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_FLIGHT_TRACKING, mask_flight_tracking),
     BI(ICON_UI_TOPBAR_ART, mask_ui_topbar_art),
     BI(ICON_UI_WIDGET_ART, mask_ui_widget_art),
+    BI(ICON_DRONE_PILOT_1, mask_drone_pilot_1),
+    BI(ICON_DRONE_PILOT_2, mask_drone_pilot_2),
+    BI(ICON_DRONE_PILOT_3, mask_drone_pilot_3),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
     BI(ICON_TEXTLINE_FM, mask_inline_fm),

@@ -1252,12 +1252,11 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t statusLedDim);
   NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
 #if defined(PCBV12)
-  // High bits for the V12's extended White/Off choices.  Keep these in the
-  // existing spare word so RadioData remains binary-compatible.
-  NOBACKUP(int16_t statusLedErrorExt:1);
-  NOBACKUP(int16_t statusLedReadyExt:1);
-  NOBACKUP(int16_t statusLedEmitExt:1);
-  NOBACKUP(int16_t statusLedPwmSpare:3 SKIP);
+  // High bits for the V12's extended White/Off choices.  The low three bits
+  // correspond to Error, Ready and Emit.  Keeping them in this existing
+  // six-bit field preserves RadioData's binary size without signed 1-bit
+  // fields (whose set value is -1).
+  NOBACKUP(int16_t statusLedColorExt:6);
 #else
   NOBACKUP(int16_t statusLedPwmSpare:6 SKIP);
 #endif

@@ -831,6 +831,16 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
+    // A short four-step screen flicker every two seconds.  The static first
+    // frame is used for the long rest so the animation remains inexpensive.
+    const uint32_t flickerPhase = get_tmr10ms() % 200;
+    EdgeTxIcon pilotFrame = ICON_DRONE_PILOT_1;
+    if (flickerPhase < 8 || (flickerPhase >= 16 && flickerPhase < 24))
+      pilotFrame = ICON_DRONE_PILOT_2;
+    else if (flickerPhase < 32)
+      pilotFrame = ICON_DRONE_PILOT_3;
+    if (pilotBackground) pilotBackground->setIcon(pilotFrame);
+
     setMarker(0, calibratedAnalogs[ADC_MAIN_LH],
               calibratedAnalogs[ADC_MAIN_LV]);
     setMarker(1, calibratedAnalogs[ADC_MAIN_RH],
@@ -843,6 +853,13 @@ class GimbalControlWidget : public DedsecWindowWidget
     if (!loaded || deleted()) return;
 
     const lv_color_t accent = makeLvColor(colorToRGB(accentColor));
+    if (pilotBackground) {
+      lv_obj_set_style_img_recolor(
+          pilotBackground->getLvObj(), makeLvColor(colorToRGB(textColor)),
+          LV_PART_MAIN);
+      lv_obj_set_style_img_recolor_opa(pilotBackground->getLvObj(),
+                                       LV_OPA_COVER, LV_PART_MAIN);
+    }
     for (uint8_t i = 0; i < 2; ++i) {
       if (boxes[i])
         lv_obj_set_style_border_color(boxes[i], accent, LV_PART_MAIN);
@@ -856,6 +873,12 @@ class GimbalControlWidget : public DedsecWindowWidget
  protected:
   void buildBody() override
   {
+    // The supplied artwork is sized to the full inner widget area.  Keep it
+    // behind the title, frame, boxes and live markers.
+    pilotBackground = new StaticIcon(this, 1, 1, ICON_DRONE_PILOT_1,
+                                     COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_move_background(pilotBackground->getLvObj());
+
     // Reserve the upper half for a future image. The live controls occupy
     // only the lower half of the widget.
     const coord_t lowerTop =
@@ -910,6 +933,7 @@ class GimbalControlWidget : public DedsecWindowWidget
   }
 
   coord_t gimbalSize = 0;
+  StaticIcon* pilotBackground = nullptr;
   lv_obj_t* boxes[2] = {nullptr};
   lv_obj_t* crossLines[2][2] = {{nullptr}};
   lv_obj_t* markers[2] = {nullptr};

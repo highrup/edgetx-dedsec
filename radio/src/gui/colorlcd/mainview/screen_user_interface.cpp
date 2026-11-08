@@ -54,7 +54,10 @@ ScreenUserInterfacePage::ScreenUserInterfacePage(const PageDef& pageDef) :
 void ScreenUserInterfacePage::build(Window* window)
 {
   window->padAll(PAD_TINY);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
+  // Keep this page at the full available body height so floating artwork can
+  // be anchored in the real bottom area rather than the flex content height.
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO,
+                        LV_PCT(100), LV_PCT(100));
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 

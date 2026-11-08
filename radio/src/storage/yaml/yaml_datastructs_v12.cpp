@@ -495,10 +495,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "frontLedMode", 2 ),
   YAML_UNSIGNED( "statusLedDim", 8 ),
   YAML_SIGNED_CUST( "statusLedSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_UNSIGNED( "statusLedErrorExt", 1 ),
-  YAML_UNSIGNED( "statusLedReadyExt", 1 ),
-  YAML_UNSIGNED( "statusLedEmitExt", 1 ),
-  YAML_PADDING( 3 ),
+  YAML_UNSIGNED( "statusLedColorExt", 6 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
