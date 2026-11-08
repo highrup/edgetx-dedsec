@@ -136,6 +136,8 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
 
   etx_bg_color(lvobj, COLOR_THEME_EDIT_INDEX, LV_PART_MAIN | LV_STATE_EDITED);
   etx_txt_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN | LV_STATE_EDITED);
+  etx_txt_color(label, COLOR_THEME_PRIMARY1_INDEX,
+                LV_PART_MAIN | LV_STATE_EDITED);
 
   update();
 
@@ -282,8 +284,10 @@ void NumberEdit::setDirectEdit(bool editMode)
   // Clear 'edited' state
   if (editMode) {
     lv_obj_add_state(lvobj, LV_STATE_EDITED);
+    lv_obj_add_state(label, LV_STATE_EDITED);
   } else {
     lv_obj_clear_state(lvobj, LV_STATE_EDITED);
+    lv_obj_clear_state(label, LV_STATE_EDITED);
 
     // Call final change handler (Lua scripts)
     if (onEdited) onEdited(currentValue);

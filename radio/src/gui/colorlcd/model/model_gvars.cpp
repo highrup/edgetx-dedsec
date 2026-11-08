@@ -59,6 +59,16 @@ class GVarButton : public ListLineButton
     setHeight(BTN_H);
     if (!modelFMEnabled()) padLeft(PAD_LARGE);
 
+    const lv_style_selector_t listStates[] = {
+        LV_PART_MAIN,
+        LV_PART_MAIN | LV_STATE_FOCUSED,
+        LV_PART_MAIN | LV_STATE_CHECKED,
+        LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED};
+    for (auto selector : listStates) {
+      lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, selector);
+      lv_obj_set_style_border_width(lvobj, 1, selector);
+    }
+
     delayLoad();
   }
 
@@ -81,6 +91,7 @@ class GVarButton : public ListLineButton
 
  protected:
   uint8_t currentFlightMode = 0;  // used for checking updates
+  bool valueStyleFocused = false;
   lv_obj_t* valueTexts[MAX_FLIGHT_MODES];
   gvar_t values[MAX_FLIGHT_MODES];
 
@@ -90,6 +101,21 @@ class GVarButton : public ListLineButton
   {
     ListLineButton::checkEvents();
     if (loaded) {
+      const bool focused = hasFocus();
+      if (focused != valueStyleFocused) {
+        valueStyleFocused = focused;
+        for (int flightMode = 0; flightMode < numFlightModes(); flightMode++) {
+          etx_solid_bg(valueTexts[flightMode],
+                       focused ? COLOR_THEME_PRIMARY1_INDEX
+                               : COLOR_THEME_PRIMARY2_INDEX,
+                       LV_PART_MAIN | LV_STATE_CHECKED);
+          etx_txt_color(valueTexts[flightMode],
+                        focused ? COLOR_THEME_PRIMARY2_INDEX
+                                : COLOR_THEME_PRIMARY1_INDEX,
+                        LV_PART_MAIN | LV_STATE_CHECKED);
+        }
+      }
+
       if (modelFMEnabled()) {
         uint8_t newFM = getFlightMode();
         if (currentFlightMode != newFM) {
@@ -205,7 +231,8 @@ static void gv_value_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->text_align_center, LV_PART_MAIN);
   etx_font(obj, FONT_XS_INDEX, LV_PART_MAIN | ETX_STATE_VALUE_SMALL_FONT);
-  etx_solid_bg(obj, COLOR_THEME_ACTIVE_INDEX, LV_STATE_CHECKED);
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX, LV_STATE_CHECKED);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_STATE_CHECKED);
 }
 
 const lv_obj_class_t GVarButton::gv_value_class = {

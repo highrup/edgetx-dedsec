@@ -219,9 +219,23 @@ class SensorButton : public ListLineButton
   {
     padAll(PAD_ZERO);
     setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL);
-    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
-    lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
-    etx_border_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
+    const lv_style_selector_t rowStates[] = {
+        LV_PART_MAIN,
+        LV_PART_MAIN | LV_STATE_CHECKED,
+        LV_PART_MAIN | LV_STATE_FOCUSED,
+        LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED};
+    for (auto selector : rowStates) {
+      lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, selector);
+      lv_obj_set_style_border_width(lvobj, 1, selector);
+      etx_border_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, selector);
+    }
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_MAIN);
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX,
+                 LV_PART_MAIN | LV_STATE_CHECKED);
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX,
+                 LV_PART_MAIN | LV_STATE_FOCUSED);
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX,
+                 LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUSED);
 
     check(isActive());
 
@@ -288,6 +302,8 @@ class SensorButton : public ListLineButton
     fresh = lv_canvas_create(lvobj);
     lv_obj_set_pos(fresh, TSStyle::NUM_W + TSStyle::NAME_W + PAD_MEDIUM, PAD_LARGE);
     lv_canvas_set_buffer(fresh, (void*)mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
+    lv_obj_set_style_img_recolor_opa(fresh, LV_OPA_COVER, LV_PART_MAIN);
+    etx_img_color(fresh, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
     lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
 
     valLabel = tsStyle.newValue(lvobj);
@@ -313,6 +329,7 @@ class SensorButton : public ListLineButton
       etx_txt_color(nameLabel, color, LV_PART_MAIN);
       etx_txt_color(valLabel, color, LV_PART_MAIN);
       etx_txt_color(valLabel, color, ETX_STATE_VALUE_STALE_WARN);
+      etx_img_color(fresh, color, LV_PART_MAIN);
     }
 
     if (showId != g_model.showInstanceIds) setNumIdState();

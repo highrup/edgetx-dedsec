@@ -47,6 +47,8 @@ class FunctionLineButton : public ListLineButton
 
   void refresh() override;
 
+  void checkEvents() override;
+
   static constexpr coord_t NM_X = PAD_TINY;
   static LAYOUT_SIZE_SCALED(NM_Y, 4, 10)
   static LAYOUT_SIZE_SCALED(NM_W, 43, 40)
@@ -72,6 +74,9 @@ class FunctionLineButton : public ListLineButton
   lv_obj_t *sfFunc = nullptr;
   lv_obj_t *sfRepeat = nullptr;
   lv_obj_t *sfEnable = nullptr;
+  bool enableStyleFocused = false;
+
+  void updateEnableStyle();
 
   virtual bool isActive() const override = 0;
 };

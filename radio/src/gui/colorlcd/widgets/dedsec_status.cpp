@@ -10,6 +10,7 @@
 #include "edgetx.h"
 #include "hal/usb_driver.h"
 #include "static.h"
+#include "telemetry/telemetry.h"
 
 #define ETX_STATE_DEDSEC_BG_FILL LV_STATE_USER_1
 
@@ -39,10 +40,19 @@ static int32_t sourceDisplayValue(mixsrc_t source)
   int32_t value = getValue(source);
   if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
     const uint8_t sensor = (source - MIXSRC_FIRST_TELEM) / 3;
-    const int32_t divisor = g_model.telemetrySensors[sensor].getPrecDivisor();
-    if (divisor > 1) value /= divisor;
+    const auto& telemetrySensor = g_model.telemetrySensors[sensor];
+    value = convertTelemetryValue(value, telemetrySensor.unit,
+                                  telemetrySensor.prec, UNIT_DEGREE, 0);
   }
   return value;
+}
+
+static bool sourceIsLive(mixsrc_t source)
+{
+  if (source == MIXSRC_NONE) return false;
+  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM)
+    return TELEMETRY_STREAMING() && sourceIsFresh(source);
+  return true;
 }
 
 class DedsecWindowWidget : public Widget
@@ -276,7 +286,7 @@ class FlightLogWidget : public DedsecWindowWidget
     const uint16_t seconds = sessionTimer % 60;
     char text[80];
     snprintf(text, sizeof(text),
-             "SESSION: %02u:%02u\nREC: %s\nLINK: %s", minutes, seconds,
+             "SESSION: %02u:%02u\nLOGS: %s\nLINK: %s", minutes, seconds,
              recording ? "[ ACTIVE ]" : "  IDLE  ",
              linked ? "[ ONLINE ]" : "  OFFLINE  ");
     bodyLabel->setText(text);
@@ -288,7 +298,7 @@ class FlightLogWidget : public DedsecWindowWidget
     bodyLabel = new StaticText(
         this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
-        "SESSION: 00:00\nREC:   IDLE\nLINK:   OFFLINE",
+        "SESSION: 00:00\nLOGS:  IDLE\nLINK:   OFFLINE",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
   }
 };
@@ -416,6 +426,74 @@ const WidgetOption GpsLocatorWidget::options[] = {
     {"Heading", WidgetOption::Source, MIXSRC_NONE},
     {nullptr, WidgetOption::Bool}};
 
+class LastLocationWidget : public DedsecWindowWidget
+{
+ public:
+  LastLocationWidget(const WidgetFactory* factory, Window* parent,
+                     const rect_t& rect, int screenNum, int zoneNum) :
+      DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
+                         "LAST LOCATION_")
+  {
+  }
+
+  void foreground() override
+  {
+    if (!loaded || deleted() || !bodyLabel) return;
+
+    auto widgetData = getPersistentData();
+    const mixsrc_t latitude = widgetData->options[4].value.unsignedValue;
+    const mixsrc_t longitude = widgetData->options[5].value.unsignedValue;
+    const bool fix = TELEMETRY_STREAMING() && sourceIsFresh(latitude) &&
+                     sourceIsFresh(longitude);
+
+    if (fix) {
+      lastLatitude = sourceValueText(latitude);
+      lastLongitude = sourceValueText(longitude);
+      lastFixTime = get_tmr10ms();
+      hasFix = true;
+    }
+
+    uint32_t age = hasFix ? (get_tmr10ms() - lastFixTime) / 100 : 0;
+    const uint32_t minutes = age / 60;
+    const uint32_t seconds = age % 60;
+    char text[160];
+    snprintf(text, sizeof(text), "LAT: %s\nLON: %s\nAGE: %02lu:%02lu",
+             hasFix ? lastLatitude.c_str() : "--",
+             hasFix ? lastLongitude.c_str() : "--",
+             (unsigned long)minutes, (unsigned long)seconds);
+    bodyLabel->setText(text);
+  }
+
+  static const WidgetOption options[];
+
+ protected:
+  void buildBody() override
+  {
+    bodyLabel = new StaticText(
+        this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
+               height() - TITLE_HEIGHT - PAD_TINY},
+        "LAT: --\nLON: --\nAGE: 00:00", COLOR_THEME_PRIMARY2_INDEX,
+        FONT(XS));
+  }
+
+  bool hasFix = false;
+  tmr10ms_t lastFixTime = 0;
+  std::string lastLatitude;
+  std::string lastLongitude;
+};
+
+const WidgetOption LastLocationWidget::options[] = {
+    {STR_TEXT_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_BG_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, true},
+    {STR_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {"Latitude", WidgetOption::Source, MIXSRC_NONE},
+    {"Longitude", WidgetOption::Source, MIXSRC_NONE},
+    {nullptr, WidgetOption::Bool}};
+
 class AttitudeWidget : public DedsecWindowWidget
 {
  public:
@@ -433,10 +511,19 @@ class AttitudeWidget : public DedsecWindowWidget
     auto widgetData = getPersistentData();
     const mixsrc_t rollSource = widgetData->options[4].value.unsignedValue;
     const mixsrc_t pitchSource = widgetData->options[5].value.unsignedValue;
-    const bool live = TELEMETRY_STREAMING() && sourceIsFresh(rollSource) &&
-                      sourceIsFresh(pitchSource);
-    const int32_t roll = live ? limit<int32_t>(-60, sourceDisplayValue(rollSource), 60) : 0;
-    const int32_t pitch = live ? limit<int32_t>(-45, sourceDisplayValue(pitchSource), 45) : 0;
+    const bool live = sourceIsLive(rollSource) && sourceIsLive(pitchSource);
+    const bool rollTelemetry = rollSource >= MIXSRC_FIRST_TELEM &&
+                               rollSource <= MIXSRC_LAST_TELEM;
+    const bool pitchTelemetry = pitchSource >= MIXSRC_FIRST_TELEM &&
+                                pitchSource <= MIXSRC_LAST_TELEM;
+    const int32_t rollValue = rollTelemetry
+                                  ? sourceDisplayValue(rollSource)
+                                  : calcRESXto100(getValue(rollSource)) * 60 / 100;
+    const int32_t pitchValue = pitchTelemetry
+                                   ? sourceDisplayValue(pitchSource)
+                                   : calcRESXto100(getValue(pitchSource)) * 45 / 100;
+    const int32_t roll = live ? limit<int32_t>(-60, rollValue, 60) : 0;
+    const int32_t pitch = live ? limit<int32_t>(-45, pitchValue, 45) : 0;
 
     const float angle = roll * 3.14159265f / 180.0f;
     const float cs = cosf(angle);
@@ -457,10 +544,12 @@ class AttitudeWidget : public DedsecWindowWidget
       lv_line_set_points(ladder[i], ladderPoints[i], 2);
     }
 
-    char readout[64];
-    snprintf(readout, sizeof(readout), "%s   R%+ld  P%+ld",
-             live ? "[ LIVE ]" : "  STANDBY  ", (long)roll, (long)pitch);
-    statusLabel->setText(readout);
+    char readout[16];
+    snprintf(readout, sizeof(readout), "R%+ld", (long)roll);
+    rollLabel->setText(readout);
+    statusLabel->setText(live ? "[ LIVE ]" : "STANDBY");
+    snprintf(readout, sizeof(readout), "P%+ld", (long)pitch);
+    pitchLabel->setText(readout);
   }
 
   void update() override
@@ -474,6 +563,10 @@ class AttitudeWidget : public DedsecWindowWidget
       if (reticle[i]) etx_line_color_from_flags(reticle[i], textColor);
     if (statusLabel)
       etx_txt_color_from_flags(statusLabel->getLvObj(), textColor);
+    if (rollLabel)
+      etx_txt_color_from_flags(rollLabel->getLvObj(), textColor);
+    if (pitchLabel)
+      etx_txt_color_from_flags(pitchLabel->getLvObj(), textColor);
   }
 
   static const WidgetOption options[];
@@ -502,11 +595,20 @@ class AttitudeWidget : public DedsecWindowWidget
       lv_line_set_points(reticle[i], reticlePoints[i], 2);
     }
 
-    statusLabel = new StaticText(
-        this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
+    const coord_t readoutWidth = (width() - 2 * PAD_SMALL) / 3;
+    const coord_t readoutY = TITLE_HEIGHT + PAD_TINY;
+    rollLabel = new StaticText(
+        this, {PAD_SMALL, readoutY, readoutWidth,
                EdgeTxStyles::STD_FONT_HEIGHT},
-        "  STANDBY     R+0  P+0", COLOR_THEME_PRIMARY2_INDEX,
-        FONT(XS) | CENTERED);
+        "R+0", COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    statusLabel = new StaticText(
+        this, {PAD_SMALL + readoutWidth, readoutY, readoutWidth,
+               EdgeTxStyles::STD_FONT_HEIGHT},
+        "STANDBY", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED);
+    pitchLabel = new StaticText(
+        this, {PAD_SMALL + readoutWidth * 2, readoutY, readoutWidth,
+               EdgeTxStyles::STD_FONT_HEIGHT},
+        "P+0", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | RIGHT);
   }
 
   static void setHorizonLine(lv_point_t* points, coord_t cx, coord_t cy,
@@ -522,6 +624,8 @@ class AttitudeWidget : public DedsecWindowWidget
   lv_obj_t* ladder[4] = {nullptr};
   lv_obj_t* reticle[3] = {nullptr};
   StaticText* statusLabel = nullptr;
+  StaticText* rollLabel = nullptr;
+  StaticText* pitchLabel = nullptr;
   lv_point_t horizonPoints[2];
   lv_point_t ladderPoints[4][2];
   lv_point_t reticlePoints[3][2];
@@ -670,6 +774,8 @@ DedsecWidgetFactory<FlightLogWidget> flightLogWidget(
     "FlightLog", DedsecWindowWidget::commonOptions, "Flight Log");
 DedsecWidgetFactory<GpsLocatorWidget> gpsLocatorWidget(
     "GpsLoc", GpsLocatorWidget::options, "GPS Locator");
+DedsecWidgetFactory<LastLocationWidget> lastLocationWidget(
+    "LastLoc", LastLocationWidget::options, "Last Location");
 DedsecWidgetFactory<AttitudeWidget> attitudeWidget(
     "Attitude", AttitudeWidget::options, "Attitude");
 DedsecWidgetFactory<LinkAnalyzerWidget> linkAnalyzerWidget(

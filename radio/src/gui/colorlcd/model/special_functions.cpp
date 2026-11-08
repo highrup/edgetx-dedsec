@@ -41,23 +41,14 @@ static const char *_failsafe_module[] = {
     "Ext.",
 };
 
-static const lv_style_const_prop_t sf_enable_state_style_props[] = {
-    LV_STYLE_CONST_OUTLINE_WIDTH(3),
-    LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
-    LV_STYLE_CONST_OUTLINE_PAD(1),
-    LV_STYLE_PROP_INV,
-};
-LV_STYLE_CONST_MULTI_INIT(sf_enable_state_style, sf_enable_state_style_props);
-
 static void sf_enable_state_constructor(const lv_obj_class_t *class_p,
                                         lv_obj_t *obj)
 {
-  etx_obj_add_style(obj, sf_enable_state_style, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->outline_color_light, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_MAIN);
-  etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, LV_STATE_CHECKED);
+  lv_obj_set_style_border_side(obj, LV_BORDER_SIDE_FULL, LV_PART_MAIN);
+  lv_obj_set_style_border_width(obj, 1, LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_set_style_bg_opa(obj, LV_OPA_COVER,
+                          LV_PART_MAIN | LV_STATE_CHECKED);
 }
 
 static const lv_obj_class_t sf_enable_state = {
@@ -86,6 +77,16 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
   setHeight(FunctionsPage::SF_BUTTON_H);
   padAll(PAD_ZERO);
 
+  const lv_style_selector_t listStates[] = {
+      LV_PART_MAIN,
+      LV_PART_MAIN | LV_STATE_FOCUSED,
+      LV_PART_MAIN | LV_STATE_CHECKED,
+      LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED};
+  for (auto selector : listStates) {
+    lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, selector);
+    lv_obj_set_style_border_width(lvobj, 1, selector);
+  }
+
   delayLoad();
 }
 
@@ -113,6 +114,7 @@ void FunctionLineButton::delayedInit()
   lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_CLICKABLE);
   lv_obj_set_user_data(sfEnable, this);
   lv_obj_set_pos(sfEnable, EN_X, EN_Y);
+  updateEnableStyle();
 
   lv_obj_update_layout(lvobj);
 
@@ -120,6 +122,29 @@ void FunctionLineButton::delayedInit()
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 
   refresh();
+}
+
+void FunctionLineButton::updateEnableStyle()
+{
+  if (!sfEnable) return;
+
+  const lv_color_t color = makeLvColor(
+      hasFocus() ? COLOR_THEME_PRIMARY1 : COLOR_THEME_PRIMARY2);
+  lv_obj_set_style_border_color(sfEnable, color, LV_PART_MAIN);
+  lv_obj_set_style_border_color(sfEnable, color,
+                                LV_PART_MAIN | LV_STATE_CHECKED);
+  lv_obj_set_style_bg_color(sfEnable, color,
+                            LV_PART_MAIN | LV_STATE_CHECKED);
+}
+
+void FunctionLineButton::checkEvents()
+{
+  ListLineButton::checkEvents();
+  const bool focused = hasFocus();
+  if (focused != enableStyleFocused) {
+    enableStyleFocused = focused;
+    updateEnableStyle();
+  }
 }
 
 void FunctionLineButton::refresh()

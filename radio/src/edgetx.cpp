@@ -1299,19 +1299,12 @@ void edgeTxClose(uint8_t shutdown)
 
   uint32_t bye_start = time_get_ms();
   while (IS_PLAYING(ID_PLAY_PROMPT_BASE + AU_BYE)) {
-    uint32_t bye_elapsed = time_get_ms() - bye_start;
-#if defined(COLORLCD)
-    updateSleepBitmapFlicker(bye_elapsed);
-#endif
-    if (bye_elapsed > 5000/*5s*/) {
+    if (time_get_ms() - bye_start > 5000/*5s*/) {
       TRACE("shutdown: bye audio timeout");
       break;
     }
     sleep_ms(10);
   }
-#if defined(COLORLCD)
-  updateSleepBitmapFlicker(UINT32_MAX);
-#endif
 
   sleep_ms(100);
 
