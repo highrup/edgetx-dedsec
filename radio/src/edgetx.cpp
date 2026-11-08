@@ -1973,6 +1973,14 @@ uint32_t pwrCheck()
       }
       if (get_tmr10ms() - pwr_press_time > PWR_PRESS_SHUTDOWN_DELAY()) {
 #if defined(COLORLCD)
+        // SD-backed shutdown frames can take longer to decode than the power
+        // button delay. Finish the authored sequence before powering off.
+        if (!shutdownAnimationComplete()) {
+          drawShutdownAnimation(PWR_PRESS_SHUTDOWN_DELAY(),
+                                PWR_PRESS_SHUTDOWN_DELAY(), message);
+          return e_power_press;
+        }
+
         bool usbConfirmed = !usbPlugged() || getSelectedUsbMode() == USB_UNSELECTED_MODE;
         bool modelConnectedConfirmed = !TELEMETRY_STREAMING() || g_eeGeneral.disableRssiPoweroffAlarm;
         bool trainerConfirmed = !isTrainerConnected();

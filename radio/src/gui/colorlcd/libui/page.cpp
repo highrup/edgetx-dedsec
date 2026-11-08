@@ -74,7 +74,7 @@ StaticText* PageHeader::setTitle2(std::string txt)
   if (title2 == nullptr) {
     title2 = new StaticText(this,
                             {PAGE_TITLE_LEFT,
-                             PAD_SMALL + HeaderDateTime::HDR_DATE_LINE2,
+                             PAD_SMALL + HeaderDateTime::HDR_DATE_LINE2 + 2,
                              LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::STD_FONT_HEIGHT},
                             "", COLOR_THEME_PRIMARY2_INDEX);
   }

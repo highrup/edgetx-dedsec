@@ -331,6 +331,12 @@ bool shutdownAnimationAudioStarted()
   return shutdownAudioStarted;
 }
 
+bool shutdownAnimationComplete()
+{
+  return shutdownFrameCount == 0 ||
+         shutdownFrame == shutdownFrameCount - 1;
+}
+
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            const char* message)
 {
