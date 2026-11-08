@@ -692,9 +692,15 @@ uint8_t statusLedPhaseColor(uint8_t phase)
 
   uint8_t color, row;
   switch (phase) {
+#if defined(PCBV12)
+    case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.getStatusLedErrorColor(); row = 0; break;
+    case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.getStatusLedEmitColor();  row = 2; break;
+    default:                     color = g_eeGeneral.getStatusLedReadyColor(); row = 1; break;
+#else
     case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.statusLedError; row = 0; break;
     case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.statusLedEmit;  row = 2; break;
     default:                     color = g_eeGeneral.statusLedReady; row = 1; break;
+#endif
   }
 
   if (statusLedColorAvailable(color)) return color;

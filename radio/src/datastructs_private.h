@@ -1235,9 +1235,9 @@ PACK(struct RadioData {
 
 #if defined(STATUS_LED_SETTINGS)
 #if defined(PCBV12)
-  NOBACKUP(uint8_t statusLedError:3 ENUM(StatusLedColor));
-  NOBACKUP(uint8_t statusLedReady:3 ENUM(StatusLedColor));
-  NOBACKUP(uint8_t statusLedEmit:3 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedError:2 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedReady:2 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedEmit:2 ENUM(StatusLedColor));
   NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
 #else
   NOBACKUP(uint8_t statusLedError:2 ENUM(StatusLedColor));
@@ -1251,7 +1251,26 @@ PACK(struct RadioData {
   // dimming, so that 0 (what older settings load as) is full brightness
   NOBACKUP(uint8_t statusLedDim);
   NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+#if defined(PCBV12)
+  // High bits for the V12's extended White/Off choices.  Keep these in the
+  // existing spare word so RadioData remains binary-compatible.
+  NOBACKUP(int16_t statusLedErrorExt:1);
+  NOBACKUP(int16_t statusLedReadyExt:1);
+  NOBACKUP(int16_t statusLedEmitExt:1);
+  NOBACKUP(int16_t statusLedPwmSpare:3 SKIP);
+#else
   NOBACKUP(int16_t statusLedPwmSpare:6 SKIP);
+#endif
+#endif
+
+#if defined(STATUS_LED_SETTINGS) && defined(PCBV12)
+  uint8_t getStatusLedErrorColor() const { return statusLedError | (statusLedErrorExt << 2); }
+  uint8_t getStatusLedReadyColor() const { return statusLedReady | (statusLedReadyExt << 2); }
+  uint8_t getStatusLedEmitColor() const { return statusLedEmit | (statusLedEmitExt << 2); }
+
+  void setStatusLedErrorColor(uint8_t color) { statusLedError = color & 3; statusLedErrorExt = (color >> 2) & 1; }
+  void setStatusLedReadyColor(uint8_t color) { statusLedReady = color & 3; statusLedReadyExt = (color >> 2) & 1; }
+  void setStatusLedEmitColor(uint8_t color) { statusLedEmit = color & 3; statusLedEmitExt = (color >> 2) & 1; }
 #endif
 
 #if defined(COLORLCD)
