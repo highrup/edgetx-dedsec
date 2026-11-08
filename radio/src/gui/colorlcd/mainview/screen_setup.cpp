@@ -234,6 +234,9 @@ void ScreenSetupPage::build(Window* window)
     auto obj = btn->getLvObj();
     lv_obj_set_width(obj, lv_pct(100));
     lv_obj_center(obj);
+    // Keep the idle action button opaque against the artwork. The focused
+    // selector remains controlled by the existing theme focus style.
+    etx_solid_bg(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
   }
 
   auto art = new StaticIcon(window, 0, 0, ICON_UI_WIDGET_ART,

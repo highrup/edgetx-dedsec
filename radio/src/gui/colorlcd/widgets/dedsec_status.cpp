@@ -835,11 +835,9 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
-    // Play all five authored frames at a relaxed 400 ms cadence, then rest
-    // on frame one before the next flicker burst. This retains the GIF's
-    // sequence without continuously cycling it at full speed.
-    const uint32_t flickerPhase = get_tmr10ms() % 600;
-    const uint8_t frameIndex = flickerPhase < 200 ? flickerPhase / 40 : 0;
+    // Preserve the GIF timing: five distinct frames, each held for 200 ms,
+    // looping continuously with no duplicated frame or added pause.
+    const uint8_t frameIndex = (get_tmr10ms() / 20) % 5;
     static const EdgeTxIcon pilotFrames[] = {
         ICON_DRONE_PILOT_1, ICON_DRONE_PILOT_2, ICON_DRONE_PILOT_3,
         ICON_DRONE_PILOT_4, ICON_DRONE_PILOT_5};
