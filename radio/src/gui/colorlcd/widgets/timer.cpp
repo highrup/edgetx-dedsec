@@ -75,7 +75,7 @@ class TimerWidget : public Widget
                              COLOR_THEME_PRIMARY2_INDEX);
     timerIcon = new StaticIcon(this, PAD_THREE, TITLE_HEIGHT + PAD_SMALL,
                                ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
-    timerText = new StaticIcon(this, (width() - 130) / 2, height() - 33,
+    timerText = new StaticIcon(this, (width() - 130) / 2, height() - 36,
                                ICON_TIMER_TEXT,
                                COLOR_THEME_SECONDARY1_INDEX);
     timerText->hide();

@@ -93,6 +93,14 @@ static const uint8_t mask_menu_logo[] __FLASH = {
 #include "mask_menu_edgetx.lbm"
 };
 
+static const uint8_t mask_skull_open[] __FLASH = {
+#include "mask_widget_skull_open.lbm"
+};
+
+static const uint8_t mask_skull_close[] __FLASH = {
+#include "mask_widget_skull_close.lbm"
+};
+
 // gfx for settings screens
 
 static const uint8_t mask_edgetx[] __FLASH = {
@@ -495,6 +503,8 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TIMER, mask_widget_timer),
     BI(ICON_TIMER_TEXT, mask_widget_timer_text),
     BI(ICON_TRACKING, mask_widget_tracking),
+    BI(ICON_SKULL_OPEN, mask_skull_open),
+    BI(ICON_SKULL_CLOSE, mask_skull_close),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
     BI(ICON_TEXTLINE_FM, mask_inline_fm),

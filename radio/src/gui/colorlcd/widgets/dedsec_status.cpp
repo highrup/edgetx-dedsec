@@ -524,6 +524,16 @@ class AttitudeWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !horizon) return;
 
+    // Brief alternating laugh, followed by a long rest. setIcon() only
+    // updates the canvas when the state changes, so this remains inexpensive.
+    const uint32_t laughPhase = get_tmr10ms() % 300;
+    const bool swapSkulls = laughPhase < 15 ||
+                            (laughPhase >= 30 && laughPhase < 45);
+    if (leftSkull && rightSkull) {
+      leftSkull->setIcon(swapSkulls ? ICON_SKULL_CLOSE : ICON_SKULL_OPEN);
+      rightSkull->setIcon(swapSkulls ? ICON_SKULL_OPEN : ICON_SKULL_CLOSE);
+    }
+
     auto widgetData = getPersistentData();
     const mixsrc_t rollSource = widgetData->options[4].value.unsignedValue;
     const mixsrc_t pitchSource = widgetData->options[5].value.unsignedValue;
@@ -583,6 +593,15 @@ class AttitudeWidget : public DedsecWindowWidget
       etx_txt_color_from_flags(rollLabel->getLvObj(), textColor);
     if (pitchLabel)
       etx_txt_color_from_flags(pitchLabel->getLvObj(), textColor);
+    for (auto skull : {leftSkull, rightSkull}) {
+      if (skull) {
+        lv_obj_set_style_img_recolor(
+            skull->getLvObj(), makeLvColor(colorToRGB(textColor)),
+            LV_PART_MAIN);
+        lv_obj_set_style_img_recolor_opa(skull->getLvObj(), LV_OPA_COVER,
+                                         LV_PART_MAIN);
+      }
+    }
   }
 
   static const WidgetOption options[];
@@ -625,6 +644,14 @@ class AttitudeWidget : public DedsecWindowWidget
         this, {PAD_SMALL + readoutWidth * 2, readoutY, readoutWidth,
                EdgeTxStyles::STD_FONT_HEIGHT},
         "P+0", COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | RIGHT);
+
+    const coord_t skullY =
+        TITLE_HEIGHT + (height() - TITLE_HEIGHT - SKULL_H) / 2;
+    leftSkull = new StaticIcon(this, SKULL_X_INSET, skullY, ICON_SKULL_OPEN,
+                               COLOR_THEME_PRIMARY2_INDEX);
+    rightSkull = new StaticIcon(this, width() - SKULL_X_INSET - SKULL_W,
+                                skullY, ICON_SKULL_CLOSE,
+                                COLOR_THEME_PRIMARY2_INDEX);
   }
 
   static void setHorizonLine(lv_point_t* points, coord_t cx, coord_t cy,
@@ -642,6 +669,8 @@ class AttitudeWidget : public DedsecWindowWidget
   StaticText* statusLabel = nullptr;
   StaticText* rollLabel = nullptr;
   StaticText* pitchLabel = nullptr;
+  StaticIcon* leftSkull = nullptr;
+  StaticIcon* rightSkull = nullptr;
   lv_point_t horizonPoints[2];
   lv_point_t ladderPoints[4][2];
   lv_point_t reticlePoints[3][2];
@@ -650,6 +679,9 @@ class AttitudeWidget : public DedsecWindowWidget
   static LAYOUT_VAL_SCALED(LADDER_HALF_W, 35)
   static LAYOUT_VAL_SCALED(LADDER_GAP, 12)
   static LAYOUT_VAL_SCALED(RETICLE_W, 27)
+  static LAYOUT_VAL_SCALED(SKULL_X_INSET, 20)
+  static LAYOUT_VAL_SCALED(SKULL_W, 40)
+  static LAYOUT_VAL_SCALED(SKULL_H, 45)
 };
 
 const WidgetOption AttitudeWidget::options[] = {
