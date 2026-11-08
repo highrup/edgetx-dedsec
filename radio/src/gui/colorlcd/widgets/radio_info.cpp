@@ -176,7 +176,16 @@ class RadioInfoWidget : public Widget
 #endif
 
 #if defined(USB_CHARGER)
-    batteryChargeIcon->show(usbChargerLed());
+    // The charger status pin is active only while the pack is charging. Show
+    // a single unambiguous icon: charging by itself while active, then the
+    // normal full battery and fill again when charging completes.
+    const bool charging = usbChargerLed();
+    batteryChargeIcon->show(charging);
+    batteryIcon->show(!charging);
+    if (charging)
+      lv_obj_add_flag(batteryFill, LV_OBJ_FLAG_HIDDEN);
+    else
+      lv_obj_clear_flag(batteryFill, LV_OBJ_FLAG_HIDDEN);
 #endif
 
 #if defined(EXTERNAL_ANTENNA)
