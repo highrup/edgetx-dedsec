@@ -101,6 +101,18 @@ static const uint8_t mask_skull_close[] __FLASH = {
 #include "mask_widget_skull_close.lbm"
 };
 
+static const uint8_t mask_flight_tracking[] __FLASH = {
+#include "mask_widget_flight_tracking.lbm"
+};
+
+static const uint8_t mask_ui_topbar_art[] __FLASH = {
+#include "mask_ui_topbar_art.lbm"
+};
+
+static const uint8_t mask_ui_widget_art[] __FLASH = {
+#include "mask_ui_widget_art.lbm"
+};
+
 // gfx for settings screens
 
 static const uint8_t mask_edgetx[] __FLASH = {
@@ -505,6 +517,9 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TRACKING, mask_widget_tracking),
     BI(ICON_SKULL_OPEN, mask_skull_open),
     BI(ICON_SKULL_CLOSE, mask_skull_close),
+    BI(ICON_FLIGHT_TRACKING, mask_flight_tracking),
+    BI(ICON_UI_TOPBAR_ART, mask_ui_topbar_art),
+    BI(ICON_UI_WIDGET_ART, mask_ui_widget_art),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
     BI(ICON_TEXTLINE_FM, mask_inline_fm),

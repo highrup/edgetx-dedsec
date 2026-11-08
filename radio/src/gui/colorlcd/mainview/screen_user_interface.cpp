@@ -21,8 +21,10 @@
 
 #include "screen_user_interface.h"
 
+#include "bitmaps.h"
 #include "choice.h"
 #include "file_preview.h"
+#include "static.h"
 #include "theme_manager.h"
 #include "view_main.h"
 
@@ -118,4 +120,10 @@ void ScreenUserInterfacePage::build(Window* window)
     if (g_model.topbarWidgetWidth[i] == 0)
       widths[i]->hide();
   }
+
+  auto art = new StaticIcon(window, 0, 0, ICON_UI_TOPBAR_ART,
+                            COLOR_THEME_PRIMARY2_INDEX);
+  lv_obj_add_flag(art->getLvObj(), LV_OBJ_FLAG_FLOATING);
+  art->setPos((window->width() - art->width()) / 2,
+              window->height() - art->height() - 4);
 }

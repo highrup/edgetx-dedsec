@@ -235,6 +235,12 @@ void ScreenSetupPage::build(Window* window)
     lv_obj_set_width(obj, lv_pct(100));
     lv_obj_center(obj);
   }
+
+  auto art = new StaticIcon(window, 0, 0, ICON_UI_WIDGET_ART,
+                            COLOR_THEME_PRIMARY2_INDEX);
+  lv_obj_add_flag(art->getLvObj(), LV_OBJ_FLAG_FLOATING);
+  art->setPos(window->width() - art->width(),
+              window->height() - art->height());
 }
 
 void ScreenSetupPage::clearLayoutOptions()

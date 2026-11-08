@@ -8,6 +8,7 @@
 #include <math.h>
 
 #include "edgetx.h"
+#include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
 #include "static.h"
 #include "telemetry/telemetry.h"
@@ -292,6 +293,18 @@ class FlightLogWidget : public DedsecWindowWidget
     bodyLabel->setText(text);
   }
 
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (flightIcon) {
+      lv_obj_set_style_img_recolor(
+          flightIcon->getLvObj(), makeLvColor(colorToRGB(textColor)),
+          LV_PART_MAIN);
+      lv_obj_set_style_img_recolor_opa(flightIcon->getLvObj(), LV_OPA_COVER,
+                                       LV_PART_MAIN);
+    }
+  }
+
  protected:
   void buildBody() override
   {
@@ -300,7 +313,12 @@ class FlightLogWidget : public DedsecWindowWidget
                height() - TITLE_HEIGHT - PAD_TINY},
         "SESSION: 00:00\nLINK:   OFFLINE\nREC:  IDLE",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
+    flightIcon =
+        new StaticIcon(this, width() - 51, height() - 56,
+                       ICON_FLIGHT_TRACKING, COLOR_THEME_PRIMARY2_INDEX);
   }
+
+  StaticIcon* flightIcon = nullptr;
 };
 
 class GpsLocatorWidget : public DedsecWindowWidget
@@ -526,7 +544,7 @@ class AttitudeWidget : public DedsecWindowWidget
 
     // Brief alternating laugh, followed by a long rest. setIcon() only
     // updates the canvas when the state changes, so this remains inexpensive.
-    const uint32_t laughPhase = get_tmr10ms() % 300;
+    const uint32_t laughPhase = get_tmr10ms() % 200;
     const bool swapSkulls = laughPhase < 15 ||
                             (laughPhase >= 30 && laughPhase < 45);
     if (leftSkull && rightSkull) {
@@ -799,6 +817,107 @@ const WidgetOption LinkAnalyzerWidget::options[] = {
     {"RF power", WidgetOption::Source, MIXSRC_NONE},
     {nullptr, WidgetOption::Bool}};
 
+class GimbalControlWidget : public DedsecWindowWidget
+{
+ public:
+  GimbalControlWidget(const WidgetFactory* factory, Window* parent,
+                      const rect_t& rect, int screenNum, int zoneNum) :
+      DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
+                         "GIMBAL CONTROL_")
+  {
+  }
+
+  void foreground() override
+  {
+    if (!loaded || deleted() || !markers[0] || !markers[1]) return;
+
+    setMarker(0, calibratedAnalogs[ADC_MAIN_LH],
+              calibratedAnalogs[ADC_MAIN_LV]);
+    setMarker(1, calibratedAnalogs[ADC_MAIN_RH],
+              calibratedAnalogs[ADC_MAIN_RV]);
+  }
+
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (!loaded || deleted()) return;
+
+    const lv_color_t accent = makeLvColor(colorToRGB(accentColor));
+    for (uint8_t i = 0; i < 2; ++i) {
+      if (boxes[i])
+        lv_obj_set_style_border_color(boxes[i], accent, LV_PART_MAIN);
+      if (markers[i]) etx_bg_color_from_flags(markers[i], accentColor);
+      for (uint8_t line = 0; line < 2; ++line)
+        if (crossLines[i][line])
+          etx_line_color_from_flags(crossLines[i][line], accentColor);
+    }
+  }
+
+ protected:
+  void buildBody() override
+  {
+    // Reserve the upper half for a future image. The live controls occupy
+    // only the lower half of the widget.
+    const coord_t lowerTop =
+        TITLE_HEIGHT + (height() - TITLE_HEIGHT) / 2;
+    const coord_t availableH = height() - lowerTop - PAD_SMALL * 2;
+    const coord_t availableW = (width() - PAD_SMALL * 3) / 2;
+    gimbalSize = min(availableH, availableW);
+    if (gimbalSize < 16) gimbalSize = 16;
+
+    const coord_t y = height() - PAD_SMALL - gimbalSize;
+    const coord_t leftX = width() / 4 - gimbalSize / 2;
+    const coord_t rightX = width() * 3 / 4 - gimbalSize / 2;
+    buildGimbal(0, leftX, y);
+    buildGimbal(1, rightX, y);
+  }
+
+  void buildGimbal(uint8_t index, coord_t x, coord_t y)
+  {
+    boxes[index] = lv_obj_create(lvobj);
+    lv_obj_set_pos(boxes[index], x, y);
+    lv_obj_set_size(boxes[index], gimbalSize, gimbalSize);
+    lv_obj_set_style_bg_opa(boxes[index], LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_border_width(boxes[index], 1, LV_PART_MAIN);
+    lv_obj_clear_flag(boxes[index], LV_OBJ_FLAG_CLICKABLE);
+
+    const lv_coord_t center = gimbalSize / 2;
+    crossPoints[index][0][0] = {2, center};
+    crossPoints[index][0][1] = {(lv_coord_t)(gimbalSize - 3), center};
+    crossPoints[index][1][0] = {center, 2};
+    crossPoints[index][1][1] = {center, (lv_coord_t)(gimbalSize - 3)};
+    for (uint8_t line = 0; line < 2; ++line) {
+      crossLines[index][line] = lv_line_create(boxes[index]);
+      lv_obj_set_style_line_width(crossLines[index][line], 1, LV_PART_MAIN);
+      lv_line_set_points(crossLines[index][line],
+                         crossPoints[index][line], 2);
+    }
+
+    markers[index] = lv_obj_create(boxes[index]);
+    lv_obj_set_size(markers[index], MARKER_SIZE, MARKER_SIZE);
+    lv_obj_set_style_border_width(markers[index], 0, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(markers[index], LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_clear_flag(markers[index], LV_OBJ_FLAG_CLICKABLE);
+  }
+
+  void setMarker(uint8_t index, int16_t horizontal, int16_t vertical)
+  {
+    const coord_t range = (gimbalSize - MARKER_SIZE - 4) / 2;
+    const coord_t center = (gimbalSize - MARKER_SIZE) / 2;
+    const coord_t x = center + horizontal * range / RESX;
+    const coord_t y = center - vertical * range / RESX;
+    lv_obj_set_pos(markers[index], x, y);
+  }
+
+  coord_t gimbalSize = 0;
+  lv_obj_t* boxes[2] = {nullptr};
+  lv_obj_t* crossLines[2][2] = {{nullptr}};
+  lv_obj_t* markers[2] = {nullptr};
+  lv_point_t crossPoints[2][2][2];
+
+  static LAYOUT_VAL_SCALED(MARKER_SIZE, 5)
+};
+
 template <class T>
 class DedsecWidgetFactory : public WidgetFactory
 {
@@ -828,3 +947,5 @@ DedsecWidgetFactory<AttitudeWidget> attitudeWidget(
     "Attitude", AttitudeWidget::options, "Attitude");
 DedsecWidgetFactory<LinkAnalyzerWidget> linkAnalyzerWidget(
     "LinkAnal", LinkAnalyzerWidget::options, "Link Analyzer");
+DedsecWidgetFactory<GimbalControlWidget> gimbalControlWidget(
+    "GimbalCtl", DedsecWindowWidget::commonOptions, "Gimbal Control");
