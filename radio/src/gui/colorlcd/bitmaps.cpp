@@ -125,6 +125,14 @@ static const uint8_t mask_drone_pilot_3[] __FLASH = {
 #include "mask_widget_drone_pilot_3.lbm"
 };
 
+static const uint8_t mask_drone_pilot_4[] __FLASH = {
+#include "mask_widget_drone_pilot_4.lbm"
+};
+
+static const uint8_t mask_drone_pilot_5[] __FLASH = {
+#include "mask_widget_drone_pilot_5.lbm"
+};
+
 // gfx for settings screens
 
 static const uint8_t mask_edgetx[] __FLASH = {
@@ -535,6 +543,8 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_DRONE_PILOT_1, mask_drone_pilot_1),
     BI(ICON_DRONE_PILOT_2, mask_drone_pilot_2),
     BI(ICON_DRONE_PILOT_3, mask_drone_pilot_3),
+    BI(ICON_DRONE_PILOT_4, mask_drone_pilot_4),
+    BI(ICON_DRONE_PILOT_5, mask_drone_pilot_5),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
     BI(ICON_TEXTLINE_FM, mask_inline_fm),

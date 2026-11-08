@@ -308,8 +308,9 @@ void boardInit()
 
   usbChargerInit();
 #if defined(PCBV12)
-  // Avoid a white status flash before the saved phase color is loaded.
-  ledRed();
+  // The splash is not an alert. Keep the status LED dark until startup
+  // checks explicitly select the error phase or the radio becomes ready.
+  ledOff();
 #else
   ledBoot();
 #endif

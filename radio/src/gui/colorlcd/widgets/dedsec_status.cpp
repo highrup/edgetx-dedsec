@@ -654,15 +654,6 @@ class AttitudeWidget : public DedsecWindowWidget
 
     const coord_t readoutWidth = (width() - 2 * PAD_SMALL) / 3;
     const coord_t readoutY = TITLE_HEIGHT + PAD_TINY;
-    statusBackdrop = lv_obj_create(lvobj);
-    lv_obj_set_pos(statusBackdrop, PAD_SMALL + readoutWidth, readoutY);
-    lv_obj_set_size(statusBackdrop, readoutWidth,
-                    EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_obj_set_style_bg_color(statusBackdrop, lv_color_black(), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(statusBackdrop, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_border_width(statusBackdrop, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(statusBackdrop, 0, LV_PART_MAIN);
-    lv_obj_clear_flag(statusBackdrop, LV_OBJ_FLAG_CLICKABLE);
     rollLabel = new StaticText(
         this, {PAD_SMALL, readoutY, readoutWidth,
                EdgeTxStyles::STD_FONT_HEIGHT},
@@ -697,7 +688,6 @@ class AttitudeWidget : public DedsecWindowWidget
   lv_obj_t* horizon = nullptr;
   lv_obj_t* ladder[4] = {nullptr};
   lv_obj_t* reticle[3] = {nullptr};
-  lv_obj_t* statusBackdrop = nullptr;
   StaticText* statusLabel = nullptr;
   StaticText* rollLabel = nullptr;
   StaticText* pitchLabel = nullptr;
@@ -845,15 +835,15 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
-    // Keep the base frame steady, then briefly flash one alternate frame.
-    // Alternate between frames 2 and 3 on successive six-second cycles.
-    const uint32_t now = get_tmr10ms();
-    const uint32_t flickerCycle = now / 600;
-    const uint32_t flickerPhase = now % 600;
-    EdgeTxIcon pilotFrame = ICON_DRONE_PILOT_1;
-    if (flickerPhase >= 588)
-      pilotFrame = (flickerCycle & 1) ? ICON_DRONE_PILOT_2
-                                     : ICON_DRONE_PILOT_3;
+    // Play all five authored frames at a relaxed 400 ms cadence, then rest
+    // on frame one before the next flicker burst. This retains the GIF's
+    // sequence without continuously cycling it at full speed.
+    const uint32_t flickerPhase = get_tmr10ms() % 600;
+    const uint8_t frameIndex = flickerPhase < 200 ? flickerPhase / 40 : 0;
+    static const EdgeTxIcon pilotFrames[] = {
+        ICON_DRONE_PILOT_1, ICON_DRONE_PILOT_2, ICON_DRONE_PILOT_3,
+        ICON_DRONE_PILOT_4, ICON_DRONE_PILOT_5};
+    const EdgeTxIcon pilotFrame = pilotFrames[frameIndex];
     if (pilotBackground) pilotBackground->setIcon(pilotFrame);
 
     setMarker(0, calibratedAnalogs[ADC_MAIN_LH],

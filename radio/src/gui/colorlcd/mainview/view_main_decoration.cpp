@@ -44,6 +44,7 @@ ViewMainDecoration::ViewMainDecoration(Window* parent, bool calibration) :
   if (!calibration) {
     createTrims(w_ml, w_mr, w_bl, w_br);
     createFlightMode(w_bc);
+    createSwitchIndicators();
   } else {
     showTrims = showFM = false;
   }
@@ -329,4 +330,27 @@ void ViewMainDecoration::createFlightMode(Window* bc)
   };
 
   flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1_INDEX);
+}
+
+void ViewMainDecoration::createSwitchIndicators()
+{
+#if defined(PCBV12)
+  auto getSwitchIndicators = []() -> std::string {
+    std::string text;
+    for (const uint8_t sw : {uint8_t(1), uint8_t(3), uint8_t(2)}) {
+      if (!text.empty()) text += "  ";
+      text += switchGetDefaultName(sw);
+      text += getSwitchPositionSymbol(switchGetPosition(sw));
+    }
+    return text;
+  };
+
+  auto indicators = new DynamicText(
+      this,
+      {LCD_W / 2 - 70, height() - EdgeTxStyles::STD_FONT_HEIGHT,
+       140, EdgeTxStyles::STD_FONT_HEIGHT},
+      getSwitchIndicators, COLOR_THEME_SECONDARY1_INDEX,
+      FONT(XS) | CENTERED);
+  indicators->setWindowFlag(NO_FOCUS | NO_CLICK);
+#endif
 }

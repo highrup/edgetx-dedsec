@@ -80,4 +80,5 @@ class ViewMainDecoration : public Window
   void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
   void createTrims(Window* ml, Window* mr, Window* bl, Window* br);
   void createFlightMode(Window* bc);
+  void createSwitchIndicators();
 };

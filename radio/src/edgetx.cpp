@@ -2014,8 +2014,8 @@ uint32_t pwrCheck()
       }
       if (get_tmr10ms() - pwr_press_time > PWR_PRESS_SHUTDOWN_DELAY()) {
 #if defined(COLORLCD)
-        // SD-backed shutdown frames can take longer to decode than the power
-        // button delay. Finish the authored sequence before powering off.
+        // Finish every embedded shutdown frame before powering off, even if
+        // the configured power-button delay expires first.
         if (!shutdownAnimationComplete()) {
           drawShutdownAnimation(PWR_PRESS_SHUTDOWN_DELAY(),
                                 PWR_PRESS_SHUTDOWN_DELAY(), message);

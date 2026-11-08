@@ -47,6 +47,7 @@ const uint8_t __bmp_splash_logo[] __FLASH = {
 };
 
 #include "dedsec_splash_data.inc"
+#include "dedsec_shutdown_data.inc"
 
 static Window* splashScreen = nullptr;
 static lv_obj_t* dedsecSplashCanvas = nullptr;
@@ -263,35 +264,67 @@ const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
 static Window* shutdownWindow = nullptr;
 static StaticIcon* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
-static StaticBitmap* shutdownFrameImg = nullptr;
+static lv_obj_t* shutdownFrameCanvas = nullptr;
+static uint8_t* shutdownFramePacked = nullptr;
+static uint8_t* shutdownFrameAlpha = nullptr;
 static uint8_t shutdownFrameCount = 0;
 static uint8_t shutdownFrame = 0xff;
 static bool shutdownAudioStarted = false;
 
-static constexpr char SHUTDOWN_FRAME_FORMAT[] =
-    BITMAPS_PATH "/SHUTDOWN/%03u.png";
-
-static void findShutdownFrames()
+static void renderShutdownFrame(uint8_t frame)
 {
-  shutdownFrameCount = 0;
-  char path[sizeof(SHUTDOWN_FRAME_FORMAT) + 8];
-  for (uint8_t frame = 1; frame <= 99; ++frame) {
-    snprintf(path, sizeof(path), SHUTDOWN_FRAME_FORMAT, frame);
-    if (f_stat(path, nullptr) != FR_OK) break;
-    shutdownFrameCount = frame;
+  const uint8_t* data =
+      dedsecShutdownFrameData + dedsecShutdownFrameOffsets[frame];
+  uint32_t position = 0;
+  while (true) {
+    uint16_t skip = readSplashUint16(data);
+    if (skip == 0xffff) break;
+    uint16_t count = readSplashUint16(data);
+    position += skip;
+    memcpy(shutdownFramePacked + position, data, count);
+    data += count;
+    position += count;
   }
+
+  for (uint32_t pixel = 0;
+       pixel < DEDSEC_SHUTDOWN_WIDTH * DEDSEC_SHUTDOWN_HEIGHT; ++pixel) {
+    shutdownFrameAlpha[pixel] =
+        (shutdownFramePacked[pixel >> 3] & (0x80 >> (pixel & 7)))
+            ? 0xff
+            : 0x00;
+  }
+  shutdownFrame = frame;
+  lv_obj_invalidate(shutdownFrameCanvas);
 }
 
-static void showShutdownFrame(uint8_t frame)
+static bool createEmbeddedShutdown()
 {
-  if (!shutdownFrameImg || frame >= shutdownFrameCount ||
-      frame == shutdownFrame)
-    return;
+  shutdownFramePacked = (uint8_t*)malloc(DEDSEC_SHUTDOWN_PACKED_BYTES);
+  shutdownFrameAlpha =
+      (uint8_t*)malloc(DEDSEC_SHUTDOWN_WIDTH * DEDSEC_SHUTDOWN_HEIGHT);
+  if (!shutdownFramePacked || !shutdownFrameAlpha) {
+    free(shutdownFramePacked);
+    free(shutdownFrameAlpha);
+    shutdownFramePacked = nullptr;
+    shutdownFrameAlpha = nullptr;
+    return false;
+  }
 
-  char path[sizeof(SHUTDOWN_FRAME_FORMAT) + 8];
-  snprintf(path, sizeof(path), SHUTDOWN_FRAME_FORMAT, frame + 1);
-  shutdownFrameImg->setSource(path);
-  shutdownFrame = frame;
+  memset(shutdownFramePacked, 0, DEDSEC_SHUTDOWN_PACKED_BYTES);
+  memset(shutdownFrameAlpha, 0,
+         DEDSEC_SHUTDOWN_WIDTH * DEDSEC_SHUTDOWN_HEIGHT);
+
+  shutdownFrameCanvas = lv_canvas_create(shutdownWindow->getLvObj());
+  lv_canvas_set_buffer(shutdownFrameCanvas, shutdownFrameAlpha,
+                       DEDSEC_SHUTDOWN_WIDTH, DEDSEC_SHUTDOWN_HEIGHT,
+                       LV_IMG_CF_ALPHA_8BIT);
+  etx_img_color(shutdownFrameCanvas, COLOR_WHITE_INDEX);
+  lv_obj_set_pos(shutdownFrameCanvas, 0, 0);
+
+  shutdownFrameCount = DEDSEC_SHUTDOWN_FRAME_COUNT;
+  shutdownFrame = 0xff;
+  renderShutdownFrame(0);
+  return true;
 }
 
 void drawSleepBitmap()
@@ -312,15 +345,18 @@ void drawSleepBitmap()
 void cancelShutdownAnimation()
 {
   if (shutdownWindow) {
-    // Detach before the parent deletes the canvas
     if (shutdownSplashImg) shutdownSplashImg->removeCanvas();
+    shutdownFrameCanvas = nullptr;
     shutdownWindow->closeWindow();
     shutdownWindow = nullptr;
-    shutdownFrameImg = nullptr;
     shutdownFrameCount = 0;
     shutdownFrame = 0xff;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
+  free(shutdownFramePacked);
+  free(shutdownFrameAlpha);
+  shutdownFramePacked = nullptr;
+  shutdownFrameAlpha = nullptr;
   if (shutdownAudioStarted)
     STOP_PLAY(ID_PLAY_PROMPT_BASE + AU_BYE);
   shutdownAudioStarted = false;
@@ -348,12 +384,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-    if (sdMounted()) findShutdownFrames();
-
-    if (shutdownFrameCount > 0) {
-      shutdownFrameImg =
-          new StaticBitmap(shutdownWindow, {0, 0, LCD_W, LCD_H});
-      showShutdownFrame(0);
+    if (createEmbeddedShutdown()) {
 #if !defined(SIMU)
       audioPlaySystemFile("bye", ID_PLAY_PROMPT_BASE + AU_BYE);
       shutdownAudioStarted = true;
@@ -389,7 +420,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     // this preserves every authored frame in its original order.
     if (shutdownFrame != 0xff && frame > shutdownFrame + 1)
       frame = shutdownFrame + 1;
-    showShutdownFrame(frame);
+    if (frame != shutdownFrame) renderShutdownFrame(frame);
   }
 
   if (shutdownFrameCount == 0) {
