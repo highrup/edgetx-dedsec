@@ -1263,16 +1263,6 @@ PACK(struct RadioData {
 #endif
 #endif
 
-#if defined(STATUS_LED_SETTINGS) && defined(PCBV12)
-  uint8_t getStatusLedErrorColor() const { return statusLedError | (statusLedErrorExt << 2); }
-  uint8_t getStatusLedReadyColor() const { return statusLedReady | (statusLedReadyExt << 2); }
-  uint8_t getStatusLedEmitColor() const { return statusLedEmit | (statusLedEmitExt << 2); }
-
-  void setStatusLedErrorColor(uint8_t color) { statusLedError = color & 3; statusLedErrorExt = (color >> 2) & 1; }
-  void setStatusLedReadyColor(uint8_t color) { statusLedReady = color & 3; statusLedReadyExt = (color >> 2) & 1; }
-  void setStatusLedEmitColor(uint8_t color) { statusLedEmit = color & 3; statusLedEmitExt = (color >> 2) & 1; }
-#endif
-
 #if defined(COLORLCD)
   NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
   NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);

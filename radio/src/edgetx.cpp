@@ -693,9 +693,9 @@ uint8_t statusLedPhaseColor(uint8_t phase)
   uint8_t color, row;
   switch (phase) {
 #if defined(PCBV12)
-    case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.getStatusLedErrorColor(); row = 0; break;
-    case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.getStatusLedEmitColor();  row = 2; break;
-    default:                     color = g_eeGeneral.getStatusLedReadyColor(); row = 1; break;
+    case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.statusLedError | (g_eeGeneral.statusLedErrorExt << 2); row = 0; break;
+    case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.statusLedEmit | (g_eeGeneral.statusLedEmitExt << 2);  row = 2; break;
+    default:                     color = g_eeGeneral.statusLedReady | (g_eeGeneral.statusLedReadyExt << 2); row = 1; break;
 #else
     case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.statusLedError; row = 0; break;
     case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.statusLedEmit;  row = 2; break;
@@ -707,6 +707,32 @@ uint8_t statusLedPhaseColor(uint8_t phase)
   for (auto c : fallback[row])
     if (statusLedColorAvailable(c)) return c;
   return STATUS_LED_COLOR_RED;
+}
+
+void setStatusLedPhaseColor(uint8_t phase, uint8_t color)
+{
+#if defined(PCBV12)
+  switch (phase) {
+    case STATUS_LED_PHASE_ERROR:
+      g_eeGeneral.statusLedError = color & 3;
+      g_eeGeneral.statusLedErrorExt = (color >> 2) & 1;
+      break;
+    case STATUS_LED_PHASE_EMIT:
+      g_eeGeneral.statusLedEmit = color & 3;
+      g_eeGeneral.statusLedEmitExt = (color >> 2) & 1;
+      break;
+    default:
+      g_eeGeneral.statusLedReady = color & 3;
+      g_eeGeneral.statusLedReadyExt = (color >> 2) & 1;
+      break;
+  }
+#else
+  switch (phase) {
+    case STATUS_LED_PHASE_ERROR: g_eeGeneral.statusLedError = color; break;
+    case STATUS_LED_PHASE_EMIT:  g_eeGeneral.statusLedEmit = color; break;
+    default:                     g_eeGeneral.statusLedReady = color; break;
+  }
+#endif
 }
 
 static bool statusLedEmitting()

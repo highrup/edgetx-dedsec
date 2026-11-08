@@ -642,11 +642,7 @@ const static SetupLineDef statusLedSetupLines[] = {
 #endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_ERROR)),
                  [](int32_t newValue) {
-#if defined(PCBV12)
-                   g_eeGeneral.setStatusLedErrorColor(newValue);
-#else
-                   g_eeGeneral.statusLedError = newValue;
-#endif
+                   setStatusLedPhaseColor(STATUS_LED_PHASE_ERROR, newValue);
                    SET_DIRTY();
                  });
       choice->setAvailableHandler(statusLedColorAvailable);
@@ -666,11 +662,7 @@ const static SetupLineDef statusLedSetupLines[] = {
 #endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_READY)),
                  [](int32_t newValue) {
-#if defined(PCBV12)
-                   g_eeGeneral.setStatusLedReadyColor(newValue);
-#else
-                   g_eeGeneral.statusLedReady = newValue;
-#endif
+                   setStatusLedPhaseColor(STATUS_LED_PHASE_READY, newValue);
                    SET_DIRTY();
                  });
       choice->setAvailableHandler(statusLedColorAvailable);
@@ -690,11 +682,7 @@ const static SetupLineDef statusLedSetupLines[] = {
 #endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_EMIT)),
                  [](int32_t newValue) {
-#if defined(PCBV12)
-                   g_eeGeneral.setStatusLedEmitColor(newValue);
-#else
-                   g_eeGeneral.statusLedEmit = newValue;
-#endif
+                   setStatusLedPhaseColor(STATUS_LED_PHASE_EMIT, newValue);
                    SET_DIRTY();
                  });
       choice->setAvailableHandler(statusLedColorAvailable);

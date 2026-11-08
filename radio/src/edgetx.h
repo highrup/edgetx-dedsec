@@ -351,6 +351,7 @@ void checkStatusLed();
 void statusLedSetPhase(uint8_t phase);
 uint8_t statusLedGetPhase();
 uint8_t statusLedPhaseColor(uint8_t phase);
+void setStatusLedPhaseColor(uint8_t phase, uint8_t color);
 bool statusLedColorAvailable(int color);
 #endif
 
