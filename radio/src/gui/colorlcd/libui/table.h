@@ -33,6 +33,7 @@ class TableField : public Window
   uint16_t getRowCount() const;
 
   void setColumnWidth(uint16_t col, coord_t w);
+  void setDarkNavigationStyle();
 
   void select(uint16_t row, uint16_t col, bool force = false);
   virtual void onPress(uint16_t row, uint16_t col) {}

@@ -62,7 +62,7 @@ class TimerWidget : public Widget
     titleLabel = new StaticText(
         titleBar,
         {PAD_SMALL, 0, width() - TITLE_HEIGHT - PAD_SMALL, TITLE_HEIGHT},
-        "TIMER 1_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
+        "TRACKED TIMERS_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
     closeLabel = new StaticText(
         titleBar, {width() - TITLE_HEIGHT, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
         COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
@@ -75,6 +75,10 @@ class TimerWidget : public Widget
                              COLOR_THEME_PRIMARY2_INDEX);
     timerIcon = new StaticIcon(this, PAD_THREE, TITLE_HEIGHT + PAD_SMALL,
                                ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
+    timerText = new StaticIcon(this, (width() - 130) / 2, height() - 33,
+                               ICON_TIMER_TEXT,
+                               COLOR_THEME_SECONDARY1_INDEX);
+    timerText->hide();
 
     // Timer name
     nameLabel = etx_label_create(lvobj, FONT_XS_INDEX);
@@ -320,6 +324,7 @@ class TimerWidget : public Widget
   lv_obj_t* timerArc = nullptr;
   StaticIcon* timerBg = nullptr;
   StaticIcon* timerIcon = nullptr;
+  StaticIcon* timerText = nullptr;
   Window* titleBar = nullptr;
   StaticText* titleLabel = nullptr;
   StaticText* closeLabel = nullptr;
@@ -347,13 +352,7 @@ class TimerWidget : public Widget
 
     uint32_t index = widgetData->options[0].value.unsignedValue;
     const bool showAll = index >= TIMERS;
-    if (showAll) {
-      titleLabel->setText("TIMERS_");
-    } else {
-      char title[16];
-      snprintf(title, sizeof(title), "TIMER %u_", (unsigned)(index + 1));
-      titleLabel->setText(title);
-    }
+    titleLabel->setText("TRACKED TIMERS_");
     TimerData& timerData = g_model.timers[showAll ? 0 : index];
 
     const LcdFlags backgroundColor =
@@ -391,6 +390,7 @@ class TimerWidget : public Widget
     etx_arc_color_from_flags(timerArc, accentColor, LV_PART_INDICATOR);
     setIconColor(timerBg, accentColor);
     setIconColor(timerIcon, accentColor);
+    setIconColor(timerText, textColor);
 
     bool hasName = ZLEN(timerData.name) > 0;
 
@@ -410,6 +410,10 @@ class TimerWidget : public Widget
       lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
       timerBg->hide();
       timerIcon->hide();
+      if (width() >= 130 && height() >= TITLE_HEIGHT + 31)
+        timerText->show();
+      else
+        timerText->hide();
 
       const coord_t columnW = width() / TIMERS;
       for (uint8_t i = 0; i < TIMERS; ++i) {
@@ -446,6 +450,7 @@ class TimerWidget : public Widget
       lv_obj_clear_flag(unit0, LV_OBJ_FLAG_HIDDEN);
       lv_obj_clear_flag(unit1, LV_OBJ_FLAG_HIDDEN);
       timerBg->show();
+      timerText->hide();
     } else {
       isLarge = false;
       lv_obj_clear_flag(nameLabel, LV_OBJ_FLAG_HIDDEN);
@@ -460,6 +465,7 @@ class TimerWidget : public Widget
       lv_obj_add_flag(unit1, LV_OBJ_FLAG_HIDDEN);
       lv_obj_add_flag(minusLabel, LV_OBJ_FLAG_HIDDEN);
       timerBg->hide();
+      timerText->hide();
     }
 
     if (!showAll) {

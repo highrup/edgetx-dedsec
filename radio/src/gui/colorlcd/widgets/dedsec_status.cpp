@@ -271,7 +271,7 @@ class FlightLogWidget : public DedsecWindowWidget
   FlightLogWidget(const WidgetFactory* factory, Window* parent,
                   const rect_t& rect, int screenNum, int zoneNum) :
       DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
-                         "FLIGHT LOG_")
+                         "FLIGHT TRACKING_")
   {
   }
 
@@ -286,9 +286,9 @@ class FlightLogWidget : public DedsecWindowWidget
     const uint16_t seconds = sessionTimer % 60;
     char text[80];
     snprintf(text, sizeof(text),
-             "SESSION: %02u:%02u\nLOGS: %s\nLINK: %s", minutes, seconds,
-             recording ? "[ ACTIVE ]" : "  IDLE  ",
-             linked ? "[ ONLINE ]" : "  OFFLINE  ");
+             "SESSION: %02u:%02u\nLINK: %s\nREC: %s", minutes, seconds,
+             linked ? "[ ONLINE ]" : "  OFFLINE  ",
+             recording ? "[ ACTIVE ]" : "  IDLE  ");
     bodyLabel->setText(text);
   }
 
@@ -298,7 +298,7 @@ class FlightLogWidget : public DedsecWindowWidget
     bodyLabel = new StaticText(
         this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
-        "SESSION: 00:00\nLOGS:  IDLE\nLINK:   OFFLINE",
+        "SESSION: 00:00\nLINK:   OFFLINE\nREC:  IDLE",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
   }
 };
@@ -464,6 +464,18 @@ class LastLocationWidget : public DedsecWindowWidget
     bodyLabel->setText(text);
   }
 
+  void update() override
+  {
+    DedsecWindowWidget::update();
+    if (trackingIcon) {
+      lv_obj_set_style_img_recolor(
+          trackingIcon->getLvObj(), makeLvColor(colorToRGB(textColor)),
+          LV_PART_MAIN);
+      lv_obj_set_style_img_recolor_opa(trackingIcon->getLvObj(), LV_OPA_COVER,
+                                       LV_PART_MAIN);
+    }
+  }
+
   static const WidgetOption options[];
 
  protected:
@@ -474,12 +486,16 @@ class LastLocationWidget : public DedsecWindowWidget
                height() - TITLE_HEIGHT - PAD_TINY},
         "LAT: --\nLON: --\nAGE: 00:00", COLOR_THEME_PRIMARY2_INDEX,
         FONT(XS));
+    trackingIcon =
+        new StaticIcon(this, width() - 51, height() - 52, ICON_TRACKING,
+                       COLOR_THEME_PRIMARY2_INDEX);
   }
 
   bool hasFix = false;
   tmr10ms_t lastFixTime = 0;
   std::string lastLatitude;
   std::string lastLongitude;
+  StaticIcon* trackingIcon = nullptr;
 };
 
 const WidgetOption LastLocationWidget::options[] = {
@@ -500,7 +516,7 @@ class AttitudeWidget : public DedsecWindowWidget
   AttitudeWidget(const WidgetFactory* factory, Window* parent,
                  const rect_t& rect, int screenNum, int zoneNum) :
       DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
-                         "ATTITUDE_")
+                         "DIGITAL ATTITUDE_")
   {
   }
 

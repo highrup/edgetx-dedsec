@@ -309,6 +309,23 @@ void drawSleepBitmap()
   lv_refr_now(nullptr);
 }
 
+void finishShutdownAnimation()
+{
+  if (shutdownFrameCount > 0 && shutdownFrameImg) {
+    const uint8_t firstFrame =
+        shutdownFrame == 0xff ? 0 : shutdownFrame + 1;
+    for (uint8_t frame = firstFrame; frame < shutdownFrameCount; ++frame) {
+      showShutdownFrame(frame);
+      lv_refr_now(nullptr);
+      sleep_ms(100);
+    }
+  }
+
+  // Show the original final shutdown image after every animation frame.
+  drawSleepBitmap();
+  sleep_ms(250);
+}
+
 void cancelShutdownAnimation()
 {
   if (shutdownWindow) {

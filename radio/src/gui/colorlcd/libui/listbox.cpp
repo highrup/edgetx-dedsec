@@ -149,6 +149,7 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
   lv_draw_label_dsc_init(&label_dsc);
   label_dsc.font = dsc->label_dsc->font;
   label_dsc.align = LV_TEXT_ALIGN_RIGHT;
+  if (markerFollowsRowColor) label_dsc.color = dsc->label_dsc->color;
 
   const char* sym = LV_SYMBOL_OK;
   if (getSelectedSymbol) sym = getSelectedSymbol(row);

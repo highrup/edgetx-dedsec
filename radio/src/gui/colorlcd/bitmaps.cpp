@@ -340,6 +340,12 @@ static const uint8_t mask_widget_timer[] __FLASH = {
 static const uint8_t mask_widget_timer_bg[] __FLASH = {
 #include "mask_widget_timer_bg.lbm"
 };
+static const uint8_t mask_widget_timer_text[] __FLASH = {
+#include "mask_widget_timer_text.lbm"
+};
+static const uint8_t mask_widget_tracking[] __FLASH = {
+#include "mask_widget_tracking.lbm"
+};
 static const uint8_t mask_widget_trim[] __FLASH = {
 #include "mask_widget_trim.lbm"
 };
@@ -487,6 +493,8 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
     BI(ICON_TIMER_BG, mask_widget_timer_bg),
     BI(ICON_TIMER, mask_widget_timer),
+    BI(ICON_TIMER_TEXT, mask_widget_timer_text),
+    BI(ICON_TRACKING, mask_widget_tracking),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
     BI(ICON_TEXTLINE_FM, mask_inline_fm),

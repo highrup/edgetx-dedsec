@@ -213,6 +213,7 @@ void RadioSdManagerPage::build(Window * window)
   coord_t browserHeight = LANDSCAPE ? window->height() : window->height() * 2 / 3;
 
   browser = new FileBrowser(window, {0, 0, browserWidth, browserHeight}, ROOT_PATH);
+  browser->setDarkNavigationStyle();
   browser->adjustWidth();
 
   coord_t previewX = (LANDSCAPE ? browserWidth : 0) + PAD_TINY;

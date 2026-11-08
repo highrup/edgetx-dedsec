@@ -71,6 +71,7 @@ class ListBox : public TableField
   }
 
   void setSmallSelectMarker() { smallSelectMarker = true; }
+  void setMarkerFollowsRowColor() { markerFollowsRowColor = true; }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ListBox"; }
@@ -83,6 +84,7 @@ class ListBox : public TableField
   int activeItem = -1;
   bool multiSelect = false;
   bool smallSelectMarker = false;
+  bool markerFollowsRowColor = false;
 
   void onPress(uint16_t row, uint16_t col) override;
 

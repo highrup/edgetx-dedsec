@@ -30,6 +30,22 @@ static void input_mix_line_constructor(const lv_obj_class_t* class_p,
                                        lv_obj_t* obj)
 {
   etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
+
+  const lv_style_selector_t rowStates[] = {
+      LV_PART_MAIN,
+      LV_PART_MAIN | LV_STATE_FOCUSED,
+      LV_PART_MAIN | LV_STATE_CHECKED,
+      LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED};
+  for (auto selector : rowStates) {
+    lv_obj_set_style_border_side(obj, LV_BORDER_SIDE_BOTTOM, selector);
+    lv_obj_set_style_border_width(obj, 1, selector);
+  }
+
+  // Active rows remain white until focused, when the whole row inverts.
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY1_INDEX,
+               LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX,
+                LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED);
 }
 
 static const lv_obj_class_t input_mix_line_class = {
@@ -198,7 +214,9 @@ void InputMixButtonBase::checkEvents()
   if (!deleted()) {
     if (fm_canvas) {
       bool chkd = lv_obj_get_state(fm_canvas) & LV_STATE_CHECKED;
-      if (chkd != this->checked()) {
+      const bool focused = lv_obj_get_state(lvobj) & LV_STATE_FOCUSED;
+      const bool canvasChecked = this->checked() && !focused;
+      if (chkd != canvasChecked) {
         if (chkd)
           lv_obj_clear_state(fm_canvas, LV_STATE_CHECKED);
         else
@@ -235,6 +253,8 @@ void InputMixButtonBase::swapLvglGroup(InputMixButtonBase* swapWith)
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
+  lv_obj_set_style_border_side(obj, LV_BORDER_SIDE_BOTTOM, LV_PART_MAIN);
+  lv_obj_set_style_border_width(obj, 1, LV_PART_MAIN);
 }
 
 static const lv_obj_class_t group_class = {

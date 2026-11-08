@@ -579,6 +579,8 @@ void ThemeSetupPage::setupListbox(Window *window, rect_t r,
                                   ThemePersistance *tp)
 {
   listBox = new ListBox(window, r, tp->getNames());
+  listBox->setDarkNavigationStyle();
+  listBox->setMarkerFollowsRowColor();
   etx_scrollbar(listBox->getLvObj());
   listBox->setAutoEdit();
   listBox->setSelected(currentTheme);

@@ -204,6 +204,16 @@ void TableField::setColumnWidth(uint16_t col, coord_t w)
   lv_table_set_col_width(lvobj, col, w);
 }
 
+void TableField::setDarkNavigationStyle()
+{
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
+  etx_txt_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS);
+  etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX,
+               LV_PART_ITEMS | LV_STATE_EDITED);
+  etx_txt_color(lvobj, COLOR_THEME_PRIMARY1_INDEX,
+                LV_PART_ITEMS | LV_STATE_EDITED);
+}
+
 void TableField::select(uint16_t row, uint16_t col, bool force)
 {
   lv_table_t* table = (lv_table_t*)lvobj;

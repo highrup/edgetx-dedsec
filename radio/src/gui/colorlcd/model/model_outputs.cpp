@@ -46,6 +46,8 @@ class OutputLineButton : public ListLineButton
   lv_obj_t* offset = nullptr;
   lv_obj_t* center = nullptr;
   StaticIcon* curve = nullptr;
+  OutputChannelBar* channelBar = nullptr;
+  bool rowFocused = false;
 
   void delayedInit() override
   {
@@ -90,8 +92,9 @@ class OutputLineButton : public ListLineButton
     curve =
         new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1_INDEX);
 
-    new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
-                               index, false, false);
+    channelBar = new OutputChannelBar(
+        this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT}, index,
+        false, false);
 
     checkEvents();
 
@@ -109,6 +112,16 @@ class OutputLineButton : public ListLineButton
   {
     setHeight(CH_LINE_H);
     padAll(PAD_ZERO);
+
+    const lv_style_selector_t rowStates[] = {
+        LV_PART_MAIN,
+        LV_PART_MAIN | LV_STATE_FOCUSED,
+        LV_PART_MAIN | LV_STATE_CHECKED,
+        LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED};
+    for (auto selector : rowStates) {
+      lv_obj_set_style_border_side(lvobj, LV_BORDER_SIDE_BOTTOM, selector);
+      lv_obj_set_style_border_width(lvobj, 1, selector);
+    }
 
     refreshMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { refresh(); });
 
@@ -199,6 +212,12 @@ class OutputLineButton : public ListLineButton
     if (!loaded) return;
 
     ListLineButton::checkEvents();
+
+    const bool focused = lv_obj_get_state(lvobj) & LV_STATE_FOCUSED;
+    if (channelBar && focused != rowFocused) {
+      rowFocused = focused;
+      channelBar->setRowFocused(focused);
+    }
 
     int newValue = channelOutputs[index];
     if (value != newValue) {

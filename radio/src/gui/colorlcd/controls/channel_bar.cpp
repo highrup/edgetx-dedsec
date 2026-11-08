@@ -128,6 +128,8 @@ OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
         COLOR_THEME_ACTIVE_INDEX),
     drawLimits(drawLimits)
 {
+  setRowFocused(false);
+
   if (drawLimits) {
     leftLim = lv_line_create(lvobj);
     if (editColor)
@@ -141,6 +143,18 @@ OutputChannelBar::OutputChannelBar(Window* parent, const rect_t& rect,
       etx_obj_add_style(rightLim, styles->div_line, LV_PART_MAIN);
     drawLimitLines(true);
   }
+}
+
+void OutputChannelBar::setRowFocused(bool focused)
+{
+  lv_obj_set_style_bg_color(
+      lvobj,
+      makeLvColor(focused ? COLOR_THEME_PRIMARY1 : COLOR_THEME_PRIMARY2),
+      LV_PART_MAIN);
+  lv_obj_set_style_text_color(
+      valText,
+      makeLvColor(focused ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1),
+      LV_PART_MAIN);
 }
 
 static inline unsigned posOnBar(coord_t width, int value_to100)

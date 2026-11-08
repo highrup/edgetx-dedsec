@@ -56,6 +56,22 @@ static LAYOUT_ORIENTATION(CV_SCALE, 3, 4)
 #define CV_HEIGHT (CV_SCALE * EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL + 1)
 static LAYOUT_VAL_SCALED(RST_BTN_H, 24)
 
+static const char* resetButtonText()
+{
+  static std::string text;
+  if (text.empty()) {
+    text = STR_MENUTORESET;
+    const auto open = text.find('[');
+    const auto close =
+        text.find(']', open == std::string::npos ? 0 : open + 1);
+    if (open != std::string::npos && close != std::string::npos) {
+      text.erase(close, 1);
+      text.erase(open, 1);
+    }
+  }
+  return text.c_str();
+}
+
 template <class T>
 class DebugInfoNumber : public Window
 {
@@ -68,7 +84,8 @@ class DebugInfoNumber : public Window
     coord_t prefixSize = 0;
     if (prefix != nullptr) {
       prefixSize = getTextWidth(prefix, 0, FONT(XS));
-      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix,
+                     COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
     }
     new DynamicNumber<uint32_t>(this,
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
@@ -197,7 +214,7 @@ void StatisticsViewPage::build(Window* window)
   line->padAll(PAD_SMALL);
 
   // Reset
-  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, STR_MENUTORESET,
+  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, resetButtonText(),
                             [=]() -> uint8_t {
                               g_eeGeneral.globalTimer = 0;
                               storageDirty(EE_GENERAL);
@@ -238,11 +255,11 @@ void DebugViewPage::build(Window* window)
   new StaticText(line, rect_t{}, STR_TMIXMAXMS);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      COLOR_THEME_PRIMARY1_INDEX, PREC2, nullptr, pad_STR_MS.c_str());
+      COLOR_THEME_PRIMARY2_INDEX, PREC2, nullptr, pad_STR_MS.c_str());
 
   new DynamicNumber<uint16_t>(
           line, rect_t{}, [] { return getMixerSchedulerPeriod() / 1000; },
-          COLOR_THEME_PRIMARY1_INDEX, 0, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
+          COLOR_THEME_PRIMARY2_INDEX, 0, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
 
   line = window->newLine(grid);
   line->padAll(PAD_TINY);
@@ -251,7 +268,7 @@ void DebugViewPage::build(Window* window)
   static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL);
   new DynamicNumber<int32_t>(
-      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1_INDEX, 0,
+      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY2_INDEX, 0,
       nullptr, pad_STR_BYTES.c_str());
 
 #if defined(LUA)
@@ -363,7 +380,7 @@ void DebugViewPage::build(Window* window)
   line->padAll(PAD_SMALL);
 
   // Reset
-  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, STR_MENUTORESET,
+  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, resetButtonText(),
                             [=]() -> uint8_t {
                               maxMixerDuration = 0;
 #if defined(LUA)

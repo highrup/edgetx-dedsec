@@ -64,6 +64,7 @@ class OutputChannelBar : public ChannelBar
  public:
   OutputChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
                    bool editColor = false, bool drawLimits = true);
+  void setRowFocused(bool focused);
 
  protected:
   int limMax = 0;

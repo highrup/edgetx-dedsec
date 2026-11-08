@@ -1270,6 +1270,9 @@ void edgeTxClose(uint8_t shutdown)
   suspendI2CTasks = true;
 
   if (shutdown) {
+#if defined(COLORLCD)
+    finishShutdownAnimation();
+#endif
     pulsesStop();
 #if !defined(SIMU)
     // Audio task has been stopped so this will not play

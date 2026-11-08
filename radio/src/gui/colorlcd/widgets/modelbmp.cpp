@@ -56,7 +56,7 @@ class ModelBitmapWidget : public Widget
     titleLabel = new StaticText(
         titleBar,
         {PAD_SMALL, 0, width() - TITLE_HEIGHT - PAD_SMALL, TITLE_HEIGHT},
-        "DRONE RENDER_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
+        "DRONE RENDERED_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
     closeLabel = new StaticText(
         titleBar, {width() - TITLE_HEIGHT, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
         COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
