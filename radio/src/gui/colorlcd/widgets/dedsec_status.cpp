@@ -92,6 +92,10 @@ class DedsecWindowWidget : public Widget
 
     buildBody();
 
+    // Body graphics are created after the title bar.  Bring the opaque title
+    // bar back to the foreground so animated lines cannot draw through it.
+    lv_obj_move_foreground(titleBar->getLvObj());
+
     frame = new Window(this, {0, 0, width() - 1, height() - 1});
     frame->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
@@ -583,7 +587,7 @@ class AttitudeWidget : public DedsecWindowWidget
       const coord_t lx = cx + (coord_t)(-sn * offset);
       const coord_t ly = cy + (coord_t)(cs * offset);
       setHorizonLine(ladderPoints[i], lx, ly,
-                     i == 1 || i == 2 ? LADDER_HALF_W : LADDER_HALF_W - 5,
+                     i == 1 || i == 2 ? LADDER_HALF_W : LADDER_HALF_W - 12,
                      cs, sn);
       lv_line_set_points(ladder[i], ladderPoints[i], 2);
     }
@@ -650,6 +654,15 @@ class AttitudeWidget : public DedsecWindowWidget
 
     const coord_t readoutWidth = (width() - 2 * PAD_SMALL) / 3;
     const coord_t readoutY = TITLE_HEIGHT + PAD_TINY;
+    statusBackdrop = lv_obj_create(lvobj);
+    lv_obj_set_pos(statusBackdrop, PAD_SMALL + readoutWidth, readoutY);
+    lv_obj_set_size(statusBackdrop, readoutWidth,
+                    EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_style_bg_color(statusBackdrop, lv_color_black(), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(statusBackdrop, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_width(statusBackdrop, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_all(statusBackdrop, 0, LV_PART_MAIN);
+    lv_obj_clear_flag(statusBackdrop, LV_OBJ_FLAG_CLICKABLE);
     rollLabel = new StaticText(
         this, {PAD_SMALL, readoutY, readoutWidth,
                EdgeTxStyles::STD_FONT_HEIGHT},
@@ -684,6 +697,7 @@ class AttitudeWidget : public DedsecWindowWidget
   lv_obj_t* horizon = nullptr;
   lv_obj_t* ladder[4] = {nullptr};
   lv_obj_t* reticle[3] = {nullptr};
+  lv_obj_t* statusBackdrop = nullptr;
   StaticText* statusLabel = nullptr;
   StaticText* rollLabel = nullptr;
   StaticText* pitchLabel = nullptr;
@@ -831,14 +845,15 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
-    // A short four-step screen flicker every two seconds.  The static first
-    // frame is used for the long rest so the animation remains inexpensive.
-    const uint32_t flickerPhase = get_tmr10ms() % 200;
+    // Keep the base frame steady, then briefly flash one alternate frame.
+    // Alternate between frames 2 and 3 on successive six-second cycles.
+    const uint32_t now = get_tmr10ms();
+    const uint32_t flickerCycle = now / 600;
+    const uint32_t flickerPhase = now % 600;
     EdgeTxIcon pilotFrame = ICON_DRONE_PILOT_1;
-    if (flickerPhase < 8 || (flickerPhase >= 16 && flickerPhase < 24))
-      pilotFrame = ICON_DRONE_PILOT_2;
-    else if (flickerPhase < 32)
-      pilotFrame = ICON_DRONE_PILOT_3;
+    if (flickerPhase >= 588)
+      pilotFrame = (flickerCycle & 1) ? ICON_DRONE_PILOT_2
+                                     : ICON_DRONE_PILOT_3;
     if (pilotBackground) pilotBackground->setIcon(pilotFrame);
 
     setMarker(0, calibratedAnalogs[ADC_MAIN_LH],
