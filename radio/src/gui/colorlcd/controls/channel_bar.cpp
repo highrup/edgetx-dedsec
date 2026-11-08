@@ -155,6 +155,10 @@ void OutputChannelBar::setRowFocused(bool focused)
       valText,
       makeLvColor(focused ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1),
       LV_PART_MAIN);
+  lv_obj_set_style_bg_color(
+      bar,
+      makeLvColor(focused ? COLOR_THEME_PRIMARY2 : COLOR_THEME_PRIMARY1),
+      LV_PART_MAIN);
 }
 
 static inline unsigned posOnBar(coord_t width, int value_to100)

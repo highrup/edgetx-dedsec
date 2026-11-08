@@ -49,7 +49,9 @@ static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 static LAYOUT_ORIENTATION(DBG_COL_CNT, 4, 3)
-static LAYOUT_ORIENTATION(DBG_B_WIDTH, (LCD_W - 20) / 4, (LCD_W - 20) / 2)
+static LAYOUT_ORIENTATION(DBG_B_WIDTH,
+                          (LCD_W - PAD_SMALL * 2) * 3 / 11,
+                          (LCD_W - 20) / 2)
 static LAYOUT_VAL_SCALED(DBG_B_HEIGHT, 20)
 static LAYOUT_ORIENTATION(CV_SCALE, 3, 4)
 #define CV_WIDTH MAXTRACE
@@ -320,6 +322,7 @@ void DebugViewPage::build(Window* window)
   line->padAll(PAD_TINY);
 
   // Stacks data
+  line->padTop(PAD_SMALL);
   new StaticText(line, rect_t{}, STR_FREE_STACK);
 #if PORTRAIT
   line = window->newLine(grid2);
@@ -375,6 +378,10 @@ void DebugViewPage::build(Window* window)
         [] { return gpsData.hdop; }, STR_GPS_HDOP);
   }
 #endif
+
+  auto spacer = new Window(window, {0, 0, 1, 1});
+  spacer->setWindowFlag(NO_FOCUS | NO_CLICK);
+  lv_obj_set_flex_grow(spacer->getLvObj(), 1);
 
   line = window->newLine(grid2);
   line->padAll(PAD_SMALL);

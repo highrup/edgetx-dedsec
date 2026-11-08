@@ -40,6 +40,10 @@ static void input_mix_line_constructor(const lv_obj_class_t* class_p,
     lv_obj_set_style_border_side(obj, LV_BORDER_SIDE_BOTTOM, selector);
     lv_obj_set_style_border_width(obj, 1, selector);
   }
+  lv_obj_set_style_border_width(obj, 0,
+                                LV_PART_MAIN | LV_STATE_FOCUSED);
+  lv_obj_set_style_border_width(
+      obj, 0, LV_PART_MAIN | LV_STATE_FOCUSED | LV_STATE_CHECKED);
 
   // Active rows remain white until focused, when the whole row inverts.
   etx_solid_bg(obj, COLOR_THEME_PRIMARY1_INDEX,

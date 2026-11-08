@@ -333,21 +333,23 @@ class FlightModeBtn : public ListLineButton
   static LAYOUT_SIZE_SCALED(BTN_H, 36, 56)
   static LAYOUT_SIZE(MAX_FMTRIMS, 6, 4)
   static constexpr coord_t FMID_X = PAD_TINY;
-  static LAYOUT_SIZE_SCALED(FMID_Y, 6, 16)
+  static constexpr coord_t ROW_TEXT_Y =
+      (BTN_H - EdgeTxStyles::STD_FONT_HEIGHT) / 2;
+  static constexpr coord_t FMID_Y = ROW_TEXT_Y;
   static LAYOUT_SIZE_SCALED(FMID_W, 36, 46)
   static constexpr coord_t NAME_X = FMID_X + FMID_W + PAD_TINY;
-  static LAYOUT_SIZE_SCALED(NAME_Y, 6, 0)
+  static constexpr coord_t NAME_Y = ROW_TEXT_Y;
   static LAYOUT_SIZE_SCALED(NAME_W, 95, 160)
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
-  static LAYOUT_SIZE_SCALED(SWTCH_Y, 6, 0)
+  static constexpr coord_t SWTCH_Y = ROW_TEXT_Y;
   static LAYOUT_VAL_SCALED(SWTCH_W, 50)
   static LAYOUT_SIZE(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
-  static LAYOUT_SIZE_SCALED(TRIM_Y, 0, 20)
   static LAYOUT_SIZE_SCALED(TRIM_W, 30, 40)
   static LAYOUT_VAL_SCALED(TRIM_H, 16)
+  static constexpr coord_t TRIM_Y = (BTN_H - 2 * TRIM_H) / 2;
   static constexpr coord_t TRIMC_W = MAX_FMTRIMS * TRIM_W;
   static LAYOUT_VAL_SCALED(FADE_W, 45)
-  static LAYOUT_SIZE_SCALED(FADE_Y, 6, 24)
+  static constexpr coord_t FADE_Y = ROW_TEXT_Y;
   static constexpr coord_t FADE_X = ListLineButton::GRP_W - PAD_BORDER * 2 - FADE_W * 2 - PAD_TINY * 2;
 
  protected:
