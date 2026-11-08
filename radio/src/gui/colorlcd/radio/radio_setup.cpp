@@ -584,6 +584,10 @@ const static SetupLineDef backlightSetupLines[] = {
 };
 
 #if defined(STATUS_LED_COLORS)
+#if defined(PCBV12)
+static const char* const dedsecStatusLedColors[] = {
+    "Red", "Green", "Blue", "White", "Off"};
+#endif
 const static SetupLineDef statusLedSetupLines[] = {
 #if defined(PCBV12)
   {
@@ -628,8 +632,14 @@ const static SetupLineDef statusLedSetupLines[] = {
     // Colour shown while an error is displayed
     STR_DEF(STR_STATUS_LED_ERROR),
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
-                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+      auto choice = new Choice(parent, {x, y, 0, 0},
+#if defined(PCBV12)
+                 dedsecStatusLedColors, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_OFF,
+#else
+                 STR_STATUS_LED_COLORS, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_BLUE,
+#endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_ERROR)),
                  [](int32_t newValue) {
                    g_eeGeneral.statusLedError = newValue;
@@ -642,8 +652,14 @@ const static SetupLineDef statusLedSetupLines[] = {
     // Colour shown when the radio is ready but not transmitting
     STR_DEF(STR_STATUS_LED_READY),
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
-                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+      auto choice = new Choice(parent, {x, y, 0, 0},
+#if defined(PCBV12)
+                 dedsecStatusLedColors, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_OFF,
+#else
+                 STR_STATUS_LED_COLORS, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_BLUE,
+#endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_READY)),
                  [](int32_t newValue) {
                    g_eeGeneral.statusLedReady = newValue;
@@ -656,8 +672,14 @@ const static SetupLineDef statusLedSetupLines[] = {
     // Colour shown while a module is on air
     STR_DEF(STR_STATUS_LED_EMIT),
     [](Window* parent, coord_t x, coord_t y) {
-      auto choice = new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
-                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+      auto choice = new Choice(parent, {x, y, 0, 0},
+#if defined(PCBV12)
+                 dedsecStatusLedColors, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_OFF,
+#else
+                 STR_STATUS_LED_COLORS, STATUS_LED_COLOR_RED,
+                 STATUS_LED_COLOR_BLUE,
+#endif
                  GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_EMIT)),
                  [](int32_t newValue) {
                    g_eeGeneral.statusLedEmit = newValue;

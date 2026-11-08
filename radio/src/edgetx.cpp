@@ -674,6 +674,9 @@ bool statusLedColorAvailable(int color)
     case STATUS_LED_COLOR_RED:   return STATUS_LED_HAS_RED;
     case STATUS_LED_COLOR_GREEN: return STATUS_LED_HAS_GREEN;
     case STATUS_LED_COLOR_BLUE:  return STATUS_LED_HAS_BLUE;
+    case STATUS_LED_COLOR_WHITE:
+      return STATUS_LED_HAS_RED && STATUS_LED_HAS_GREEN && STATUS_LED_HAS_BLUE;
+    case STATUS_LED_COLOR_OFF:   return true;
     default:                     return false;
   }
 }
@@ -723,6 +726,8 @@ void checkStatusLed()
     switch (color) {
       case STATUS_LED_COLOR_RED:   ledRed(); break;
       case STATUS_LED_COLOR_GREEN: ledGreen(); break;
+      case STATUS_LED_COLOR_WHITE: ledBoot(); break;
+      case STATUS_LED_COLOR_OFF:   ledOff(); break;
       default:                     ledBlue(); break;
     }
   }

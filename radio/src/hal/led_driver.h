@@ -59,8 +59,7 @@
 // UI detents: each one is a visibly different PWM level
 #define STATUS_LED_BRIGHT_STEPS 10
 
-// Applies to whichever status LED is lit. Never switches it off: 0 is the
-// dimmest step, only ledOff() goes dark.
+// Applies to whichever status LED is lit. Zero switches it fully off.
 void ledSetBrightness(uint8_t bright);
 
 #endif

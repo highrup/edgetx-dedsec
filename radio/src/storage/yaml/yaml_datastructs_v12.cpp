@@ -119,6 +119,8 @@ const struct YamlIdStr enum_StatusLedColor[] = {
   {  STATUS_LED_COLOR_RED, "LED_COLOR_RED"  },
   {  STATUS_LED_COLOR_GREEN, "LED_COLOR_GREEN"  },
   {  STATUS_LED_COLOR_BLUE, "LED_COLOR_BLUE"  },
+  {  STATUS_LED_COLOR_WHITE, "LED_COLOR_WHITE"  },
+  {  STATUS_LED_COLOR_OFF, "LED_COLOR_OFF"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_QMPage[] = {
@@ -487,9 +489,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_PADDING( 7 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ENUM("statusLedError", 2, enum_StatusLedColor, NULL),
-  YAML_ENUM("statusLedReady", 2, enum_StatusLedColor, NULL),
-  YAML_ENUM("statusLedEmit", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedError", 3, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedReady", 3, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedEmit", 3, enum_StatusLedColor, NULL),
   YAML_UNSIGNED( "frontLedMode", 2 ),
   YAML_UNSIGNED( "statusLedDim", 8 ),
   YAML_SIGNED_CUST( "statusLedSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),

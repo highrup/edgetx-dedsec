@@ -1234,12 +1234,15 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(STATUS_LED_SETTINGS)
+#if defined(PCBV12)
+  NOBACKUP(uint8_t statusLedError:3 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedReady:3 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedEmit:3 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
+#else
   NOBACKUP(uint8_t statusLedError:2 ENUM(StatusLedColor));
   NOBACKUP(uint8_t statusLedReady:2 ENUM(StatusLedColor));
   NOBACKUP(uint8_t statusLedEmit:2 ENUM(StatusLedColor));
-#if defined(PCBV12)
-  NOBACKUP(uint8_t frontLedMode:2 ENUM(FrontLedMode));
-#else
   NOBACKUP(uint8_t statusLedSpare:2 SKIP);
 #endif
 #endif

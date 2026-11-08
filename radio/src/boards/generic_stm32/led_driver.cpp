@@ -73,7 +73,7 @@
 
 #define LED_PWM_FREQ 250  // Hz
 #define LED_PWM_LEVELS 32
-#define LED_PWM_MIN_LEVEL 2  // dimmest step, the LED never goes darker
+#define LED_PWM_MIN_LEVEL 2  // dimmest non-zero step
 #define LED_PWM_TICK_US (1000000 / (LED_PWM_FREQ * LED_PWM_LEVELS))
 
 static gpio_t _led_gpio[4] = {0, 0, 0, 0};  // lit LEDs, 0 = none
@@ -144,6 +144,12 @@ static void _led_apply()
 {
   if (!_led_gpio[0] && !_led_gpio[1] && !_led_gpio[2] && !_led_gpio[3]) {
     _led_pwm_stop();
+    return;
+  }
+
+  if (_led_bright == 0) {
+    _led_pwm_stop();
+    _led_pins_off();
     return;
   }
 
