@@ -19,6 +19,7 @@
  */
 
 #include "edgetx.h"
+#include <algorithm>
 #include "rgbleds.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "definitions.h"
@@ -32,24 +33,26 @@ static int cfsEditOverride = -1;
 static uint32_t cfsEditColor;
 
 #if defined(PCBV12)
-static bool applyFrontLedMode()
+static uint32_t applyFrontLedMode(uint32_t color)
 {
   if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_NORMAL)
-    return false;
+    return color;
 
-  uint8_t level = 0;
-  uint8_t red = 0;
-  if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_DIM) {
-    if (statusLedGetPhase() == STATUS_LED_PHASE_ERROR)
-      red = 255;
-    else
-      level = 10;
-  }
+  if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_OFF)
+    return 0;
 
-  for (uint8_t led = 0; led < LED_STRIP_LENGTH; ++led)
-    rgbSetLedColor(led, red ? red : level, level, level);
-  rgbLedColorApply();
-  return true;
+  // Preserve the configured hue while reducing its brightest channel to the
+  // lowest reliably visible level.
+  constexpr uint8_t dimLevel = 10;
+  uint8_t red = (color >> 16) & 0xFF;
+  uint8_t green = (color >> 8) & 0xFF;
+  uint8_t blue = color & 0xFF;
+  uint8_t peak = std::max(red, std::max(green, blue));
+  if (peak == 0) return 0;
+  red = ((uint16_t)red * dimLevel + peak / 2) / peak;
+  green = ((uint16_t)green * dimLevel + peak / 2) / peak;
+  blue = ((uint16_t)blue * dimLevel + peak / 2) / peak;
+  return ((uint32_t)red << 16) | ((uint32_t)green << 8) | blue;
 }
 #endif
 
@@ -68,37 +71,61 @@ void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b
 }
 
 void setFSLedOFF(uint8_t index) {
-#if defined(PCBV12)
-  if (applyFrontLedMode()) return;
-#endif
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
+    uint32_t color;
     if (cfsEditOverride >= 0) {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);
-      fsLedRGB(cfsIdx, cfsEditColor);
+      color = cfsEditColor;
+      fsLedRGB(cfsIdx,
+#if defined(PCBV12)
+               applyFrontLedMode(color)
+#else
+               color
+#endif
+      );
     } else {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
       if (hasLedOverride[cfsIdx] && g_model.getSwitchOffColorLuaOverride(index))
-        fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+        color = ledOverride[cfsIdx].getColor();
       else
-        fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
+        color = g_model.getSwitchOffColor(index).getColor();
+      fsLedRGB(cfsIdx,
+#if defined(PCBV12)
+               applyFrontLedMode(color)
+#else
+               color
+#endif
+      );
     }
   }
 }
 
 void setFSLedON(uint8_t index) {
-#if defined(PCBV12)
-  if (applyFrontLedMode()) return;
-#endif
   if (g_model.getSwitchType(index) != SWITCH_NONE) {
+    uint32_t color;
     if (cfsEditOverride >= 0) {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(cfsEditOverride);
-      fsLedRGB(cfsIdx, cfsEditColor);
+      color = cfsEditColor;
+      fsLedRGB(cfsIdx,
+#if defined(PCBV12)
+               applyFrontLedMode(color)
+#else
+               color
+#endif
+      );
     } else {
       uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
       if (hasLedOverride[cfsIdx] && g_model.getSwitchOnColorLuaOverride(index))
-        fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+        color = ledOverride[cfsIdx].getColor();
       else
-        fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
+        color = g_model.getSwitchOnColor(index).getColor();
+      fsLedRGB(cfsIdx,
+#if defined(PCBV12)
+               applyFrontLedMode(color)
+#else
+               color
+#endif
+      );
     }
   }
 }
@@ -133,7 +160,7 @@ bool getFSLedState(uint8_t index) {
 void applyFrontLedModeNow()
 {
 #if defined(PCBV12) && defined(FUNCTION_SWITCHES_RGB_LEDS)
-  applyFrontLedMode();
+  evalFunctionSwitches();
 #endif
 }
 

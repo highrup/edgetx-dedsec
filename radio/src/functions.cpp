@@ -619,6 +619,13 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
 #endif
 
 #if defined(STATUS_LED_PWM)
+#if defined(PCBV12)
+  if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_OFF) {
+    requiredStatusLedBright = 0;
+  } else if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_DIM) {
+    requiredStatusLedBright = STATUS_LED_BRIGHT_MAX / STATUS_LED_BRIGHT_STEPS;
+  } else
+#endif
   if (g_eeGeneral.statusLedSrc && mixerTaskRunning()) {
     calcStatusLedBright(g_eeGeneral.statusLedSrc);
   } else {

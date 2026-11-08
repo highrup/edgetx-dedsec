@@ -587,6 +587,7 @@ const static SetupLineDef backlightSetupLines[] = {
 #if defined(PCBV12)
 static const char* const dedsecStatusLedColors[] = {
     "Red", "Green", "Blue", "White", "Off"};
+static Slider* statusLedBrightnessSlider = nullptr;
 #endif
 const static SetupLineDef statusLedSetupLines[] = {
 #if defined(PCBV12)
@@ -598,7 +599,20 @@ const static SetupLineDef statusLedSetupLines[] = {
                  GET_DEFAULT(g_eeGeneral.frontLedMode),
                  [](int32_t value) {
                    g_eeGeneral.frontLedMode = value;
+#if defined(STATUS_LED_PWM)
+                   if (value == FRONT_LED_MODE_DIM)
+                     g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX -
+                                                STATUS_LED_BRIGHT_MAX / STATUS_LED_BRIGHT_STEPS;
+                   else if (value == FRONT_LED_MODE_OFF)
+                     g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX;
+#endif
                    applyFrontLedModeNow();
+#if defined(STATUS_LED_PWM)
+                   if (statusLedBrightnessSlider) {
+                     statusLedBrightnessSlider->enable(value == FRONT_LED_MODE_NORMAL);
+                     statusLedBrightnessSlider->update();
+                   }
+#endif
                    SET_DIRTY();
                  }, "Front LEDs");
     }
@@ -610,12 +624,27 @@ const static SetupLineDef statusLedSetupLines[] = {
     STR_DEF(STR_BRIGHTNESS),
     [](Window* parent, coord_t x, coord_t y) {
       constexpr int step = STATUS_LED_BRIGHT_MAX / STATUS_LED_BRIGHT_STEPS;
-      (new Slider(parent, lv_pct(50), 1, STATUS_LED_BRIGHT_STEPS,
-                  GET_DEFAULT((STATUS_LED_BRIGHT_MAX - g_eeGeneral.statusLedDim + step / 2) / step),
+      auto slider = new Slider(parent, lv_pct(50), 0, STATUS_LED_BRIGHT_STEPS,
+                  [=]() {
+#if defined(PCBV12)
+                    if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_OFF) return 0;
+                    if (g_eeGeneral.frontLedMode == FRONT_LED_MODE_DIM) return 1;
+#endif
+                    return (STATUS_LED_BRIGHT_MAX - g_eeGeneral.statusLedDim + step / 2) / step;
+                  },
                   [](int32_t newValue) {
+#if defined(PCBV12)
+                    if (g_eeGeneral.frontLedMode != FRONT_LED_MODE_NORMAL) return;
+#endif
                     g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX - newValue * step;
                     SET_DIRTY();
-                  }))->setPos(x, y);
+                  });
+#if defined(PCBV12)
+      statusLedBrightnessSlider = slider;
+      slider->onClosing([]() { statusLedBrightnessSlider = nullptr; });
+      slider->enable(g_eeGeneral.frontLedMode == FRONT_LED_MODE_NORMAL);
+#endif
+      slider->setPos(x, y);
     }
   },
   {

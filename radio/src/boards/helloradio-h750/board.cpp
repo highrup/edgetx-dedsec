@@ -307,7 +307,12 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
+#if defined(PCBV12)
+  // Avoid a white status flash before the saved phase color is loaded.
+  ledRed();
+#else
   ledBoot();
+#endif
 
   ExtFLASH_InitRuntime();
 

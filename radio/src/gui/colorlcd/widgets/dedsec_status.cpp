@@ -823,7 +823,7 @@ class GimbalControlWidget : public DedsecWindowWidget
   GimbalControlWidget(const WidgetFactory* factory, Window* parent,
                       const rect_t& rect, int screenNum, int zoneNum) :
       DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
-                         "GIMBAL CONTROL_")
+                         "LIVE GIMBAL CONTROL_")
   {
   }
 
@@ -865,7 +865,7 @@ class GimbalControlWidget : public DedsecWindowWidget
     gimbalSize = min(availableH, availableW);
     if (gimbalSize < 16) gimbalSize = 16;
 
-    const coord_t y = height() - PAD_SMALL - gimbalSize;
+    const coord_t y = height() - PAD_SMALL - gimbalSize - 5;
     const coord_t leftX = width() / 4 - gimbalSize / 2;
     const coord_t rightX = width() * 3 / 4 - gimbalSize / 2;
     buildGimbal(0, leftX, y);
