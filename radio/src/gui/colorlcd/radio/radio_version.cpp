@@ -338,6 +338,10 @@ class VersionDialog : public BaseDialog
 const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
 const std::string edgetx_url = "https://edgetx.org";
 
+const uint8_t __bmp_qr_overlay[] __FLASH = {
+#include "bmp_qr_overlay.lbm"
+};
+
 namespace {
 
 constexpr char DEDSEC_BROADCAST_AUDIO[] =
@@ -449,7 +453,15 @@ void RadioVersionPage::build(Window* window)
   new StaticText(qrBox, {0, qh - QR_SZ - PAD_MEDIUM - EdgeTxStyles::STD_FONT_HEIGHT, LV_PCT(100), 0},
                  edgetx_url, COLOR_THEME_PRIMARY2_INDEX, CENTERED);
 
-  new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
+  const coord_t qrX = (qw - QR_SZ) / 2;
+  const coord_t qrY = qh - QR_SZ - PAD_MEDIUM;
+  new QRCode(qrBox, qrX, qrY, QR_SZ, edgetx_url);
+
+  // Keep the QR live and scannable while placing the transparent DedSec art
+  // over its center. The ARGB4444 bitmap preserves the PNG alpha channel.
+  auto qrOverlay = reinterpret_cast<const LZ4Bitmap*>(__bmp_qr_overlay);
+  new StaticLZ4Image(qrBox, qrX + (QR_SZ - qrOverlay->width) / 2,
+                     qrY + (QR_SZ - qrOverlay->height) / 2, qrOverlay);
 
   // Version text in its own scrolling area above a fixed button, so the
   // button can't cover the text when it doesn't fit (e.g. PL18 family on
@@ -480,6 +492,13 @@ void RadioVersionPage::build(Window* window)
     if (i > 0) version += ", ";
     version += options[i];
   }
+
+  version += nl + nl;
+  version += "Everything is connected_";
+  version += nl;
+  version += "connection is power_";
+  version += nl;
+  version += "we are dedsec_";
 
 #if defined(RADIO_T15)
   version += nl;

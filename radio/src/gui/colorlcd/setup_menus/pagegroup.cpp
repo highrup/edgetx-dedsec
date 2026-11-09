@@ -64,6 +64,7 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
   lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
   hdrIcon = new HeaderIcon(this, ICON_EDGETX);
+  hdrIcon->setPos(-1, -1);
 
   new HeaderBackIcon(this);
 

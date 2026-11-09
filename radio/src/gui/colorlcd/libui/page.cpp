@@ -41,7 +41,8 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
   lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
-  new HeaderIcon(this, ICON_EDGETX);
+  auto headerIcon = new HeaderIcon(this, ICON_EDGETX);
+  headerIcon->setPos(-1, -1);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAD_TINY,
@@ -61,7 +62,8 @@ PageHeader::PageHeader(Window* parent, const char* iconFile) :
   lv_obj_set_style_border_width(lvobj, 1, LV_PART_MAIN);
   lv_obj_set_style_border_color(lvobj, lv_color_white(), LV_PART_MAIN);
 
-  new HeaderIcon(this, ICON_EDGETX);
+  auto headerIcon = new HeaderIcon(this, ICON_EDGETX);
+  headerIcon->setPos(-1, -1);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + PAD_TINY,
