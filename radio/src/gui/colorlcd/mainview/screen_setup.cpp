@@ -242,7 +242,7 @@ void ScreenSetupPage::build(Window* window)
   auto art = new StaticIcon(window, 0, 0, ICON_UI_WIDGET_ART,
                             COLOR_THEME_PRIMARY2_INDEX);
   lv_obj_add_flag(art->getLvObj(), LV_OBJ_FLAG_FLOATING);
-  lv_obj_align(art->getLvObj(), LV_ALIGN_BOTTOM_RIGHT, -14, 0);
+  lv_obj_align(art->getLvObj(), LV_ALIGN_BOTTOM_RIGHT, -10, 0);
 }
 
 void ScreenSetupPage::clearLayoutOptions()

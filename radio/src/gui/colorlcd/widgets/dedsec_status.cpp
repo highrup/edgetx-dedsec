@@ -548,12 +548,17 @@ class AttitudeWidget : public DedsecWindowWidget
 
     // Brief alternating laugh, followed by a long rest. setIcon() only
     // updates the canvas when the state changes, so this remains inexpensive.
-    const uint32_t laughPhase = get_tmr10ms() % 200;
-    const bool swapSkulls = laughPhase < 15 ||
-                            (laughPhase >= 30 && laughPhase < 45);
+    const uint32_t laughTime = get_tmr10ms();
+    const uint32_t laughCycle = laughTime / 200;
+    const uint32_t laughPhase = laughTime % 200;
+    const bool animateSwap = laughPhase < 15 ||
+                             (laughPhase >= 30 && laughPhase < 45);
+    // Alternate the resting pose after every laugh cycle instead of always
+    // resetting the left skull to open during the pause.
+    const bool leftClosed = ((laughCycle & 1) != 0) != animateSwap;
     if (leftSkull && rightSkull) {
-      leftSkull->setIcon(swapSkulls ? ICON_SKULL_CLOSE : ICON_SKULL_OPEN);
-      rightSkull->setIcon(swapSkulls ? ICON_SKULL_OPEN : ICON_SKULL_CLOSE);
+      leftSkull->setIcon(leftClosed ? ICON_SKULL_CLOSE : ICON_SKULL_OPEN);
+      rightSkull->setIcon(leftClosed ? ICON_SKULL_OPEN : ICON_SKULL_CLOSE);
     }
 
     auto widgetData = getPersistentData();
