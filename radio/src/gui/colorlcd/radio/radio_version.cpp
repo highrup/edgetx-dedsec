@@ -79,6 +79,31 @@ class VersionDialog : public BaseDialog
   VersionDialog() :
       BaseDialog(STR_MODULES_RX_VERSION, true)
   {
+    std::string windowTitle(STR_MODULES_RX_VERSION);
+    windowTitle += "_";
+    setTitle(windowTitle.c_str());
+
+    etx_solid_bg(header->getLvObj(), COLOR_BLACK_INDEX);
+    etx_txt_color(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
+                  LV_PART_MAIN);
+    lv_obj_set_style_border_side(
+        header->getLvObj(),
+        LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT |
+            LV_BORDER_SIDE_BOTTOM,
+        LV_PART_MAIN);
+    lv_obj_set_style_border_width(header->getLvObj(), 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(header->getLvObj(), lv_color_white(),
+                                  LV_PART_MAIN);
+
+    etx_solid_bg(form->getLvObj(), COLOR_BLACK_INDEX);
+    lv_obj_set_style_border_side(
+        form->getLvObj(),
+        LV_BORDER_SIDE_LEFT | LV_BORDER_SIDE_RIGHT | LV_BORDER_SIDE_BOTTOM,
+        LV_PART_MAIN);
+    lv_obj_set_style_border_width(form->getLvObj(), 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(form->getLvObj(), lv_color_white(),
+                                  LV_PART_MAIN);
+
 #if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
              sizeof(reusableBuffer.hardwareAndSettings.modules));
@@ -352,6 +377,9 @@ constexpr uint16_t DEDSEC_BROADCAST_FRAME_COUNT = 459;
 // get_tmr10ms() units: match the 51.28-second broadcast audio.
 constexpr uint32_t DEDSEC_BROADCAST_DURATION = 5128;
 constexpr coord_t DEDSEC_BROADCAST_TITLE_HEIGHT = 18;
+constexpr coord_t DEDSEC_BROADCAST_WINDOW_WIDTH = 274;
+constexpr coord_t DEDSEC_BROADCAST_WINDOW_X =
+    (LCD_W - DEDSEC_BROADCAST_WINDOW_WIDTH) / 2;
 
 class DedsecBroadcastDialog : public ModalWindow
 {
@@ -362,12 +390,13 @@ class DedsecBroadcastDialog : public ModalWindow
     etx_bg_color(getLvObj(), COLOR_BLACK_INDEX, LV_PART_MAIN);
 
     image = new StaticBitmap(
-        this, {2, DEDSEC_BROADCAST_TITLE_HEIGHT + 2, LCD_W - 4,
-               LCD_H - DEDSEC_BROADCAST_TITLE_HEIGHT - 4});
+        this, {DEDSEC_BROADCAST_WINDOW_X, 0, DEDSEC_BROADCAST_WINDOW_WIDTH,
+               LCD_H});
     showFrame(0);
 
     auto titleBar = new Window(
-        this, {2, 2, LCD_W - 4, DEDSEC_BROADCAST_TITLE_HEIGHT});
+        this, {DEDSEC_BROADCAST_WINDOW_X, 0, DEDSEC_BROADCAST_WINDOW_WIDTH,
+               DEDSEC_BROADCAST_TITLE_HEIGHT});
     titleBar->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_solid_bg(titleBar->getLvObj(), COLOR_BLACK_INDEX);
     lv_obj_set_style_border_side(titleBar->getLvObj(), LV_BORDER_SIDE_BOTTOM,
@@ -376,18 +405,23 @@ class DedsecBroadcastDialog : public ModalWindow
     lv_obj_set_style_border_color(titleBar->getLvObj(), lv_color_white(),
                                   LV_PART_MAIN);
     new StaticText(titleBar,
-                   {PAD_SMALL, 0,
-                    LCD_W - DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_LARGE,
+                   {PAD_SMALL, 1,
+                    DEDSEC_BROADCAST_WINDOW_WIDTH -
+                        DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_LARGE,
                     DEDSEC_BROADCAST_TITLE_HEIGHT},
                    "x:\\dedsec\\ broadcast.gif",
                    COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
     new StaticText(
         titleBar,
-        {LCD_W - DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_SMALL, 0,
+        {DEDSEC_BROADCAST_WINDOW_WIDTH - DEDSEC_BROADCAST_TITLE_HEIGHT -
+             PAD_SMALL,
+         1,
          DEDSEC_BROADCAST_TITLE_HEIGHT, DEDSEC_BROADCAST_TITLE_HEIGHT},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
-    auto frame = new Window(this, {1, 1, LCD_W - 2, LCD_H - 2});
+    auto frame = new Window(
+        this, {DEDSEC_BROADCAST_WINDOW_X, 0, DEDSEC_BROADCAST_WINDOW_WIDTH,
+               LCD_H});
     frame->setWindowFlag(NO_FOCUS | NO_CLICK);
     etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
                       LV_PART_MAIN);
