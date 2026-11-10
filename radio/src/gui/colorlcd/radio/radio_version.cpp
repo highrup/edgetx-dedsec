@@ -103,6 +103,10 @@ class VersionDialog : public BaseDialog
     lv_obj_set_style_border_width(form->getLvObj(), 1, LV_PART_MAIN);
     lv_obj_set_style_border_color(form->getLvObj(), lv_color_white(),
                                   LV_PART_MAIN);
+    new StaticText(
+        header,
+        {DIALOG_DEFAULT_WIDTH - 18 - PAD_SMALL, 5, 18, 18},
+        "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
 #if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
@@ -405,7 +409,7 @@ class DedsecBroadcastDialog : public ModalWindow
     lv_obj_set_style_border_color(titleBar->getLvObj(), lv_color_white(),
                                   LV_PART_MAIN);
     new StaticText(titleBar,
-                   {PAD_SMALL, 1,
+                   {PAD_SMALL, 5,
                     DEDSEC_BROADCAST_WINDOW_WIDTH -
                         DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_LARGE,
                     DEDSEC_BROADCAST_TITLE_HEIGHT},
@@ -415,7 +419,7 @@ class DedsecBroadcastDialog : public ModalWindow
         titleBar,
         {DEDSEC_BROADCAST_WINDOW_WIDTH - DEDSEC_BROADCAST_TITLE_HEIGHT -
              PAD_SMALL,
-         1,
+         5,
          DEDSEC_BROADCAST_TITLE_HEIGHT, DEDSEC_BROADCAST_TITLE_HEIGHT},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
