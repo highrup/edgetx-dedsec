@@ -105,7 +105,7 @@ class VersionDialog : public BaseDialog
                                   LV_PART_MAIN);
     auto closeLabel = new StaticText(
         header->getParent(),
-        {DIALOG_DEFAULT_WIDTH - 18 - PAD_SMALL, 5, 18, 18},
+        {DIALOG_DEFAULT_WIDTH - 18 - PAD_SMALL, 4, 18, 18},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
     lv_obj_add_flag(closeLabel->getLvObj(), LV_OBJ_FLAG_IGNORE_LAYOUT);
 
@@ -420,7 +420,7 @@ class DedsecBroadcastDialog : public ModalWindow
         titleBar,
         {DEDSEC_BROADCAST_WINDOW_WIDTH - DEDSEC_BROADCAST_TITLE_HEIGHT -
              PAD_SMALL,
-         5,
+         4,
          DEDSEC_BROADCAST_TITLE_HEIGHT, DEDSEC_BROADCAST_TITLE_HEIGHT},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
