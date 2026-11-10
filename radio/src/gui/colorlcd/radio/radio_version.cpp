@@ -351,6 +351,7 @@ constexpr char DEDSEC_BROADCAST_IMAGE_FORMAT[] =
 constexpr uint16_t DEDSEC_BROADCAST_FRAME_COUNT = 459;
 // get_tmr10ms() units: match the 51.28-second broadcast audio.
 constexpr uint32_t DEDSEC_BROADCAST_DURATION = 5128;
+constexpr coord_t DEDSEC_BROADCAST_TITLE_HEIGHT = 18;
 
 class DedsecBroadcastDialog : public ModalWindow
 {
@@ -360,8 +361,41 @@ class DedsecBroadcastDialog : public ModalWindow
     padAll(PAD_ZERO);
     etx_bg_color(getLvObj(), COLOR_BLACK_INDEX, LV_PART_MAIN);
 
-    image = new StaticBitmap(this, {0, 0, LCD_W, LCD_H});
+    image = new StaticBitmap(
+        this, {2, DEDSEC_BROADCAST_TITLE_HEIGHT + 2, LCD_W - 4,
+               LCD_H - DEDSEC_BROADCAST_TITLE_HEIGHT - 4});
     showFrame(0);
+
+    auto titleBar = new Window(
+        this, {2, 2, LCD_W - 4, DEDSEC_BROADCAST_TITLE_HEIGHT});
+    titleBar->setWindowFlag(NO_FOCUS | NO_CLICK);
+    etx_solid_bg(titleBar->getLvObj(), COLOR_BLACK_INDEX);
+    lv_obj_set_style_border_side(titleBar->getLvObj(), LV_BORDER_SIDE_BOTTOM,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(titleBar->getLvObj(), 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(titleBar->getLvObj(), lv_color_white(),
+                                  LV_PART_MAIN);
+    new StaticText(titleBar,
+                   {PAD_SMALL, 0,
+                    LCD_W - DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_LARGE,
+                    DEDSEC_BROADCAST_TITLE_HEIGHT},
+                   "x:\\dedsec\\ broadcast.gif",
+                   COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
+    new StaticText(
+        titleBar,
+        {LCD_W - DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_SMALL, 0,
+         DEDSEC_BROADCAST_TITLE_HEIGHT, DEDSEC_BROADCAST_TITLE_HEIGHT},
+        "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
+
+    auto frame = new Window(this, {1, 1, LCD_W - 2, LCD_H - 2});
+    frame->setWindowFlag(NO_FOCUS | NO_CLICK);
+    etx_obj_add_style(frame->getLvObj(), styles->bg_opacity_transparent,
+                      LV_PART_MAIN);
+    lv_obj_set_style_border_side(frame->getLvObj(), LV_BORDER_SIDE_FULL,
+                                 LV_PART_MAIN);
+    lv_obj_set_style_border_width(frame->getLvObj(), 1, LV_PART_MAIN);
+    lv_obj_set_style_border_color(frame->getLvObj(), lv_color_white(),
+                                  LV_PART_MAIN);
 
     startedAt = get_tmr10ms();
     audioQueue.stopPlay(ID_PLAY_FROM_SD_MANAGER);
