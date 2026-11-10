@@ -420,7 +420,7 @@ class DedsecBroadcastDialog : public ModalWindow
         titleBar,
         {DEDSEC_BROADCAST_WINDOW_WIDTH - DEDSEC_BROADCAST_TITLE_HEIGHT -
              PAD_SMALL,
-         4,
+         3,
          DEDSEC_BROADCAST_TITLE_HEIGHT, DEDSEC_BROADCAST_TITLE_HEIGHT},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
