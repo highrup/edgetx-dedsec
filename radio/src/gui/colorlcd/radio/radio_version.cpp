@@ -103,10 +103,11 @@ class VersionDialog : public BaseDialog
     lv_obj_set_style_border_width(form->getLvObj(), 1, LV_PART_MAIN);
     lv_obj_set_style_border_color(form->getLvObj(), lv_color_white(),
                                   LV_PART_MAIN);
-    new StaticText(
-        header,
+    auto closeLabel = new StaticText(
+        header->getParent(),
         {DIALOG_DEFAULT_WIDTH - 18 - PAD_SMALL, 5, 18, 18},
         "X", COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
+    lv_obj_add_flag(closeLabel->getLvObj(), LV_OBJ_FLAG_IGNORE_LAYOUT);
 
 #if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
@@ -409,7 +410,7 @@ class DedsecBroadcastDialog : public ModalWindow
     lv_obj_set_style_border_color(titleBar->getLvObj(), lv_color_white(),
                                   LV_PART_MAIN);
     new StaticText(titleBar,
-                   {PAD_SMALL, 5,
+                   {PAD_SMALL, 3,
                     DEDSEC_BROADCAST_WINDOW_WIDTH -
                         DEDSEC_BROADCAST_TITLE_HEIGHT - PAD_LARGE,
                     DEDSEC_BROADCAST_TITLE_HEIGHT},
