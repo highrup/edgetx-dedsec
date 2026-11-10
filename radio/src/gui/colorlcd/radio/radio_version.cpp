@@ -348,8 +348,9 @@ constexpr char DEDSEC_BROADCAST_AUDIO[] =
     "/SOUNDS/en/DEDSEC/broadcast.wav";
 constexpr char DEDSEC_BROADCAST_IMAGE_FORMAT[] =
     "/IMAGES/DEDSEC/BROADCAST/%03u.png";
-constexpr uint32_t DEDSEC_BROADCAST_FRAME_TIME = 1500;  // 15 seconds
-constexpr uint32_t DEDSEC_BROADCAST_DURATION = 12100;  // 121 seconds
+constexpr uint16_t DEDSEC_BROADCAST_FRAME_COUNT = 459;
+// get_tmr10ms() units: match the 51.28-second broadcast audio.
+constexpr uint32_t DEDSEC_BROADCAST_DURATION = 5128;
 
 class DedsecBroadcastDialog : public ModalWindow
 {
@@ -377,7 +378,11 @@ class DedsecBroadcastDialog : public ModalWindow
     ModalWindow::checkEvents();
 
     const uint32_t elapsed = get_tmr10ms() - startedAt;
-    const uint8_t requestedFrame = elapsed / DEDSEC_BROADCAST_FRAME_TIME;
+    uint16_t requestedFrame =
+        ((uint64_t)elapsed * DEDSEC_BROADCAST_FRAME_COUNT) /
+        DEDSEC_BROADCAST_DURATION;
+    if (requestedFrame >= DEDSEC_BROADCAST_FRAME_COUNT)
+      requestedFrame = DEDSEC_BROADCAST_FRAME_COUNT - 1;
     if (requestedFrame != frame) showFrame(requestedFrame);
 
     if (elapsed >= DEDSEC_BROADCAST_DURATION) closeWindow();
@@ -387,11 +392,11 @@ class DedsecBroadcastDialog : public ModalWindow
   void onCancel() override { closeWindow(); }
 
  private:
-  void showFrame(uint8_t requestedFrame)
+  void showFrame(uint16_t requestedFrame)
   {
     char path[sizeof(DEDSEC_BROADCAST_IMAGE_FORMAT) + 8];
     snprintf(path, sizeof(path), DEDSEC_BROADCAST_IMAGE_FORMAT,
-             requestedFrame + 1);
+             static_cast<unsigned>(requestedFrame + 1));
 
     if (f_stat(path, nullptr) == FR_OK) {
       image->setSource(path);
@@ -401,7 +406,7 @@ class DedsecBroadcastDialog : public ModalWindow
 
   StaticBitmap* image = nullptr;
   uint32_t startedAt = 0;
-  uint8_t frame = 0xFF;
+  uint16_t frame = 0xFFFF;
 };
 
 }  // namespace

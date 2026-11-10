@@ -71,7 +71,7 @@ const char RADIO_SETTINGS_ERRORFILE_YAML_PATH[] = RADIO_PATH PATH_SEPARATOR "rad
 
 const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define    SPLASH_FILE             "splash.png"
-#define    SHUTDOWN_SPLASH_FILE    "shutdown.png"
+#define    SHUTDOWN_SPLASH_FILE    "DEDSEC/SHUTDOWN/shutdown.png"
 
 #define LOGS_EXT            ".csv"
 #define SOUNDS_EXT          ".wav"

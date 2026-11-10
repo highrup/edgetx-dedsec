@@ -87,7 +87,12 @@ class ModelBitmapWidget : public Widget
   {
     if (!loaded || deleted()) return;
 
-    if (getHash() != deps_hash) {
+    const uint32_t currentHash = getHash();
+    const bool retryImage =
+        g_model.header.bitmap[0] && !image->hasImage() &&
+        (lastImageAttempt == 0 ||
+         (uint32_t)(get_tmr10ms() - lastImageAttempt) >= 100);
+    if (currentHash != deps_hash || retryImage) {
       update();
     }
 
@@ -170,6 +175,7 @@ class ModelBitmapWidget : public Widget
 
     if (!image->hasImage() || deps_hash != getHash() || sizeChg) {
       if (g_model.header.bitmap[0]) {
+        lastImageAttempt = get_tmr10ms();
         char filename[LEN_BITMAP_NAME + 1];
         strAppend(filename, g_model.header.bitmap, LEN_BITMAP_NAME);
         std::string fullpath =
@@ -177,6 +183,7 @@ class ModelBitmapWidget : public Widget
 
         image->setSource(fullpath.c_str());
       } else {
+        lastImageAttempt = 0;
         image->clearSource();
       }
       deps_hash = getHash();
@@ -193,6 +200,7 @@ class ModelBitmapWidget : public Widget
  protected:
   bool isLarge = false;
   uint32_t deps_hash = 0;
+  uint32_t lastImageAttempt = 0;
   StaticText* label = nullptr;
   StaticText* status = nullptr;
   StaticBitmap* image = nullptr;
