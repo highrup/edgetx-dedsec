@@ -71,37 +71,37 @@ class LogicalSwitchDisplayFooter : public Window
 
     lsFunc = etx_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsFunc, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsFunc, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsFunc, LV_GRID_ALIGN_STRETCH, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lsV1 = etx_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsV1, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsV1, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lsV2 = etx_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsV2, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsV2, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsV2, LV_GRID_ALIGN_STRETCH, 2, V2_COL_CNT,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
     lsAnd = etx_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsAnd, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsAnd, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsAnd, LV_GRID_ALIGN_STRETCH, ANDSW_COL, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
     lsDuration = etx_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsDuration, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsDuration, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsDuration, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 1, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
     lsDelay = etx_label_create(lvobj);
     etx_obj_add_style(lsDelay, styles->text_align_left, LV_PART_MAIN);
-    etx_txt_color(lsDelay, COLOR_THEME_PRIMARY2_INDEX);
+    etx_txt_color(lsDelay, COLOR_THEME_PRIMARY1_INDEX);
     lv_obj_set_grid_cell(lsDelay, LV_GRID_ALIGN_STRETCH, ANDSW_COL + 2, 1,
                          LV_GRID_ALIGN_CENTER, ANDSW_ROW, 1);
 
