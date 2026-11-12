@@ -66,6 +66,7 @@ class LogicalSwitchDisplayFooter : public Window
 
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, f_col_dsc, row_dsc);
+    lv_obj_set_grid_align(lvobj, LV_GRID_ALIGN_START, LV_GRID_ALIGN_CENTER);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
     lv_obj_set_style_pad_column(lvobj, PAD_TINY, 0);
 

@@ -634,7 +634,7 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   action(std::move(action))
 {
   auto backIcon =
-      new StaticIcon(this, 0, 0, ICON_BTN_PREV, COLOR_THEME_PRIMARY2_INDEX);
+      new StaticIcon(this, 0, 0, ICON_BTN_BACK, COLOR_THEME_PRIMARY2_INDEX);
   backIcon->setPos(
       (width() - backIcon->width()) / 2,
       PAD_THREE + HeaderDateTime::HDR_DATE_LINE2 +

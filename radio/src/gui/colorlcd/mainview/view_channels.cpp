@@ -38,26 +38,29 @@ class ChannelsViewFooter : public Window
   {
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
+    const coord_t boxY = (FOOTER_H - (LEG_COLORBOX + PAD_TINY)) / 2;
+    const coord_t textY = (FOOTER_H - TXT_H) / 2;
+
     auto w =
-        new Window(this, {PAD_MEDIUM, PAD_SMALL, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
+        new Window(this, {PAD_MEDIUM, boxY, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
     w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_ACTIVE_INDEX);
 
-    new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY1_INDEX);
+    new StaticText(this, {LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, textY, LV_SIZE_CONTENT, TXT_H}, STR_MONITOR_OUTPUT_DESC, COLOR_THEME_PRIMARY1_INDEX);
 
     int x = getTextWidth(STR_MONITOR_OUTPUT_DESC) + LEG_COLORBOX + PAD_MEDIUM * 2;
 
-    w = new Window(this, {x + PAD_MEDIUM, PAD_SMALL, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
+    w = new Window(this, {x + PAD_MEDIUM, boxY, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
     w = new Window(w, {1, 1, LEG_COLORBOX, LEG_COLORBOX});
     w->setWindowFlag(NO_FOCUS);
     etx_solid_bg(w->getLvObj(), COLOR_THEME_FOCUS_INDEX);
 
-    new StaticText(this, {x + LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, PAD_TINY, LV_SIZE_CONTENT, TXT_H},
+    new StaticText(this, {x + LEG_COLORBOX + PAD_MEDIUM + PAD_SMALL, textY, LV_SIZE_CONTENT, TXT_H},
                    STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY1_INDEX);
   }
 

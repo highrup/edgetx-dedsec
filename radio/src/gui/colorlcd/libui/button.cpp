@@ -152,6 +152,10 @@ IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
   padAll(PAD_ZERO);
   iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1_INDEX);
   iconImage->center(EdgeTxStyles::UI_ELEMENT_HEIGHT - 4, EdgeTxStyles::UI_ELEMENT_HEIGHT - 4);
+  setFocusHandler([=](bool focused) {
+    iconImage->setColor(focused ? COLOR_THEME_PRIMARY1_INDEX
+                                : COLOR_THEME_SECONDARY1_INDEX);
+  });
 }
 
 void IconButton::setIcon(EdgeTxIcon icon) { iconImage->setIcon(icon); }

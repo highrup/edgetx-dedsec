@@ -349,6 +349,9 @@ static const uint8_t mask_btn_next[] __FLASH = {
 static const uint8_t mask_btn_prev[] __FLASH = {
 #include "mask_ui_btn_prev.lbm"
 };
+static const uint8_t mask_btn_back[] __FLASH = {
+#include "mask_ui_btn_back.lbm"
+};
 static const uint8_t mask_btn_grid_large[] __FLASH = {
 #include "mask_ui_btn_grid_large.lbm"
 };
@@ -567,6 +570,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_BTN_CLOSE, mask_btn_close),
     BI(ICON_BTN_NEXT, mask_btn_next),
     BI(ICON_BTN_PREV, mask_btn_prev),
+    BI(ICON_BTN_BACK, mask_btn_back),
     BI(ICON_TOP_LOGO, mask_menu_logo),
 };
 
