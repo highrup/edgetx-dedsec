@@ -39,7 +39,9 @@ class ChannelsViewFooter : public Window
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
     const coord_t boxY = (FOOTER_H - (LEG_COLORBOX + PAD_TINY)) / 2;
-    const coord_t textY = (FOOTER_H - TXT_H) / 2;
+    // Tiny5's visible glyphs sit high within their line box, so apply the same
+    // one-pixel optical correction used elsewhere in the DedSec UI.
+    const coord_t textY = (FOOTER_H - TXT_H) / 2 + 1;
 
     auto w =
         new Window(this, {PAD_MEDIUM, boxY, LEG_COLORBOX + PAD_TINY, LEG_COLORBOX + PAD_TINY});

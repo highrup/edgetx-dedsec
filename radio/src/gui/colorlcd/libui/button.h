@@ -124,6 +124,9 @@ class IconButton : public ButtonBase
   void setIcon(EdgeTxIcon icon);
 
  protected:
+  void checkEvents() override;
+  void updateIconColor();
+
   StaticIcon* iconImage = nullptr;
 };
 
