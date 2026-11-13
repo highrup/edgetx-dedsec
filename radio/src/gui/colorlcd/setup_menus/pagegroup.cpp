@@ -317,6 +317,24 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
 
 //-----------------------------------------------------------------------------
 
+class TabsIconButton : public IconButton
+{
+ public:
+  TabsIconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
+                 std::function<uint8_t(void)> pressHandler) :
+      IconButton(parent, icon, x, y, std::move(pressHandler))
+  {
+    updateIconColor();
+  }
+
+ protected:
+  void checkEvents() override
+  {
+    IconButton::checkEvents();
+    updateIconColor();
+  }
+};
+
 class TabsGroupHeader : public PageGroupHeaderBase
 {
  public:
@@ -338,12 +356,12 @@ class TabsGroupHeader : public PageGroupHeaderBase
     lv_obj_set_size(titleLabel, LCD_W, TabsGroup::TABS_GROUP_ALT_TITLE_H);
 #endif
 
-    prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
+    prevBtn = new TabsIconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
       prevTab();
       return 0;
     });
 
-    nextBtn = new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
+    nextBtn = new TabsIconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 2, PAD_MEDIUM, [=]() {
       nextTab();
       return 0;
     });
