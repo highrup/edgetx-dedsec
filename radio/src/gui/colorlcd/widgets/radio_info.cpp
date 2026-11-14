@@ -197,7 +197,7 @@ class RadioInfoWidget : public Widget
     uint8_t bars = GET_TXBATT_BARS(maxBars);
     // Fill the complete battery artwork at a genuinely full reading without
     // shifting the fill's left edge or changing partial-battery levels.
-    if (bars >= maxBars) bars = maxBars + 6;
+    if (bars >= maxBars) bars = maxBars + 10;
     if (bars != lastBatt) {
       lastBatt = bars;
       lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
