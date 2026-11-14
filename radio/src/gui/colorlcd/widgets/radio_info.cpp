@@ -193,7 +193,7 @@ class RadioInfoWidget : public Widget
 #endif
 
     // Battery level
-    const uint8_t maxBars = compact ? 10 : W_BATT_FILL_W;
+    const uint8_t maxBars = compact ? 9 : W_BATT_FILL_W;
     uint8_t bars = GET_TXBATT_BARS(maxBars);
     if (bars != lastBatt) {
       lastBatt = bars;
