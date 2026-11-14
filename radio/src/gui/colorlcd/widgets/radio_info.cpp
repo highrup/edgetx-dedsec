@@ -195,9 +195,6 @@ class RadioInfoWidget : public Widget
     // Battery level
     const uint8_t maxBars = compact ? 10 : W_BATT_FILL_W;
     uint8_t bars = GET_TXBATT_BARS(maxBars);
-    // The compact gauge can report one step below maximum after charging.
-    // Treat its top two readings as full and cover the complete 15 px interior.
-    if (compact && bars >= maxBars - 1) bars = maxBars + 5;
     if (bars != lastBatt) {
       lastBatt = bars;
       lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
