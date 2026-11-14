@@ -195,9 +195,9 @@ class RadioInfoWidget : public Widget
     // Battery level
     const uint8_t maxBars = compact ? 10 : W_BATT_FILL_W;
     uint8_t bars = GET_TXBATT_BARS(maxBars);
-    // Fill the complete battery artwork at a genuinely full reading without
-    // shifting the fill's left edge or changing partial-battery levels.
-    if (bars >= maxBars) bars = maxBars + 10;
+    // The compact gauge can report one step below maximum after charging.
+    // Treat its top two readings as full and match the artwork's 12 px interior.
+    if (compact && bars >= maxBars - 1) bars = maxBars + 2;
     if (bars != lastBatt) {
       lastBatt = bars;
       lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
