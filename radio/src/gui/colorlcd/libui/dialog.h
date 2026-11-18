@@ -135,13 +135,15 @@ class LabelDialog : public ModalWindow
  public:
   LabelDialog(const char *label, int length, const char* title,
               std::function<void(std::string)> _saveHandler = nullptr,
-              const char* excludedChars = nullptr);
+              const char* excludedChars = nullptr,
+              std::function<void(void)> _cancelHandler = nullptr);
 
   static constexpr int MAX_LABEL_LENGTH = 255;
 
-  void onCancel() override { closeWindow(); }
+  void onCancel() override;
 
  protected:
   std::function<void(std::string)> saveHandler;
+  std::function<void(void)> cancelHandler;
   char label[MAX_LABEL_LENGTH + 1];
 };

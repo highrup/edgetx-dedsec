@@ -42,12 +42,68 @@
 #if defined(COLORLCD)
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
+  #include "gui/colorlcd/libui/dialog.h"
 #endif
 
 #include "telemetry/frsky.h"
 
 #if defined(MULTIMODULE)
   #include "telemetry/multi.h"
+#endif
+
+#if defined(COLORLCD)
+static bool luaTextInputActive = false;
+static bool luaTextInputReady = false;
+static bool luaTextInputCancelled = false;
+static std::string luaTextInputResult;
+
+/*luadoc
+@function popupTextInput(title, value, length)
+
+Open the standard EdgeTX text keyboard from a stand-alone Lua script.
+
+@retval string saved text
+@retval false input was cancelled
+@retval nil dialog is still open
+*/
+static int luaPopupTextInput(lua_State* L)
+{
+  if (luaTextInputReady) {
+    luaTextInputReady = false;
+    lua_pushstring(L, luaTextInputResult.c_str());
+    return 1;
+  }
+
+  if (luaTextInputCancelled) {
+    luaTextInputCancelled = false;
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  if (!luaTextInputActive) {
+    const char* title = luaL_checkstring(L, 1);
+    const char* value = luaL_optstring(L, 2, "");
+    int length = luaL_optinteger(L, 3, LEN_MODEL_NAME);
+    length = std::max(1, std::min(length, LabelDialog::MAX_LABEL_LENGTH));
+
+    luaTextInputActive = true;
+    new LabelDialog(
+        value, length, title,
+        [](std::string result) {
+          luaTextInputResult = std::move(result);
+          luaTextInputReady = true;
+          luaTextInputActive = false;
+        },
+        nullptr,
+        []() {
+          luaTextInputCancelled = true;
+          luaTextInputActive = false;
+        });
+  }
+
+  lua_pushnil(L);
+  return 1;
+}
 #endif
 
 #if defined(CROSSFIRE)
@@ -3338,6 +3394,9 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
   LROT_FUNCENTRY( popupWarning, luaPopupWarning )
   LROT_FUNCENTRY( popupConfirmation, luaPopupConfirmation )
+#if defined(COLORLCD)
+  LROT_FUNCENTRY( popupTextInput, luaPopupTextInput )
+#endif
   LROT_FUNCENTRY( defaultStick, luaDefaultStick )
   LROT_FUNCENTRY( defaultChannel, luaDefaultChannel )
   LROT_FUNCENTRY( getRSSI, luaGetRSSI )

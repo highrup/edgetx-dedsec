@@ -176,8 +176,10 @@ void ConfirmDialog::onCancel()
 
 LabelDialog::LabelDialog(const char *label, int length, const char* title,
             std::function<void(std::string)> _saveHandler,
-            const char* excludedChars) :
-    ModalWindow(false), saveHandler(std::move(_saveHandler))
+            const char* excludedChars,
+            std::function<void(void)> _cancelHandler) :
+    ModalWindow(false), saveHandler(std::move(_saveHandler)),
+    cancelHandler(std::move(_cancelHandler))
 {
   strncpy(this->label, label, std::min(length, MAX_LABEL_LENGTH));
   this->label[length] = '\0';
@@ -220,4 +222,10 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
     if (saveHandler != nullptr) saveHandler(this->label);
     return 0;
   });
+}
+
+void LabelDialog::onCancel()
+{
+  closeWindow();
+  if (cancelHandler) cancelHandler();
 }
