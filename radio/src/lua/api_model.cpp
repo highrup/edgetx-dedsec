@@ -118,11 +118,27 @@ static int luaModelSetInfo(lua_State *L)
 #endif
   }
   storageDirty(EE_MODEL);
+  return 0;
+}
+
+/*luadoc
+@function model.save()
+
+Persist all pending changes to the current model immediately.
+
+This is intended for stand-alone model wizards that must finish saving before
+returning to the model list.
+
+@status current Introduced in 3.0
+*/
+static int luaModelSave(lua_State* L)
+{
+  storageFlushCurrentModel();
+  storageCheck(true);
 #if defined(STORAGE_MODELSLIST)
-  // Lua model wizards can change the model name and bitmap immediately before
-  // returning to Manage Models. Keep its cached cell in sync so the template
-  // name is not shown (or later reused) while the model write is pending.
-  modelCellManager.updateCurrentModelCell();
+  // Writing the model refreshes its cached ModelCell and can dirty labels.yml.
+  // Complete that second write before the wizard returns to Manage Models.
+  storageCheck(true);
 #endif
   return 0;
 }
@@ -2195,6 +2211,7 @@ extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
   LROT_FUNCENTRY( setInfo, luaModelSetInfo )
+  LROT_FUNCENTRY( save, luaModelSave )
   LROT_FUNCENTRY( getModule, luaModelGetModule )
   LROT_FUNCENTRY( setModule, luaModelSetModule )
   LROT_FUNCENTRY( getTimer, luaModelGetTimer )
