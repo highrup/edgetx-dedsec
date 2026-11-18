@@ -105,6 +105,10 @@ class TextViewer
   {
     if (openFile()) {
       auto obj = window->getLvObj();
+      // DedSec uses a black page surface.  Do not inherit a dark text color
+      // from the theme here or model notes become black-on-black.
+      lv_obj_set_style_bg_color(obj, lv_color_black(), LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN);
       lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
@@ -114,6 +118,7 @@ class TextViewer
       lb = lv_label_create(obj);
       lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
       etx_obj_add_style(lb, styles->pad_medium, LV_PART_MAIN);
+      lv_obj_set_style_text_color(lb, lv_color_white(), LV_PART_MAIN);
 
       lv_group_add_obj(g, obj);
       lv_group_set_editing(g, true);
@@ -365,6 +370,8 @@ class ViewChecklistWindow : public Page, public TextViewer
   {
     if (openFile()) {
       auto obj = window->getLvObj();
+      lv_obj_set_style_bg_color(obj, lv_color_black(), LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN);
       lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW | LV_OBJ_FLAG_SCROLL_MOMENTUM);
       etx_scrollbar(obj);
       // prevents resetting the group's edit mode
@@ -389,6 +396,8 @@ class ViewChecklistWindow : public Page, public TextViewer
           if (buffer[i] == '\r' && buffer[i + 1] == '\n') i += 1;
 
           lv_obj_t* row = lv_obj_create(obj);
+          lv_obj_set_style_bg_color(row, lv_color_black(), LV_PART_MAIN);
+          lv_obj_set_style_bg_opa(row, LV_OPA_COVER, LV_PART_MAIN);
           lv_obj_set_layout(row, LV_LAYOUT_FLEX);
           lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
           lv_obj_set_width(row, lv_pct(100));
@@ -419,6 +428,7 @@ class ViewChecklistWindow : public Page, public TextViewer
 
           auto lbl = etx_label_create(row);
           lv_obj_set_width(lbl, w);
+          lv_obj_set_style_text_color(lbl, lv_color_white(), LV_PART_MAIN);
           lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
           lv_label_set_text_static(lbl, &buffer[cur]);
 
