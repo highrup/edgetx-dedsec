@@ -829,6 +829,8 @@ const WidgetOption LinkAnalyzerWidget::options[] = {
 class GimbalControlWidget : public DedsecWindowWidget
 {
  public:
+  static const WidgetOption options[];
+
   GimbalControlWidget(const WidgetFactory* factory, Window* parent,
                       const rect_t& rect, int screenNum, int zoneNum) :
       DedsecWindowWidget(factory, parent, rect, screenNum, zoneNum,
@@ -849,6 +851,30 @@ class GimbalControlWidget : public DedsecWindowWidget
     const EdgeTxIcon pilotFrame = pilotFrames[frameIndex];
     if (pilotBackground) pilotBackground->setIcon(pilotFrame);
 
+    auto widgetData = getPersistentData();
+    static const char* modeNames[] = {
+        "[ TURTLE ]", "[ RESCUE ]", "[ BEEPER ]",
+        "[ PIT MODE ]", "[ ANGLE ]", "[ PREARM ]"};
+    const char* activeMode = nullptr;
+    for (uint8_t i = 0; i < 6; ++i) {
+      const mixsrc_t source =
+          widgetData->options[4 + i].value.unsignedValue;
+      if (source != MIXSRC_NONE && getValue(source) > 0) {
+        activeMode = modeNames[i];
+        break;
+      }
+    }
+    if (modeBadge && modeLabel) {
+      if (activeMode) {
+        modeLabel->setText(activeMode);
+        lv_obj_clear_flag(modeBadge->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(modeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      } else {
+        lv_obj_add_flag(modeBadge->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(modeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+      }
+    }
+
     setMarker(0, calibratedAnalogs[ADC_MAIN_LH],
               calibratedAnalogs[ADC_MAIN_LV]);
     setMarker(1, calibratedAnalogs[ADC_MAIN_RH],
@@ -868,6 +894,14 @@ class GimbalControlWidget : public DedsecWindowWidget
       lv_obj_set_style_img_recolor_opa(pilotBackground->getLvObj(),
                                        LV_OPA_COVER, LV_PART_MAIN);
     }
+    if (modeBadge) {
+      lv_obj_set_style_bg_color(modeBadge->getLvObj(), lv_color_black(),
+                                LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(modeBadge->getLvObj(), LV_OPA_COVER,
+                              LV_PART_MAIN);
+    }
+    if (modeLabel)
+      etx_txt_color_from_flags(modeLabel->getLvObj(), textColor);
     for (uint8_t i = 0; i < 2; ++i) {
       if (boxes[i])
         lv_obj_set_style_border_color(boxes[i], accent, LV_PART_MAIN);
@@ -886,6 +920,27 @@ class GimbalControlWidget : public DedsecWindowWidget
     pilotBackground = new StaticIcon(this, 1, 1, ICON_DRONE_PILOT_1,
                                      COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_move_background(pilotBackground->getLvObj());
+
+    // One fixed-position mode badge occupies the visual center of the upper
+    // half. Priority is the order of the source options: the most important
+    // active mode wins without moving the badge or the gimbal controls.
+    const coord_t upperBottom =
+        TITLE_HEIGHT + (height() - TITLE_HEIGHT) / 2;
+    const coord_t availableBadgeW = width() - PAD_SMALL * 4;
+    const coord_t badgeW = availableBadgeW < 112 ? availableBadgeW : 112;
+    const coord_t badgeH = 16;
+    const coord_t badgeY =
+        TITLE_HEIGHT + (upperBottom - TITLE_HEIGHT - badgeH) / 2;
+    modeBadge = new Window(this,
+                           {(coord_t)((width() - badgeW) / 2), badgeY,
+                            badgeW, badgeH});
+    modeBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
+    lv_obj_set_style_border_width(modeBadge->getLvObj(), 0, LV_PART_MAIN);
+    modeLabel = new StaticText(modeBadge, {0, 0, badgeW, badgeH}, "",
+                               COLOR_THEME_PRIMARY2_INDEX,
+                               FONT(XS) | CENTERED);
+    lv_obj_add_flag(modeBadge->getLvObj(), LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(modeLabel->getLvObj(), LV_OBJ_FLAG_HIDDEN);
 
     // Reserve the upper half for a future image. The live controls occupy
     // only the lower half of the widget.
@@ -942,6 +997,8 @@ class GimbalControlWidget : public DedsecWindowWidget
 
   coord_t gimbalSize = 0;
   StaticIcon* pilotBackground = nullptr;
+  Window* modeBadge = nullptr;
+  StaticText* modeLabel = nullptr;
   lv_obj_t* boxes[2] = {nullptr};
   lv_obj_t* crossLines[2][2] = {{nullptr}};
   lv_obj_t* markers[2] = {nullptr};
@@ -949,6 +1006,22 @@ class GimbalControlWidget : public DedsecWindowWidget
 
   static LAYOUT_VAL_SCALED(MARKER_SIZE, 5)
 };
+
+const WidgetOption GimbalControlWidget::options[] = {
+    {STR_TEXT_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {STR_BG_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
+    {STR_FILL_BACKGROUND, WidgetOption::Bool, true},
+    {STR_COLOR, WidgetOption::Color,
+     COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
+    {"Turtle source", WidgetOption::Source, MIXSRC_NONE},
+    {"Rescue source", WidgetOption::Source, MIXSRC_NONE},
+    {"Beeper source", WidgetOption::Source, MIXSRC_NONE},
+    {"Pit mode source", WidgetOption::Source, MIXSRC_NONE},
+    {"Angle source", WidgetOption::Source, MIXSRC_NONE},
+    {"Prearm source", WidgetOption::Source, MIXSRC_NONE},
+    {nullptr, WidgetOption::Bool}};
 
 template <class T>
 class DedsecWidgetFactory : public WidgetFactory
@@ -980,4 +1053,4 @@ DedsecWidgetFactory<AttitudeWidget> attitudeWidget(
 DedsecWidgetFactory<LinkAnalyzerWidget> linkAnalyzerWidget(
     "LinkAnal", LinkAnalyzerWidget::options, "Link Analyzer");
 DedsecWidgetFactory<GimbalControlWidget> gimbalControlWidget(
-    "GimbalCtl", DedsecWindowWidget::commonOptions, "Gimbal Control");
+    "GimbalCtl", GimbalControlWidget::options, "Gimbal Control");

@@ -284,7 +284,10 @@ class ValueWidget : public Widget
                                                          : LV_TEXT_ALIGN_LEFT);
 
     // Set label text
-    char* labelTxt = getSourceString(field);
+    const std::string& customLabel =
+        widgetData->options[5].value.stringValue;
+    const char* labelTxt = customLabel.empty() ? getSourceString(field)
+                                               : customLabel.c_str();
     lv_label_set_text(label, labelTxt);
     lv_label_set_text(labelShadow, labelTxt);
 
@@ -311,6 +314,7 @@ const WidgetOption ValueWidget::options[] = {
     {STR_SHADOW, WidgetOption::Bool, false},
     {STR_ALIGN_LABEL, WidgetOption::Align, ALIGN_LEFT},
     {STR_ALIGN_VALUE, WidgetOption::Align, ALIGN_LEFT},
+    {"Label", WidgetOption::String, WIDGET_OPTION_VALUE_STRING("")},
     {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options,
