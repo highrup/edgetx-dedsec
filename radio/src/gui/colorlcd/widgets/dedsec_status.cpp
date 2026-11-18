@@ -392,7 +392,7 @@ class GpsLocatorWidget : public DedsecWindowWidget
     if (radarSize < 24) radarSize = 24;
 
     radar = lv_obj_create(lvobj);
-    lv_obj_set_pos(radar, PAD_SMALL, TITLE_HEIGHT + PAD_SMALL);
+    lv_obj_set_pos(radar, PAD_SMALL + 1, TITLE_HEIGHT + PAD_SMALL + 2);
     lv_obj_set_size(radar, radarSize, radarSize);
     lv_obj_set_style_bg_opa(radar, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_border_width(radar, 1, LV_PART_MAIN);
