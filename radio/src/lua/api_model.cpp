@@ -118,6 +118,12 @@ static int luaModelSetInfo(lua_State *L)
 #endif
   }
   storageDirty(EE_MODEL);
+#if defined(STORAGE_MODELSLIST)
+  // Lua model wizards can change the model name and bitmap immediately before
+  // returning to Manage Models. Keep its cached cell in sync so the template
+  // name is not shown (or later reused) while the model write is pending.
+  modelCellManager.updateCurrentModelCell();
+#endif
   return 0;
 }
 
