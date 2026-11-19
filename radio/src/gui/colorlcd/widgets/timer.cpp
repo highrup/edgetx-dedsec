@@ -64,7 +64,7 @@ class TimerWidget : public Widget
         {PAD_SMALL, 0, width() - TITLE_HEIGHT - PAD_SMALL, TITLE_HEIGHT},
         "TRACKED TIMERS_", COLOR_THEME_SECONDARY1_INDEX, FONT(XS));
     closeLabel = new StaticText(
-        titleBar, {width() - TITLE_HEIGHT, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
+        titleBar, {width() - TITLE_HEIGHT - 1, 0, TITLE_HEIGHT, TITLE_HEIGHT}, "X",
         COLOR_THEME_SECONDARY1_INDEX, FONT(XS) | CENTERED);
 
     lv_style_init(&style);
