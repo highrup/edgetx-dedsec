@@ -104,6 +104,8 @@ class ModelBitmapWidget : public Widget
 
     isLarge = rect.h >= LARGE_H && rect.w >= LARGE_W;
 
+    status->setText(widgetData->options[5].value.stringValue);
+
     // get font size from options[1]
     etx_font(label->getLvObj(),
              (FontIndex)widgetData->options[1].value.unsignedValue);
@@ -218,6 +220,8 @@ const WidgetOption ModelBitmapWidget::options[] = {
     {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
     {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
     {STR_USE_THEME_COLOR, WidgetOption::Bool, true},
+    {"Phrase", WidgetOption::String,
+     WIDGET_OPTION_VALUE_STRING("how about i whoop that ass?")},
     {nullptr, WidgetOption::Bool}};
 
 BaseWidgetFactory<ModelBitmapWidget> modelBitmapWidget(
