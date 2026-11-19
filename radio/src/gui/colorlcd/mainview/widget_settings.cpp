@@ -105,10 +105,12 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case WidgetOption::String:
-        new ModelStringEdit(line, rect_t{}, widgetData->getString(optIdx),
-                            [=](const char* s) {
-                              widgetData->setString(optIdx, s);
-                            });
+      {
+        auto edit = new ModelStringEdit(
+            line, rect_t{}, widgetData->getString(optIdx),
+            [=](const char* s) { widgetData->setString(optIdx, s); });
+        if (strcmp(opt->name, "Phrase") == 0) edit->setPreviewClipped();
+      }
         break;
 
       case WidgetOption::TextSize:

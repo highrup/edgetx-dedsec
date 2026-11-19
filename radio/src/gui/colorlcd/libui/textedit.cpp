@@ -150,7 +150,26 @@ void TextEdit::checkEvents()
   // TextButton adds/removes focused brackets. Reapply the text-edit label's
   // outside-left alignment after its width changes so the closing bracket is
   // not clipped by the edit field.
-  lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
+  updatePreviewLayout();
+}
+
+void TextEdit::setPreviewClipped(bool enabled)
+{
+  previewClipped = enabled;
+  updatePreviewLayout();
+}
+
+void TextEdit::updatePreviewLayout()
+{
+  if (previewClipped) {
+    lv_obj_set_width(label, width() - 2 * PAD_TINY);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_DOT);
+    lv_obj_align(label, LV_ALIGN_LEFT_MID, PAD_TINY, 0);
+  } else {
+    lv_obj_set_width(label, LV_SIZE_CONTENT);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
+    lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);
+  }
 }
 
 void TextEdit::update()

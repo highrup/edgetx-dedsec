@@ -35,6 +35,7 @@ class TextEdit : public TextButton
 
   void preview(bool edited, char* text, uint8_t length);
   void update();
+  void setPreviewClipped(bool enabled = true);
 
   void setExcludedCharacters(const char* chars) { excludedChars = chars; }
 
@@ -44,9 +45,11 @@ class TextEdit : public TextButton
   TextArea* edit = nullptr;
   char* text;
   uint8_t length;
+  bool previewClipped = false;
 
   void checkEvents() override;
   void openEdit();
+  void updatePreviewLayout();
 };
 
 class ModelTextEdit : public TextEdit
