@@ -355,8 +355,8 @@ class GpsLocatorWidget : public DedsecWindowWidget
     const std::string headingText = sourceValueText(heading);
     char text[160];
     snprintf(text, sizeof(text),
-             "%s\n  LAT %s\n  LON %s\n  SAT %s\n  DST %s\n  HDG %s",
-             fix ? "[ GPS FIX ]" : "  SCANNING  ", latText.c_str(),
+             "%s\n  LAT: %s\n  LON: %s\n  SAT: %s\n  DST: %s\n  HDG: %s",
+             fix ? "[ GPS FIX ]" : "  SCANNING...  ", latText.c_str(),
              lonText.c_str(), satText.c_str(), distText.c_str(),
              headingText.c_str());
     bodyLabel->setText(text);
@@ -420,7 +420,7 @@ class GpsLocatorWidget : public DedsecWindowWidget
     bodyLabel = new StaticText(
         this, {dataX, TITLE_HEIGHT + PAD_TINY, width() - dataX - PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
-        "  SCANNING\n  LAT --\n  LON --\n  SAT --\n  DST --\n  HDG --",
+        "  SCANNING...\n  LAT: --\n  LON: --\n  SAT: --\n  DST: --\n  HDG: --",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
   }
 
