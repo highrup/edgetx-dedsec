@@ -842,6 +842,9 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
+    if (recordLabel)
+      recordLabel->setText(TELEMETRY_STREAMING() ? "rec:" : "play >");
+
     // Preserve the GIF timing: five distinct frames, each held for 200 ms,
     // looping continuously with no duplicated frame or added pause.
     const uint8_t frameIndex = (get_tmr10ms() / 20) % 5;
@@ -902,6 +905,22 @@ class GimbalControlWidget : public DedsecWindowWidget
     }
     if (modeLabel)
       etx_txt_color_from_flags(modeLabel->getLvObj(), textColor);
+    if (recordBadge) {
+      lv_obj_set_style_bg_color(recordBadge->getLvObj(), lv_color_black(),
+                                LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(recordBadge->getLvObj(), LV_OPA_COVER,
+                              LV_PART_MAIN);
+    }
+    if (monitorBadge) {
+      lv_obj_set_style_bg_color(monitorBadge->getLvObj(), lv_color_black(),
+                                LV_PART_MAIN);
+      lv_obj_set_style_bg_opa(monitorBadge->getLvObj(), LV_OPA_COVER,
+                              LV_PART_MAIN);
+    }
+    if (recordLabel)
+      etx_txt_color_from_flags(recordLabel->getLvObj(), textColor);
+    if (monitorLabel)
+      etx_txt_color_from_flags(monitorLabel->getLvObj(), textColor);
     for (uint8_t i = 0; i < 2; ++i) {
       if (boxes[i])
         lv_obj_set_style_border_color(boxes[i], accent, LV_PART_MAIN);
@@ -920,6 +939,28 @@ class GimbalControlWidget : public DedsecWindowWidget
     pilotBackground = new StaticIcon(this, 1, 1, ICON_DRONE_PILOT_1,
                                      COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_move_background(pilotBackground->getLvObj());
+
+    // Small OSD readouts sit over the artwork at the upper corners. Their
+    // opaque black backing keeps both labels readable over every GIF frame.
+    const coord_t osdY = TITLE_HEIGHT + PAD_TINY;
+    const coord_t osdH = 14;
+    const coord_t recordW = 42;
+    const coord_t monitorW = 104;
+    recordBadge = new Window(this, {PAD_SMALL, osdY, recordW, osdH});
+    recordBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
+    lv_obj_set_style_border_width(recordBadge->getLvObj(), 0, LV_PART_MAIN);
+    recordLabel = new StaticText(recordBadge, {0, 0, recordW, osdH},
+                                 "play >", COLOR_THEME_PRIMARY2_INDEX,
+                                 FONT(XS));
+
+    monitorBadge = new Window(
+        this, {(coord_t)(width() - PAD_SMALL - monitorW), osdY,
+               monitorW, osdH});
+    monitorBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
+    lv_obj_set_style_border_width(monitorBadge->getLvObj(), 0, LV_PART_MAIN);
+    monitorLabel = new StaticText(
+        monitorBadge, {2, 0, monitorW - 4, osdH}, "monitor > analog",
+        COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | RIGHT);
 
     // One fixed-position mode badge occupies the visual center of the upper
     // half. Priority is the order of the source options: the most important
@@ -999,6 +1040,10 @@ class GimbalControlWidget : public DedsecWindowWidget
   StaticIcon* pilotBackground = nullptr;
   Window* modeBadge = nullptr;
   StaticText* modeLabel = nullptr;
+  Window* recordBadge = nullptr;
+  StaticText* recordLabel = nullptr;
+  Window* monitorBadge = nullptr;
+  StaticText* monitorLabel = nullptr;
   lv_obj_t* boxes[2] = {nullptr};
   lv_obj_t* crossLines[2][2] = {{nullptr}};
   lv_obj_t* markers[2] = {nullptr};
