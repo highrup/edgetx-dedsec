@@ -842,8 +842,13 @@ class GimbalControlWidget : public DedsecWindowWidget
   {
     if (!loaded || deleted() || !markers[0] || !markers[1]) return;
 
-    if (recordLabel)
-      recordLabel->setText(TELEMETRY_STREAMING() ? "rec:" : "play >");
+    if (recordBadge && recordLabel) {
+      const bool recording = TELEMETRY_STREAMING();
+      const coord_t recordWidth = recording ? 30 : 36;
+      recordLabel->setText(recording ? "rec:" : "play >");
+      lv_obj_set_width(recordBadge->getLvObj(), recordWidth);
+      lv_obj_set_width(recordLabel->getLvObj(), recordWidth);
+    }
 
     // Preserve the GIF timing: five distinct frames, each held for 200 ms,
     // looping continuously with no duplicated frame or added pause.
@@ -944,7 +949,7 @@ class GimbalControlWidget : public DedsecWindowWidget
     // opaque black backing keeps both labels readable over every GIF frame.
     const coord_t osdY = TITLE_HEIGHT + PAD_TINY;
     const coord_t osdH = 14;
-    const coord_t recordW = 42;
+    const coord_t recordW = 36;
     const coord_t monitorW = 78;
     recordBadge = new Window(this, {PAD_SMALL, osdY, recordW, osdH});
     recordBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
