@@ -416,7 +416,7 @@ class GpsLocatorWidget : public DedsecWindowWidget
     lv_obj_set_style_border_width(marker, 0, LV_PART_MAIN);
     lv_obj_clear_flag(marker, LV_OBJ_FLAG_CLICKABLE);
 
-    const coord_t dataX = PAD_SMALL * 2 + radarSize;
+    const coord_t dataX = PAD_SMALL * 2 + radarSize - 2;
     bodyLabel = new StaticText(
         this, {dataX, TITLE_HEIGHT + PAD_TINY, width() - dataX - PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
