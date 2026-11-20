@@ -945,7 +945,7 @@ class GimbalControlWidget : public DedsecWindowWidget
     const coord_t osdY = TITLE_HEIGHT + PAD_TINY;
     const coord_t osdH = 14;
     const coord_t recordW = 42;
-    const coord_t monitorW = 104;
+    const coord_t monitorW = 78;
     recordBadge = new Window(this, {PAD_SMALL, osdY, recordW, osdH});
     recordBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
     lv_obj_set_style_border_width(recordBadge->getLvObj(), 0, LV_PART_MAIN);
@@ -959,7 +959,7 @@ class GimbalControlWidget : public DedsecWindowWidget
     monitorBadge->setWindowFlag(NO_FOCUS | NO_CLICK);
     lv_obj_set_style_border_width(monitorBadge->getLvObj(), 0, LV_PART_MAIN);
     monitorLabel = new StaticText(
-        monitorBadge, {2, 0, monitorW - 4, osdH}, "monitor > analog",
+        monitorBadge, {2, 0, monitorW - 4, osdH}, "fpv > analog",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | RIGHT);
 
     // One fixed-position mode badge occupies the visual center of the upper
