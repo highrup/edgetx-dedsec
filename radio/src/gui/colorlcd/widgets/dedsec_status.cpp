@@ -293,7 +293,7 @@ class FlightLogWidget : public DedsecWindowWidget
     snprintf(text, sizeof(text),
              "SESSION: %02u:%02u\nLINK: %s\nREC: %s", minutes, seconds,
              linked ? "[ ONLINE ]" : "  OFFLINE  ",
-             recording ? "[ ACTIVE ]" : "  IDLE  ");
+             recording ? "[ ACTIVE ]" : "  STOPPED  ");
     bodyLabel->setText(text);
   }
 
@@ -315,7 +315,7 @@ class FlightLogWidget : public DedsecWindowWidget
     bodyLabel = new StaticText(
         this, {PAD_SMALL, TITLE_HEIGHT + PAD_TINY, width() - 2 * PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
-        "SESSION: 00:00\nLINK:   OFFLINE\nREC:  IDLE",
+        "SESSION: 00:00\nLINK:   OFFLINE\nREC:  STOPPED",
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
     flightIcon =
         new StaticIcon(this, width() - 51, height() - 56,
@@ -416,7 +416,7 @@ class GpsLocatorWidget : public DedsecWindowWidget
     lv_obj_set_style_border_width(marker, 0, LV_PART_MAIN);
     lv_obj_clear_flag(marker, LV_OBJ_FLAG_CLICKABLE);
 
-    const coord_t dataX = PAD_SMALL * 2 + radarSize - 2;
+    const coord_t dataX = PAD_SMALL * 2 + radarSize - 3;
     bodyLabel = new StaticText(
         this, {dataX, TITLE_HEIGHT + PAD_TINY, width() - dataX - PAD_SMALL,
                height() - TITLE_HEIGHT - PAD_TINY},
